@@ -1,34 +1,23 @@
-import { leaderboardData } from "../data/leaderboard.js";
+export function Leaderboard(teams) {
 
-export function Leaderboard() {
-  const sorted = leaderboardData.sort((a, b) => b.points - a.points);
+  const sorted = [...teams].sort((a, b) => b.points - a.points);
 
   return `
     <section class="leaderboard">
-      <h2>🏆 WorldCup Rankings</h2>
+      <h2>🏆 Leaderboard</h2>
 
       <table>
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Player</th>
-            <th>Points</th>
-            <th>Wins</th>
-            <th>Losses</th>
-          </tr>
-        </thead>
+        <tr>
+          <th>Team</th>
+          <th>Points</th>
+        </tr>
 
-        <tbody>
-          ${sorted.map((player, index) => `
-            <tr>
-              <td>${index + 1}</td>
-              <td>${player.username}</td>
-              <td>${player.points}</td>
-              <td>${player.wins}</td>
-              <td>${player.losses}</td>
-            </tr>
-          `).join("")}
-        </tbody>
+        ${sorted.map(t => `
+          <tr>
+            <td>${t.name}</td>
+            <td>${t.points}</td>
+          </tr>
+        `).join("")}
       </table>
     </section>
   `;
