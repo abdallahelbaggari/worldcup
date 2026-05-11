@@ -1,68 +1,1952 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>WorldCup</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="theme-color" content="#020810">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="WorldCup — The world's #1 football fan app on Pi Network">
+<title>WorldCup · Pi Network</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+/* ════════════════════════════════════════════════════════
+   WORLDCUP v11 · MAINNET · sandbox:false
+   World-class luxury sports design
+   Pi Network · Real payments · Real auth
+════════════════════════════════════════════════════════ */
 
-  <link rel="stylesheet" href="style.css" />
+/* ── TOKENS ─────────────────────────────────────────── */
+:root{
+  /* Core palette */
+  --ink:    #020810;
+  --ink2:   #050E1A;
+  --ink3:   #091525;
+  --ink4:   #0D1E33;
+  --ink5:   #122540;
+
+  /* Accents */
+  --lime:   #C8FF00;
+  --lime2:  #A0CC00;
+  --limedim:rgba(200,255,0,0.08);
+  --limeglo:rgba(200,255,0,0.15);
+  --gold:   #FFB800;
+  --gold2:  #CC9200;
+  --golddim:rgba(255,184,0,0.08);
+  --red:    #FF3B5C;
+  --reddim: rgba(255,59,92,0.08);
+  --blue:   #3B82F6;
+  --cyan:   #00D4FF;
+
+  /* Text */
+  --t1: #FFFFFF;
+  --t2: #A0AEC0;
+  --t3: #4A5568;
+  --t4: #2D3748;
+
+  /* Glass */
+  --glass:  rgba(255,255,255,0.03);
+  --glass2: rgba(255,255,255,0.06);
+  --glass3: rgba(255,255,255,0.09);
+  --bdr:    rgba(255,255,255,0.07);
+  --bdr2:   rgba(255,255,255,0.12);
+
+  /* Radius */
+  --r1: 6px;
+  --r2: 12px;
+  --r3: 18px;
+  --r4: 24px;
+  --pill: 99px;
+
+  /* Shadows */
+  --sh1: 0 2px 12px rgba(0,0,0,0.4);
+  --sh2: 0 8px 32px rgba(0,0,0,0.5);
+  --sh3: 0 20px 60px rgba(0,0,0,0.6);
+  --limesh: 0 0 20px rgba(200,255,0,0.15);
+  --goldsh: 0 0 20px rgba(255,184,0,0.15);
+}
+
+/* ── RESET ──────────────────────────────────────────── */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html{scroll-behavior:smooth;height:100%;}
+body{
+  background:var(--ink);
+  color:var(--t1);
+  font-family:'DM Sans',sans-serif;
+  min-height:100%;
+  overflow-x:hidden;
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+/* Atmospheric background */
+body::before{
+  content:'';
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 70% 40% at 15% 15%, rgba(200,255,0,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 30% at 85% 80%, rgba(255,184,0,0.03) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 50% 50%, rgba(0,212,255,0.02) 0%, transparent 70%);
+  pointer-events:none;z-index:0;
+}
+
+/* Fine grid texture */
+body::after{
+  content:'';
+  position:fixed;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+  background-size:60px 60px;
+  pointer-events:none;z-index:0;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:2px;}
+::-webkit-scrollbar-track{background:var(--ink2);}
+::-webkit-scrollbar-thumb{background:var(--lime2);border-radius:2px;}
+
+/* ── TOP STRIPE ─────────────────────────────────────── */
+.top-stripe{
+  position:fixed;top:0;left:0;right:0;height:3px;z-index:3000;
+  background:linear-gradient(90deg,var(--lime2),var(--lime),var(--gold),var(--lime),var(--lime2));
+  background-size:300% 100%;
+  animation:stripe 6s linear infinite;
+}
+@keyframes stripe{to{background-position:300% 0;}}
+
+/* ── LOADING SCREEN ─────────────────────────────────── */
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:var(--ink);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1rem;
+  transition:opacity 0.5s ease, visibility 0.5s;
+}
+#splash.hidden{opacity:0;visibility:hidden;pointer-events:none;}
+.splash-ball{font-size:4rem;animation:splashBounce 0.8s ease infinite alternate;}
+@keyframes splashBounce{from{transform:translateY(0);}to{transform:translateY(-16px);}}
+.splash-title{font-family:'Bebas Neue',sans-serif;font-size:3rem;letter-spacing:0.1em;color:var(--lime);}
+.splash-bar{width:200px;height:2px;background:var(--glass3);border-radius:2px;overflow:hidden;}
+.splash-fill{height:100%;background:linear-gradient(90deg,var(--lime2),var(--lime));border-radius:2px;animation:load 1.5s ease forwards;}
+@keyframes load{from{width:0;}to{width:100%;}}
+
+/* ── LOGIN SCREEN ───────────────────────────────────── */
+#ls{
+  position:fixed;inset:0;z-index:2000;
+  background:var(--ink);
+  display:flex;flex-direction:column;
+  overflow-y:auto;
+}
+
+.login-hero{
+  position:relative;
+  padding:5rem 1.5rem 3rem;
+  text-align:center;
+  flex-shrink:0;
+  overflow:hidden;
+}
+.login-hero::before{
+  content:'';
+  position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%, rgba(200,255,0,0.08) 0%, transparent 70%);
+}
+.login-eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  letter-spacing:0.3em;
+  color:var(--lime);
+  text-transform:uppercase;
+  margin-bottom:1rem;
+  position:relative;
+}
+.login-wordmark{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:4.5rem;
+  line-height:1;
+  letter-spacing:0.06em;
+  position:relative;
+  background:linear-gradient(135deg, #fff 30%, var(--lime) 70%, var(--gold) 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  margin-bottom:0.4rem;
+}
+.login-tagline{
+  font-size:0.85rem;
+  color:var(--t3);
+  letter-spacing:0.05em;
+  margin-bottom:2.5rem;
+  position:relative;
+}
+
+/* Feature pills */
+.login-pills{
+  display:flex;flex-wrap:wrap;gap:0.5rem;
+  justify-content:center;max-width:340px;margin:0 auto 2.5rem;
+  position:relative;
+}
+.pill{
+  font-size:0.7rem;font-weight:500;
+  color:var(--t2);
+  background:var(--glass2);
+  border:1px solid var(--bdr);
+  border-radius:var(--pill);
+  padding:0.3rem 0.75rem;
+  white-space:nowrap;
+}
+
+/* CTA section */
+.login-cta{
+  padding:0 1.5rem 3rem;
+  flex-shrink:0;
+}
+.btn-signin{
+  display:flex;align-items:center;justify-content:center;gap:0.6rem;
+  width:100%;max-width:360px;margin:0 auto 1rem;
+  background:var(--lime);
+  color:var(--ink);
+  border:none;border-radius:var(--r2);
+  padding:1rem 1.5rem;
+  font-family:'DM Sans',sans-serif;
+  font-size:0.9rem;font-weight:700;
+  letter-spacing:0.05em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:all 0.25s;
+  box-shadow:var(--limesh);
+  position:relative;overflow:hidden;
+}
+.btn-signin::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.15),transparent);
+}
+.btn-signin:hover{transform:translateY(-2px);box-shadow:0 0 40px rgba(200,255,0,0.3);}
+.btn-signin:active{transform:translateY(0);}
+.btn-signin:disabled{opacity:0.4;cursor:not-allowed;transform:none;}
+#lmsg{
+  text-align:center;font-size:0.75rem;color:var(--t3);
+  margin-bottom:0.5rem;min-height:1.1rem;
+}
+.login-legal{
+  text-align:center;font-size:0.58rem;color:var(--t4);
+  line-height:1.7;max-width:300px;margin:0 auto;
+}
+
+/* Language picker on login */
+.login-lang{
+  display:flex;gap:0.5rem;justify-content:center;
+  margin-bottom:1.5rem;
+}
+.lang-btn{
+  font-size:0.68rem;font-weight:600;
+  color:var(--t3);
+  background:var(--glass);
+  border:1px solid var(--bdr);
+  border-radius:var(--pill);
+  padding:0.3rem 0.7rem;
+  cursor:pointer;
+  transition:all 0.2s;
+  font-family:'DM Sans',sans-serif;
+  letter-spacing:0.03em;
+}
+.lang-btn.active{color:var(--lime);border-color:var(--lime);background:var(--limedim);}
+
+/* ── NEWS TICKER ────────────────────────────────────── */
+.ticker{
+  position:relative;z-index:10;
+  background:var(--ink2);
+  border-bottom:1px solid var(--bdr);
+  padding:0.5rem 0;
+  overflow:hidden;
+  flex-shrink:0;
+}
+.ticker-track{
+  display:flex;gap:4rem;white-space:nowrap;
+  animation:tickerMove 50s linear infinite;
+}
+@keyframes tickerMove{from{transform:translateX(100vw);}to{transform:translateX(-250%);}
+}
+.ticker-item{
+  font-family:'DM Mono',monospace;
+  font-size:0.65rem;
+  color:var(--t3);
+  letter-spacing:0.04em;
+  display:inline-flex;align-items:center;gap:0.4rem;
+}
+.ticker-score{
+  color:var(--lime);font-weight:500;
+  background:var(--limedim);
+  padding:0.1rem 0.4rem;border-radius:3px;
+}
+.ticker-live{color:var(--red);}
+
+/* ── HEADER ─────────────────────────────────────────── */
+#app-header{
+  position:sticky;top:3px;z-index:100;
+  background:rgba(2,8,16,0.95);
+  backdrop-filter:blur(20px);
+  -webkit-backdrop-filter:blur(20px);
+  border-bottom:1px solid var(--bdr);
+  padding:0 1rem;
+  height:56px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.header-left{display:flex;align-items:center;gap:0.75rem;}
+.header-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.6rem;letter-spacing:0.08em;
+  background:linear-gradient(135deg,var(--lime),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  line-height:1;
+}
+.header-badge{
+  background:var(--limedim);
+  border:1px solid rgba(200,255,0,0.2);
+  border-radius:var(--pill);
+  padding:0.15rem 0.55rem;
+  font-family:'DM Mono',monospace;
+  font-size:0.55rem;font-weight:500;
+  color:var(--lime);
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+}
+.header-right{display:flex;align-items:center;gap:0.6rem;}
+.header-user{
+  background:var(--glass2);
+  border:1px solid var(--bdr);
+  border-radius:var(--pill);
+  padding:0.22rem 0.8rem;
+  font-size:0.68rem;font-weight:500;
+  color:var(--lime);
+  max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.header-lang{
+  background:var(--glass);border:1px solid var(--bdr);
+  border-radius:var(--r1);color:var(--t2);
+  padding:0.2rem 0.4rem;font-size:0.65rem;outline:none;cursor:pointer;
+  font-family:'DM Sans',sans-serif;
+}
+.header-lang option{background:var(--ink3);}
+.notif-btn{
+  position:relative;cursor:pointer;
+  width:32px;height:32px;
+  display:flex;align-items:center;justify-content:center;
+  background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r1);
+  font-size:0.9rem;transition:all 0.2s;
+}
+.notif-btn:hover{background:var(--glass2);border-color:var(--bdr2);}
+.notif-dot{
+  position:absolute;top:3px;right:3px;
+  width:8px;height:8px;border-radius:50%;
+  background:var(--red);
+  border:2px solid var(--ink2);
+  display:none;
+}
+.notif-dot.show{display:block;}
+
+/* ── BOTTOM NAV ─────────────────────────────────────── */
+#bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;z-index:100;
+  background:rgba(2,8,16,0.97);
+  backdrop-filter:blur(20px);
+  border-top:1px solid var(--bdr);
+  display:flex;
+  padding-bottom:env(safe-area-inset-bottom, 0px);
+}
+.bnav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  padding:0.55rem 0.3rem 0.45rem;
+  cursor:pointer;border:none;background:none;
+  gap:0.22rem;transition:all 0.2s;
+  position:relative;
+}
+.bnav-item::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:0;height:2px;border-radius:0 0 2px 2px;
+  background:var(--lime);transition:width 0.2s;
+}
+.bnav-item.active::before{width:28px;}
+.bnav-icon{font-size:1.2rem;line-height:1;}
+.bnav-label{
+  font-size:0.55rem;font-weight:600;color:var(--t3);
+  letter-spacing:0.05em;text-transform:uppercase;
+  transition:color 0.2s;
+}
+.bnav-item.active .bnav-label{color:var(--lime);}
+.bnav-badge{
+  position:absolute;top:0.35rem;right:50%;
+  margin-right:-20px;
+  background:var(--red);color:#fff;
+  border-radius:var(--pill);padding:0 0.3rem;
+  font-size:0.48rem;font-weight:700;
+  min-width:14px;text-align:center;
+  display:none;
+}
+.bnav-badge.show{display:block;}
+
+/* ── MAIN CONTENT ───────────────────────────────────── */
+#main-content{
+  position:relative;z-index:10;
+  max-width:480px;margin:0 auto;
+  padding:1rem 1rem 5.5rem;
+  min-height:calc(100vh - 56px - 3px);
+}
+.screen{display:none;}
+.screen.active{display:block;animation:screenIn 0.3s ease;}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── SECTION HEADERS ────────────────────────────────── */
+.section-head{
+  display:flex;align-items:center;justify-content:space-between;
+  margin:0 0 1rem;
+}
+.section-title{
+  font-size:0.6rem;font-weight:600;
+  letter-spacing:0.22em;color:var(--t3);
+  text-transform:uppercase;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.section-title::before{
+  content:'';width:3px;height:12px;
+  background:var(--lime);border-radius:2px;
+}
+.section-action{
+  font-size:0.65rem;font-weight:600;color:var(--lime);
+  cursor:pointer;letter-spacing:0.03em;
+}
+
+/* ── STATUS BAR ─────────────────────────────────────── */
+.status-bar{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--limedim);
+  border:1px solid rgba(200,255,0,0.15);
+  border-radius:var(--r2);
+  padding:0.5rem 0.85rem;
+  margin-bottom:1rem;
+}
+.status-text{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--lime);}
+.status-time{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--t3);}
+
+/* ── MATCH CARDS ────────────────────────────────────── */
+.match-card{
+  background:var(--ink2);
+  border:1px solid var(--bdr);
+  border-radius:var(--r3);
+  padding:1rem 1.1rem;
+  margin-bottom:0.65rem;
+  cursor:pointer;
+  transition:all 0.22s;
+  position:relative;
+  overflow:hidden;
+}
+.match-card::after{
+  content:'';position:absolute;
+  left:0;top:0;bottom:0;width:3px;
+  background:transparent;
+  transition:background 0.2s;
+  border-radius:3px 0 0 3px;
+}
+.match-card:hover{border-color:var(--bdr2);background:var(--ink3);transform:translateX(2px);}
+.match-card:hover::after,.match-card.today::after{background:var(--lime);}
+.match-card.live::after{background:var(--red);}
+.match-card.live{border-color:rgba(255,59,92,0.2);background:rgba(255,59,92,0.03);}
+.match-card.result::after{background:var(--gold);}
+
+.match-meta{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:0.7rem;
+}
+.match-group{
+  font-family:'DM Mono',monospace;
+  font-size:0.6rem;color:var(--t3);letter-spacing:0.05em;
+}
+.match-time{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--t2);}
+.match-time.today{color:var(--lime);}
+.live-badge{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  background:var(--reddim);border:1px solid rgba(255,59,92,0.2);
+  border-radius:var(--pill);padding:0.12rem 0.5rem;
+  font-size:0.55rem;font-weight:700;color:var(--red);letter-spacing:0.08em;
+}
+.live-dot{
+  width:5px;height:5px;border-radius:50%;
+  background:var(--red);animation:livePulse 1s infinite;
+}
+@keyframes livePulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+
+.match-teams{
+  display:grid;grid-template-columns:1fr auto 1fr;
+  align-items:center;gap:0.8rem;
+}
+.team-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1rem;letter-spacing:0.04em;
+  display:flex;align-items:center;gap:0.35rem;
+}
+.team-name.home{justify-content:flex-end;text-align:right;}
+.team-name.away{justify-content:flex-start;}
+.team-flag{font-size:1rem;}
+.match-score{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:1.5rem;color:var(--gold);
+  letter-spacing:0.08em;text-align:center;
+  line-height:1;
+}
+.match-vs{
+  font-family:'DM Mono',monospace;
+  font-size:0.7rem;color:var(--t4);
+  text-align:center;letter-spacing:0.05em;
+}
+.match-venue{
+  font-size:0.6rem;color:var(--t3);
+  text-align:center;margin-top:0.5rem;
+  display:flex;align-items:center;justify-content:center;gap:0.3rem;
+}
+.match-tap{
+  font-size:0.58rem;color:var(--t3);
+  text-align:right;margin-top:0.4rem;
+  opacity:0.6;
+}
+
+/* ── STAT TILES ─────────────────────────────────────── */
+.tile-row{display:grid;grid-template-columns:repeat(3,1fr);gap:0.6rem;margin-bottom:1rem;}
+.tile{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:0.85rem 0.75rem;text-align:center;
+  transition:all 0.2s;
+}
+.tile:hover{border-color:var(--bdr2);}
+.tile-num{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:2rem;color:var(--lime);
+  letter-spacing:0.04em;line-height:1;
+  margin-bottom:0.2rem;
+}
+.tile-label{font-size:0.58rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.12em;}
+
+/* ── GROUPS GRID ────────────────────────────────────── */
+.groups-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.65rem;margin-bottom:0.8rem;}
+.group-card{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:0.9rem;
+  transition:all 0.2s;
+}
+.group-card:hover{border-color:rgba(200,255,0,0.15);}
+.group-name{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.85rem;color:var(--lime);letter-spacing:0.12em;
+  margin-bottom:0.5rem;padding-bottom:0.4rem;
+  border-bottom:1px solid var(--bdr);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.group-tag{font-size:0.52rem;color:var(--t3);font-family:'DM Mono',monospace;}
+.group-team{
+  font-size:0.73rem;color:var(--t1);
+  padding:0.2rem 0;
+  display:flex;align-items:center;gap:0.35rem;
+  font-weight:400;
+}
+
+/* ── POINTS BAR ─────────────────────────────────────── */
+.pts-card{
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  border:1px solid rgba(200,255,0,0.15);
+  border-radius:var(--r3);
+  padding:1rem 1.1rem;
+  margin-bottom:1rem;
+  display:flex;justify-content:space-between;align-items:center;
+}
+.pts-left{}
+.pts-label{font-size:0.6rem;font-weight:600;color:var(--t3);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.2rem;}
+.pts-value{font-family:'Bebas Neue',sans-serif;font-size:2rem;color:var(--lime);letter-spacing:0.05em;line-height:1;}
+.pts-right{text-align:right;}
+.pts-streak{font-size:0.65rem;color:var(--gold);font-weight:500;}
+.pts-level{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--t3);margin-top:0.2rem;}
+
+/* ── PREDICTION CARDS ───────────────────────────────── */
+.pred-card{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r3);padding:1rem;
+  margin-bottom:0.7rem;transition:border-color 0.2s;
+}
+.pred-card:hover{border-color:var(--bdr2);}
+.pred-match{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.95rem;letter-spacing:0.04em;
+  text-align:center;margin-bottom:0.2rem;
+}
+.pred-info{font-size:0.6rem;color:var(--t3);text-align:center;margin-bottom:0.75rem;}
+.pred-btns{display:grid;grid-template-columns:1fr auto 1fr;gap:0.5rem;align-items:center;}
+.pred-btn{
+  background:var(--glass);border:1px solid var(--bdr);
+  border-radius:var(--r2);
+  color:var(--t1);
+  padding:0.65rem 0.3rem;
+  font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:600;
+  cursor:pointer;transition:all 0.18s;text-align:center;
+  line-height:1.3;
+}
+.pred-btn:hover{background:var(--glass2);border-color:var(--bdr2);}
+.pred-btn.draw-btn{
+  background:transparent;border-color:rgba(255,184,0,0.2);
+  font-size:0.62rem;color:var(--t2);
+}
+.pred-btn.picked{background:var(--lime);border-color:var(--lime);color:var(--ink);font-weight:700;}
+.pred-btn.draw-btn.picked{background:var(--gold);border-color:var(--gold);color:var(--ink);}
+.pred-hint{font-size:0.58rem;color:var(--t3);text-align:center;margin-top:0.5rem;}
+
+/* ── LEADERBOARD ────────────────────────────────────── */
+.lb-item{
+  display:flex;align-items:center;gap:0.75rem;
+  padding:0.7rem 0.9rem;
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);margin-bottom:0.4rem;
+  cursor:pointer;transition:all 0.2s;
+}
+.lb-item:hover{border-color:var(--bdr2);background:var(--ink3);}
+.lb-item.me{border-color:rgba(200,255,0,0.2);background:var(--limedim);}
+.lb-item.podium{border-color:rgba(255,184,0,0.15);}
+.lb-rank{
+  font-family:'Bebas Neue',sans-serif;font-size:1.1rem;
+  color:var(--t3);min-width:24px;text-align:center;
+}
+.lb-name{flex:1;font-weight:600;font-size:0.82rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb-pts{font-family:'DM Mono',monospace;font-size:0.78rem;color:var(--lime);font-weight:500;}
+.lb-badge{font-size:0.6rem;font-weight:700;letter-spacing:0.07em;text-transform:uppercase;padding:0.1rem 0.4rem;border-radius:3px;margin-left:0.4rem;}
+.lb-you{background:var(--limedim);color:var(--lime);border:1px solid rgba(200,255,0,0.2);}
+.lb-prem{background:var(--golddim);color:var(--gold);border:1px solid rgba(255,184,0,0.2);}
+
+/* ── STANDINGS TABLE ────────────────────────────────── */
+.standings-group{margin-bottom:1rem;}
+.standings-name{
+  font-family:'Bebas Neue',sans-serif;font-size:0.85rem;
+  color:var(--lime);letter-spacing:0.12em;
+  margin-bottom:0.4rem;
+}
+.standings-table{width:100%;border-collapse:collapse;font-size:0.72rem;}
+.standings-table th{
+  font-family:'DM Mono',monospace;font-size:0.55rem;letter-spacing:0.15em;
+  color:var(--t3);text-transform:uppercase;
+  padding:0.3rem 0.4rem;text-align:left;
+  border-bottom:1px solid var(--bdr);
+}
+.standings-table td{padding:0.42rem 0.4rem;border-bottom:1px solid rgba(255,255,255,0.02);}
+.standings-table tr:hover td{background:var(--glass);}
+.qualify-dot{display:inline-block;width:5px;height:5px;border-radius:50%;background:var(--lime);margin-right:0.3rem;vertical-align:middle;}
+
+/* ── FAN ZONE ───────────────────────────────────────── */
+.comment-input{
+  width:100%;background:var(--ink2);
+  border:1px solid var(--bdr);border-radius:var(--r2);
+  color:var(--t1);padding:0.75rem;
+  font-family:'DM Sans',sans-serif;font-size:0.82rem;
+  resize:none;outline:none;height:72px;
+  transition:border-color 0.2s;margin-bottom:0.5rem;
+}
+.comment-input:focus{border-color:rgba(200,255,0,0.3);}
+.comment-input::placeholder{color:var(--t3);}
+.comment-card{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:0.7rem 0.85rem;
+  margin-bottom:0.4rem;transition:border-color 0.2s;
+}
+.comment-card:hover{border-color:var(--bdr2);}
+.comment-user{font-size:0.62rem;font-weight:700;color:var(--lime);margin-bottom:0.1rem;}
+.comment-text{font-size:0.8rem;line-height:1.55;color:var(--t1);}
+.comment-time{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--t3);margin-top:0.2rem;}
+
+/* ── UTILITIES SCREEN ───────────────────────────────── */
+.util-screen{display:none;}
+.util-screen.active{display:block;animation:screenIn 0.3s ease;}
+
+/* Tools grid — 2 cols, clean cards */
+.tools-section{margin-bottom:1.5rem;}
+.tools-section-title{
+  font-size:0.58rem;font-weight:700;letter-spacing:0.2em;color:var(--t3);
+  text-transform:uppercase;margin-bottom:0.75rem;
+  display:flex;align-items:center;gap:0.5rem;
+}
+.tools-section-title::after{content:'';flex:1;height:1px;background:var(--bdr);}
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;}
+.tool-card{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:1rem 0.9rem;
+  cursor:pointer;transition:all 0.22s;
+  position:relative;overflow:hidden;
+}
+.tool-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at 50% 0%,rgba(200,255,0,0.04),transparent 70%);
+  opacity:0;transition:opacity 0.22s;
+}
+.tool-card:hover{border-color:rgba(200,255,0,0.2);background:var(--ink3);transform:translateY(-1px);box-shadow:var(--sh1);}
+.tool-card:hover::before{opacity:1;}
+.tool-card:active{transform:translateY(0);}
+.tool-card.gold-card{border-color:rgba(255,184,0,0.15);}
+.tool-card.gold-card:hover{border-color:rgba(255,184,0,0.25);}
+.tool-card.gold-card::before{background:radial-gradient(circle at 50% 0%,rgba(255,184,0,0.04),transparent 70%);}
+
+.tool-icon{font-size:1.6rem;margin-bottom:0.5rem;display:block;}
+.tool-name{font-weight:700;font-size:0.78rem;color:var(--t1);margin-bottom:0.2rem;line-height:1.2;}
+.tool-desc{font-size:0.62rem;color:var(--t3);line-height:1.4;}
+.tool-tag{
+  position:absolute;top:0.6rem;right:0.6rem;
+  font-family:'DM Mono',monospace;
+  font-size:0.5rem;font-weight:500;letter-spacing:0.08em;
+  padding:0.12rem 0.35rem;border-radius:3px;
+  text-transform:uppercase;
+}
+.tag-new{background:var(--limedim);color:var(--lime);border:1px solid rgba(200,255,0,0.2);}
+.tag-hot{background:var(--golddim);color:var(--gold);border:1px solid rgba(255,184,0,0.2);}
+
+/* ── TOOL INNER PAGE ────────────────────────────────── */
+.tool-page{
+  display:none;
+  animation:screenIn 0.3s ease;
+}
+.tool-page.active{display:block;}
+.tool-header{
+  display:flex;align-items:center;gap:0.75rem;
+  padding-bottom:1rem;margin-bottom:1rem;
+  border-bottom:1px solid var(--bdr);
+}
+.back-btn{
+  width:36px;height:36px;border-radius:var(--r1);
+  background:var(--glass);border:1px solid var(--bdr);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;font-size:1rem;flex-shrink:0;
+  transition:all 0.2s;color:var(--t1);
+}
+.back-btn:hover{background:var(--glass2);border-color:var(--bdr2);}
+.tool-page-title{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;letter-spacing:0.06em;color:var(--t1);}
+
+/* Tool form elements */
+.form-group{margin-bottom:0.75rem;}
+.form-label{font-size:0.62rem;font-weight:600;color:var(--t3);letter-spacing:0.06em;text-transform:uppercase;display:block;margin-bottom:0.3rem;}
+.form-input{
+  width:100%;background:var(--ink3);border:1px solid var(--bdr);border-radius:var(--r1);
+  color:var(--t1);padding:0.6rem 0.8rem;
+  font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;
+  transition:border-color 0.2s;
+}
+.form-input:focus{border-color:rgba(200,255,0,0.3);}
+.form-input::placeholder{color:var(--t3);}
+.form-input option{background:var(--ink3);}
+.form-textarea{resize:none;height:88px;line-height:1.5;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;}
+.result-box{
+  background:var(--limedim);border:1px solid rgba(200,255,0,0.18);
+  border-radius:var(--r1);padding:0.65rem 0.85rem;
+  font-family:'DM Mono',monospace;font-size:0.82rem;
+  color:var(--lime);margin-top:0.5rem;
+  min-height:40px;word-break:break-all;
+  line-height:1.5;
+}
+.tool-card-inner{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:1rem;margin-bottom:0.75rem;
+}
+.tool-card-title{
+  font-weight:700;font-size:0.75rem;color:var(--t2);
+  letter-spacing:0.06em;text-transform:uppercase;
+  margin-bottom:0.75rem;
+}
+
+/* Quick value buttons */
+.quick-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0.4rem;margin-top:0.5rem;}
+
+/* ── INFO BOX ───────────────────────────────────────── */
+.info-box{
+  background:var(--limedim);border:1px solid rgba(200,255,0,0.14);
+  border-radius:var(--r2);padding:0.75rem 0.9rem;
+  font-size:0.72rem;color:var(--t2);line-height:1.6;
+  margin-bottom:1rem;
+}
+
+/* ── QR SYSTEM ──────────────────────────────────────── */
+.qr-container{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r3);padding:1.2rem;
+  text-align:center;margin-bottom:0.75rem;
+}
+.qr-wrap{
+  background:#fff;border-radius:var(--r2);
+  display:inline-block;padding:0.6rem;
+  margin:0.75rem auto;
+}
+.qr-id{
+  font-family:'DM Mono',monospace;font-size:0.62rem;
+  color:var(--t3);letter-spacing:0.04em;
+  word-break:break-all;line-height:1.6;
+}
+.qr-timer{
+  font-family:'DM Mono',monospace;font-size:1rem;
+  letter-spacing:0.04em;margin-top:0.4rem;font-weight:500;
+}
+.qr-timer.valid{color:var(--lime);}
+.qr-timer.expired{color:var(--red);}
+
+/* Ticket card */
+.ticket-card{
+  background:linear-gradient(135deg,rgba(200,255,0,0.04),rgba(0,0,0,0));
+  border:1px solid rgba(200,255,0,0.15);
+  border-radius:var(--r3);padding:1.1rem;
+  margin-bottom:0.75rem;position:relative;overflow:hidden;
+}
+.ticket-card::after{
+  content:'🎟️';position:absolute;
+  right:1rem;top:50%;transform:translateY(-50%);
+  font-size:2rem;opacity:0.1;
+}
+.ticket-hdr{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:0.85rem;letter-spacing:0.12em;
+  color:var(--lime);margin-bottom:0.5rem;
+}
+.ticket-info{font-size:0.7rem;color:var(--t2);line-height:1.8;}
+.ticket-id{
+  font-family:'DM Mono',monospace;font-size:0.62rem;
+  color:var(--t3);margin-top:0.5rem;
+  background:var(--glass);border-radius:var(--r1);
+  padding:0.25rem 0.5rem;display:inline-block;
+}
+
+/* Scan input */
+.scan-input{
+  width:100%;background:var(--ink3);border:1px solid var(--bdr);
+  border-radius:var(--r1);color:var(--t1);
+  padding:0.65rem 0.85rem;font-family:'DM Mono',monospace;font-size:0.78rem;
+  outline:none;margin-bottom:0.5rem;
+}
+.scan-input:focus{border-color:rgba(200,255,0,0.3);}
+.scan-input::placeholder{color:var(--t3);}
+
+/* Verify result */
+.verify-ok{
+  background:rgba(200,255,0,0.06);border:1px solid rgba(200,255,0,0.2);
+  border-radius:var(--r1);padding:0.7rem 0.9rem;
+  font-size:0.72rem;color:var(--lime);line-height:1.6;margin-top:0.5rem;
+}
+.verify-fail{
+  background:rgba(255,59,92,0.06);border:1px solid rgba(255,59,92,0.2);
+  border-radius:var(--r1);padding:0.7rem 0.9rem;
+  font-size:0.72rem;color:var(--red);line-height:1.6;margin-top:0.5rem;
+}
+
+/* ── FAN ID CARD ────────────────────────────────────── */
+.fan-id-card{
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  border:1px solid var(--bdr);border-radius:var(--r3);
+  padding:1.4rem;margin-bottom:0.75rem;
+  position:relative;overflow:hidden;
+}
+.fan-id-card::before{
+  content:'';position:absolute;
+  top:-40px;right:-40px;width:100px;height:100px;
+  border-radius:50%;
+  background:radial-gradient(circle,rgba(200,255,0,0.07),transparent 70%);
+}
+.fan-avatar{
+  width:52px;height:52px;border-radius:50%;
+  background:linear-gradient(135deg,var(--lime2),var(--lime));
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.4rem;margin-bottom:0.75rem;
+}
+.fan-name{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:0.08em;color:var(--t1);}
+.fan-id-str{font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--t3);margin-top:0.15rem;}
+.fan-badges{display:flex;gap:0.4rem;flex-wrap:wrap;margin-top:0.65rem;}
+.fan-badge{
+  font-family:'DM Mono',monospace;font-size:0.55rem;font-weight:500;
+  letter-spacing:0.07em;text-transform:uppercase;
+  padding:0.18rem 0.5rem;border-radius:var(--pill);
+}
+.fb-main{background:var(--limedim);color:var(--lime);border:1px solid rgba(200,255,0,0.2);}
+.fb-prem{background:var(--golddim);color:var(--gold);border:1px solid rgba(255,184,0,0.2);}
+.fb-lvl{background:rgba(0,212,255,0.06);color:var(--cyan);border:1px solid rgba(0,212,255,0.15);}
+.fan-stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-top:1rem;}
+.fan-stat{text-align:center;}
+.fan-stat-num{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--lime);letter-spacing:0.04em;line-height:1;}
+.fan-stat-label{font-size:0.55rem;font-weight:600;color:var(--t3);text-transform:uppercase;letter-spacing:0.1em;margin-top:0.1rem;}
+
+/* ── PROFILE SCREEN ─────────────────────────────────── */
+.profile-hero{
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  border:1px solid var(--bdr);border-radius:var(--r3);
+  padding:1.4rem;text-align:center;margin-bottom:0.75rem;
+  position:relative;overflow:hidden;
+}
+.profile-hero::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(200,255,0,0.05),transparent);
+}
+.profile-av{font-size:2.8rem;margin-bottom:0.5rem;position:relative;}
+.profile-name{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;letter-spacing:0.1em;position:relative;}
+.profile-role{font-size:0.62rem;color:var(--t3);letter-spacing:0.12em;text-transform:uppercase;margin-top:0.15rem;position:relative;}
+.profile-level{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  margin-top:0.6rem;position:relative;
+  background:var(--limedim);border:1px solid rgba(200,255,0,0.18);
+  border-radius:var(--pill);padding:0.2rem 0.7rem;
+  font-size:0.68rem;color:var(--lime);font-weight:500;
+}
+.profile-streak{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  margin-top:0.4rem;position:relative;
+  background:var(--golddim);border:1px solid rgba(255,184,0,0.18);
+  border-radius:var(--pill);padding:0.2rem 0.7rem;
+  font-size:0.68rem;color:var(--gold);font-weight:500;
+}
+
+/* ── ANALYTICS ──────────────────────────────────────── */
+.analytics-card{
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:1rem;margin-bottom:0.65rem;
+}
+.analytics-title{font-weight:700;font-size:0.72rem;color:var(--t2);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:0.8rem;}
+.stat-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:0.35rem 0;border-bottom:1px solid rgba(255,255,255,0.03);
+}
+.stat-row:last-child{border-bottom:none;}
+.stat-key{font-size:0.7rem;color:var(--t3);}
+.stat-val{font-family:'DM Mono',monospace;font-size:0.8rem;color:var(--lime);font-weight:500;}
+.progress-wrap{margin:0.5rem 0;}
+.progress-head{display:flex;justify-content:space-between;font-size:0.62rem;color:var(--t3);margin-bottom:0.25rem;}
+.progress-track{background:var(--glass3);border-radius:var(--pill);height:6px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:var(--pill);background:linear-gradient(90deg,var(--lime2),var(--lime));transition:width 0.8s cubic-bezier(0.34,1.56,0.64,1);}
+.progress-fill.gold{background:linear-gradient(90deg,var(--gold2),var(--gold));}
+.chart-wrap{display:flex;align-items:flex-end;gap:0.25rem;height:64px;padding-top:0.5rem;}
+.chart-col{flex:1;border-radius:3px 3px 0 0;background:linear-gradient(180deg,var(--lime),var(--lime2));min-height:4px;position:relative;}
+.chart-col::after{
+  content:attr(data-day);
+  position:absolute;bottom:-1.3rem;left:50%;transform:translateX(-50%);
+  font-family:'DM Mono',monospace;font-size:0.48rem;color:var(--t3);white-space:nowrap;
+}
+
+/* ── NOTIFICATIONS ──────────────────────────────────── */
+.notif-card{
+  display:flex;align-items:flex-start;gap:0.7rem;
+  padding:0.75rem 0.85rem;
+  background:var(--ink2);border:1px solid var(--bdr);
+  border-radius:var(--r2);margin-bottom:0.4rem;
+  cursor:pointer;transition:all 0.2s;position:relative;
+}
+.notif-card:hover{background:var(--ink3);border-color:var(--bdr2);}
+.notif-card.unread{border-color:rgba(200,255,0,0.15);background:var(--limedim);}
+.notif-card.unread::before{
+  content:'';position:absolute;left:0;top:0;bottom:0;width:3px;
+  background:var(--lime);border-radius:3px 0 0 3px;
+}
+.notif-icon{font-size:1.1rem;flex-shrink:0;margin-top:0.1rem;}
+.notif-body{flex:1;}
+.notif-title{font-weight:700;font-size:0.75rem;color:var(--t1);margin-bottom:0.08rem;}
+.notif-text{font-size:0.67rem;color:var(--t2);line-height:1.45;}
+.notif-time{font-family:'DM Mono',monospace;font-size:0.55rem;color:var(--t3);white-space:nowrap;flex-shrink:0;}
+
+/* ── WALLET PROFILE ─────────────────────────────────── */
+.wallet-card{
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  border:1px solid rgba(200,255,0,0.14);
+  border-radius:var(--r3);padding:1.2rem;margin-bottom:0.75rem;
+}
+.wallet-top{display:flex;align-items:center;gap:0.85rem;margin-bottom:0.9rem;}
+.wallet-av{
+  width:48px;height:48px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--lime2),var(--lime));
+  display:flex;align-items:center;justify-content:center;font-size:1.3rem;
+}
+.wallet-name{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:0.07em;color:var(--lime);}
+.wallet-uid{font-family:'DM Mono',monospace;font-size:0.58rem;color:var(--t3);margin-top:0.1rem;}
+.wallet-status{
+  display:inline-flex;align-items:center;gap:0.3rem;
+  font-size:0.6rem;font-weight:500;color:var(--lime);margin-top:0.18rem;
+}
+.wallet-live-dot{width:5px;height:5px;border-radius:50%;background:var(--lime);animation:livePulse 2s infinite;}
+
+/* ── PREMIUM CARD ───────────────────────────────────── */
+.premium-card{
+  background:linear-gradient(135deg,rgba(255,184,0,0.06),rgba(255,184,0,0.02));
+  border:1px solid rgba(255,184,0,0.18);
+  border-radius:var(--r3);padding:1.2rem;margin-bottom:0.75rem;
+}
+.premium-title{font-family:'Bebas Neue',sans-serif;font-size:1.25rem;letter-spacing:0.1em;color:var(--gold);margin-bottom:0.6rem;}
+.premium-perks{list-style:none;margin-bottom:1rem;}
+.premium-perks li{font-size:0.72rem;color:var(--t2);padding:0.18rem 0;display:flex;align-items:center;gap:0.4rem;}
+.premium-perks li::before{content:'✓';color:var(--lime);font-weight:700;font-size:0.7rem;}
+
+/* ── DAILY REWARD ───────────────────────────────────── */
+.reward-card{
+  background:linear-gradient(135deg,rgba(200,255,0,0.04),rgba(255,184,0,0.02));
+  border:1px solid rgba(200,255,0,0.12);
+  border-radius:var(--r3);padding:1.1rem;text-align:center;margin-bottom:0.75rem;
+}
+.reward-icon{font-size:2rem;margin-bottom:0.3rem;}
+.reward-title{font-family:'Bebas Neue',sans-serif;font-size:1.15rem;letter-spacing:0.1em;color:var(--gold);}
+.reward-desc{font-size:0.67rem;color:var(--t3);margin:0.2rem 0 0.85rem;line-height:1.55;}
+
+/* ── TX HISTORY ─────────────────────────────────────── */
+.tx-item{
+  display:flex;justify-content:space-between;align-items:flex-start;
+  padding:0.55rem 0.75rem;border-radius:var(--r1);
+  background:var(--ink2);border:1px solid var(--bdr);margin-bottom:0.3rem;
+}
+.tx-text{font-size:0.72rem;flex:1;color:var(--t1);}
+.tx-date{font-family:'DM Mono',monospace;font-size:0.56rem;color:var(--t3);margin-left:0.4rem;flex-shrink:0;white-space:nowrap;}
+
+/* ── ROTATING AD ────────────────────────────────────── */
+.ad-bar{
+  background:var(--glass);border:1px solid var(--bdr);
+  border-radius:var(--r1);padding:0.6rem 1rem;
+  text-align:center;font-size:0.67rem;font-weight:500;color:var(--t3);
+  margin-bottom:0.75rem;transition:opacity 0.5s;
+  font-family:'DM Mono',monospace;letter-spacing:0.04em;
+}
+
+/* ── MATCH DETAIL OVERLAY ───────────────────────────── */
+#match-overlay{
+  display:none;position:fixed;inset:0;z-index:500;
+  background:rgba(2,8,16,0.97);
+  overflow-y:auto;
+  padding:1rem;
+  padding-bottom:5.5rem;
+}
+#match-overlay.open{display:block;animation:screenIn 0.3s ease;}
+.overlay-close{
+  display:flex;justify-content:space-between;align-items:center;
+  margin-bottom:1rem;
+}
+.overlay-close-btn{
+  background:var(--glass);border:1px solid var(--bdr);border-radius:var(--r1);
+  color:var(--t2);padding:0.42rem 0.85rem;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:0.73rem;font-weight:500;
+  transition:all 0.2s;
+}
+.overlay-close-btn:hover{background:var(--glass2);border-color:var(--bdr2);}
+.match-detail-header{
+  background:linear-gradient(135deg,var(--ink2),var(--ink3));
+  border:1px solid var(--bdr);border-radius:var(--r3);
+  padding:1.3rem;text-align:center;margin-bottom:0.75rem;
+}
+.md-teams-large{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:0.06em;margin-bottom:0.25rem;}
+.md-meta-line{font-family:'DM Mono',monospace;font-size:0.62rem;color:var(--t3);}
+.md-score-large{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--gold);letter-spacing:0.1em;margin-top:0.5rem;}
+.odds-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:0.6rem;align-items:center;}
+.odds-pct{font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--gold);text-align:center;letter-spacing:0.05em;}
+.odds-label{font-size:0.58rem;color:var(--t3);text-align:center;margin-top:0.15rem;}
+.odds-bar-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.25rem;margin-top:0.5rem;}
+.odds-seg{height:5px;border-radius:3px;}
+.odds-seg.h{background:var(--lime);}
+.odds-seg.d{background:var(--gold);}
+.odds-seg.a{background:var(--blue);}
+.vote-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-top:0.5rem;}
+.vote-btn{
+  background:var(--glass);border:1px solid var(--bdr);
+  border-radius:var(--r2);padding:0.6rem 0.3rem;
+  font-family:'DM Sans',sans-serif;font-size:0.7rem;font-weight:600;
+  cursor:pointer;color:var(--t1);transition:all 0.2s;text-align:center;line-height:1.3;
+}
+.vote-btn:hover{background:var(--glass2);border-color:var(--bdr2);}
+.vote-btn.voted{background:var(--limedim);border-color:rgba(200,255,0,0.25);color:var(--lime);}
+.h2h-row{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--t2);padding:0.28rem 0;border-bottom:1px solid var(--bdr);}
+
+/* ── BUTTONS ────────────────────────────────────────── */
+.btn{
+  display:block;width:100%;
+  background:var(--lime);color:var(--ink);
+  border:none;border-radius:var(--r2);
+  padding:0.75rem;
+  font-family:'DM Sans',sans-serif;font-size:0.84rem;font-weight:700;
+  letter-spacing:0.04em;text-transform:uppercase;
+  cursor:pointer;transition:all 0.25s;margin-bottom:0.45rem;
+  position:relative;overflow:hidden;
+}
+.btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(255,255,255,0.12),transparent);}
+.btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(200,255,0,0.25);}
+.btn:active{transform:translateY(0);box-shadow:none;}
+.btn:disabled{opacity:0.38;cursor:not-allowed;transform:none;box-shadow:none;}
+.btn-gold{background:var(--gold);color:var(--ink);}
+.btn-gold:hover{box-shadow:0 6px 24px rgba(255,184,0,0.25);}
+.btn-ghost{background:var(--glass);border:1px solid var(--bdr);color:var(--t2);}
+.btn-ghost:hover{background:var(--glass2);border-color:var(--bdr2);color:var(--t1);box-shadow:none;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-danger{background:var(--glass);border:1px solid rgba(255,59,92,0.2);color:var(--red);}
+.btn-sm{padding:0.48rem 0.8rem;font-size:0.72rem;margin-bottom:0.35rem;}
+
+/* ── TOAST ──────────────────────────────────────────── */
+#toast{
+  position:fixed;bottom:5.5rem;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--ink4);border:1px solid var(--bdr2);
+  color:var(--t1);padding:0.6rem 1.3rem;
+  border-radius:var(--r2);font-size:0.73rem;font-weight:500;
+  z-index:600;pointer-events:none;
+  transition:transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+  white-space:nowrap;box-shadow:var(--sh2);
+}
+#toast.show{transform:translateX(-50%) translateY(0);}
+
+/* ── MISC ───────────────────────────────────────────── */
+.empty-state{color:var(--t3);font-size:0.75rem;text-align:center;padding:1.5rem 0;}
+.tag-pill{
+  display:inline-block;font-size:0.58rem;font-weight:700;
+  letter-spacing:0.09em;text-transform:uppercase;
+  padding:0.13rem 0.42rem;border-radius:3px;margin-left:0.3rem;
+}
+.tg{background:var(--limedim);color:var(--lime);border:1px solid rgba(200,255,0,0.2);}
+.to{background:var(--golddim);color:var(--gold);border:1px solid rgba(255,184,0,0.2);}
+.sep{display:flex;align-items:center;gap:0.5rem;margin:0.8rem 0;font-size:0.58rem;color:var(--t3);letter-spacing:0.12em;text-transform:uppercase;}
+.sep::before,.sep::after{content:'';flex:1;height:1px;background:var(--bdr);}
+</style>
 </head>
-
 <body>
+<div class="top-stripe"></div>
 
-  <div id="app"></div>
+<!-- ═══ SPLASH ═══ -->
+<div id="splash">
+  <div class="splash-ball">⚽</div>
+  <div class="splash-title">WORLDCUP</div>
+  <div class="splash-bar"><div class="splash-fill"></div></div>
+</div>
 
-  <script type="module">
-    import { Navbar } from "./components/navbar.js";
-    import { Hero } from "./components/hero.js";
-    import { Matches } from "./components/matches.js";
-    import { Leaderboard } from "./components/leaderboard.js";
+<!-- ═══ MATCH DETAIL OVERLAY ═══ -->
+<div id="match-overlay">
+  <div class="overlay-close">
+    <div style="font-family:'DM Mono',monospace;font-size:0.62rem;letter-spacing:0.1em;color:var(--t3)">MATCH DETAILS</div>
+    <button class="overlay-close-btn" onclick="closeMatchOverlay()">← Back</button>
+  </div>
+  <div id="match-overlay-content"></div>
+</div>
 
-    const app = document.getElementById("app");
+<!-- ═══ LOGIN SCREEN ═══ -->
+<div id="ls">
+  <div class="login-hero">
+    <div class="login-eyebrow">⚽ Pi Network · Mainnet · worldcup.pi</div>
+    <div class="login-wordmark">WorldCup</div>
+    <div class="login-tagline">The World's #1 Football Fan App on Pi Network</div>
+    <div class="login-pills">
+      <span class="pill" data-i18n="tag1">📅 Live Fixtures</span>
+      <span class="pill" data-i18n="tag2">🧠 Predictions</span>
+      <span class="pill" data-i18n="tag3">🎟️ QR Tickets</span>
+      <span class="pill" data-i18n="tag4">📊 Analytics</span>
+      <span class="pill" data-i18n="tag5">🔔 Live Alerts</span>
+      <span class="pill" data-i18n="tag6">👤 Fan ID</span>
+      <span class="pill">💸 Pi Payments</span>
+      <span class="pill">🌍 4 Languages</span>
+    </div>
+  </div>
+  <div class="login-cta">
+    <!-- Language selector on login -->
+    <div class="login-lang">
+      <button class="lang-btn active" onclick="setLang('en',this)">🌐 EN</button>
+      <button class="lang-btn" onclick="setLang('ar',this)">🇸🇦 AR</button>
+      <button class="lang-btn" onclick="setLang('fr',this)">🇫🇷 FR</button>
+      <button class="lang-btn" onclick="setLang('es',this)">🇪🇸 ES</button>
+    </div>
+    <button class="btn-signin" id="loginBtn" onclick="piLogin()">
+      ⚽ <span data-i18n="signin">Sign In with Pi</span>
+    </button>
+    <div id="lmsg"></div>
+    <div class="login-legal" data-i18n="disc">Community fan app · Pi Network Mainnet · sandbox:false<br>Not affiliated with any official football organization</div>
+  </div>
+</div>
 
-    // 🔥 SIMPLE LIVE STATE
-    let state = {
-      matches: [],
-      teams: []
-    };
+<!-- ═══ APP SHELL ═══ -->
+<div id="app-shell" style="display:none">
 
-    // 🧠 RENDER FUNCTION (CENTRAL SYSTEM)
-    function render() {
-      app.innerHTML = `
-        ${Navbar()}
-        ${Hero()}
-        ${Matches(state.matches)}
-        ${Leaderboard(state.teams)}
-      `;
-    }
+<!-- TICKER -->
+<div class="ticker"><div class="ticker-track" id="ticker-content">
+  <span class="ticker-item">⚽ The biggest football tournament · USA · Canada · Mexico 2026</span>
+  <span class="ticker-item">🏆 48 Teams · 12 Groups · 104 Matches</span>
+  <span class="ticker-item">🌍 WorldCup — Pi Network · worldcup.pi</span>
+  <span class="ticker-item">🎟️ Digital QR tickets now available</span>
+  <span class="ticker-item">🔔 Goal alerts · Live match notifications</span>
+</div></div>
 
-    // 🚀 INITIAL RENDER
-    render();
+<!-- HEADER -->
+<header id="app-header">
+  <div class="header-left">
+    <div class="header-logo">WorldCup</div>
+    <div class="header-badge">✅ Mainnet</div>
+  </div>
+  <div class="header-right">
+    <div class="header-user" id="header-user">Pioneer</div>
+    <select class="header-lang" id="header-lang" onchange="setLang(this.value,null)">
+      <option value="en">EN</option>
+      <option value="ar">AR</option>
+      <option value="fr">FR</option>
+      <option value="es">ES</option>
+    </select>
+    <div class="notif-btn" onclick="goScreen('notifs')" title="Notifications">
+      🔔<div class="notif-dot" id="notif-dot"></div>
+    </div>
+  </div>
+</header>
 
-    // 🔄 AUTO UPDATE SYSTEM (REALISTIC MOCK FOR NOW)
-    async function loadData() {
-      try {
-        // Later replace with real API (OpenFootball / Supabase)
-        const res = await fetch("./data/mock.json");
-        const data = await res.json();
+<!-- MAIN CONTENT -->
+<main id="main-content">
 
-        state.matches = data.matches || [];
-        state.teams = data.teams || [];
+  <!-- ══ MATCHES ══ -->
+  <div class="screen active" id="screen-matches">
+    <div class="status-bar">
+      <span class="status-text" id="dst">📡 Loading fixtures...</span>
+      <span class="status-time" id="dtt"></span>
+    </div>
+    <div class="section-head"><div class="section-title" data-i18n="today_matches">Today's Matches</div></div>
+    <div id="today-matches"><div class="empty-state">Loading...</div></div>
+    <div class="section-head" style="margin-top:1.2rem;"><div class="section-title" data-i18n="upcoming">Upcoming Fixtures</div></div>
+    <div id="upcoming-matches"><div class="empty-state">Loading...</div></div>
+    <div class="section-head" style="margin-top:1.2rem;"><div class="section-title" data-i18n="results">Recent Results</div></div>
+    <div id="recent-results"><div class="empty-state">No results yet</div></div>
+    <div class="section-head" style="margin-top:1.2rem;"><div class="section-title">Tournament Overview</div></div>
+    <div class="tile-row">
+      <div class="tile"><div class="tile-num">48</div><div class="tile-label" data-i18n="teams">Teams</div></div>
+      <div class="tile"><div class="tile-num">104</div><div class="tile-label" data-i18n="matches">Matches</div></div>
+      <div class="tile"><div class="tile-num">16</div><div class="tile-label" data-i18n="cities">Cities</div></div>
+    </div>
+    <div class="tile-row">
+      <div class="tile"><div class="tile-num" style="font-size:1.3rem">🇺🇸</div><div class="tile-label">USA · 11</div></div>
+      <div class="tile"><div class="tile-num" style="font-size:1.3rem">🇨🇦</div><div class="tile-label">Canada · 2</div></div>
+      <div class="tile"><div class="tile-num" style="font-size:1.3rem">🇲🇽</div><div class="tile-label">Mexico · 3</div></div>
+    </div>
+  </div>
 
-        render();
+  <!-- ══ GROUPS ══ -->
+  <div class="screen" id="screen-groups">
+    <div class="section-head"><div class="section-title" data-i18n="all_groups">All 12 Groups</div></div>
+    <div class="info-box" data-i18n="groups_desc">⚽ 48 teams · 12 groups of 4 · Top 2 from each group advance to the Round of 32 knockout stage</div>
+    <div class="groups-grid" id="groups-grid"></div>
+  </div>
 
-      } catch (err) {
-        console.log("Data load error:", err);
-      }
-    }
+  <!-- ══ PREDICT ══ -->
+  <div class="screen" id="screen-predict">
+    <div class="pts-card">
+      <div class="pts-left">
+        <div class="pts-label" data-i18n="your_pts">Your Points</div>
+        <div class="pts-value" id="pts-display">0 PTS</div>
+      </div>
+      <div class="pts-right">
+        <div class="pts-streak" id="pts-streak">🔥 0 days</div>
+        <div class="pts-level" id="pts-level">⚽ Newcomer</div>
+      </div>
+    </div>
+    <div class="info-box" data-i18n="pred_desc">🧠 Predict match outcomes · +5 pts per prediction · +10 pts if correct · Results verified automatically</div>
+    <div class="section-head"><div class="section-title" data-i18n="pick_winner">Pick Your Winner</div></div>
+    <div id="predictions-list"><div class="empty-state">Loading matches...</div></div>
+    <div class="ad-bar" id="ad-bar">⚽ WorldCup — Pi Network Football Community · worldcup.pi</div>
+  </div>
 
-    // FIRST LOAD
-    loadData();
+  <!-- ══ STANDINGS ══ -->
+  <div class="screen" id="screen-standings">
+    <div class="section-head"><div class="section-title" data-i18n="fan_lb">Fan Leaderboard</div></div>
+    <div id="leaderboard-list"></div>
+    <div class="section-head" style="margin-top:1.2rem;"><div class="section-title" data-i18n="group_standings">Group Standings</div></div>
+    <div id="standings-list"></div>
+  </div>
 
-    // AUTO REFRESH (LIVE SYSTEM)
-    setInterval(loadData, 5000);
+  <!-- ══ UTILITIES ══ -->
+  <div class="screen" id="screen-utilities">
 
-  </script>
+    <!-- HOME -->
+    <div class="util-screen active" id="util-home">
+      <div class="tools-section">
+        <div class="tools-section-title">🔐 Identity & Ticketing</div>
+        <div class="tools-grid">
+          <div class="tool-card" onclick="openUtil('pi-wallet')">
+            <span class="tool-tag tag-new">NEW</span>
+            <span class="tool-icon">🔐</span>
+            <div class="tool-name" data-i18n="tool_wallet">Pi Wallet Profile</div>
+            <div class="tool-desc" data-i18n="tool_wallet_d">Verified fan ID · wallet sync · send Pi</div>
+          </div>
+          <div class="tool-card gold-card" onclick="openUtil('ticket')">
+            <span class="tool-tag tag-hot">HOT</span>
+            <span class="tool-icon">🎟️</span>
+            <div class="tool-name" data-i18n="tool_ticket">Match Tickets</div>
+            <div class="tool-desc" data-i18n="tool_ticket_d">QR digital ticket · stadium entry system</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('fan-id')">
+            <span class="tool-icon">👤</span>
+            <div class="tool-name" data-i18n="tool_fanid">Fan ID Card</div>
+            <div class="tool-desc" data-i18n="tool_fanid_d">Auto-generated profile QR · scan to follow</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('checkin')">
+            <span class="tool-icon">📍</span>
+            <div class="tool-name" data-i18n="tool_checkin">Event Check-in</div>
+            <div class="tool-desc" data-i18n="tool_checkin_d">Fan zone · stadium QR check-in</div>
+          </div>
+        </div>
+      </div>
 
-</body>
-</html>
+      <div class="tools-section">
+        <div class="tools-section-title">🔬 Verification</div>
+        <div class="tools-grid">
+          <div class="tool-card" onclick="openUtil('verify-ticket')">
+            <span class="tool-icon">🔍</span>
+            <div class="tool-name" data-i18n="tool_verify">Ticket Verifier</div>
+            <div class="tool-desc" data-i18n="tool_verify_d">Anti-cheat · one-time QR validation</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('pred-qr')">
+            <span class="tool-icon">🧠</span>
+            <div class="tool-name" data-i18n="tool_pred_qr">Prediction QR</div>
+            <div class="tool-desc" data-i18n="tool_pred_qr_d">Proof of prediction · tamper-evident</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tools-section">
+        <div class="tools-section-title">📊 Analytics & Intelligence</div>
+        <div class="tools-grid">
+          <div class="tool-card" onclick="openUtil('analytics')">
+            <span class="tool-icon">📊</span>
+            <div class="tool-name" data-i18n="tool_analytics">Analytics</div>
+            <div class="tool-desc" data-i18n="tool_analytics_d">Accuracy · history · win streak tracking</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('odds-calc')">
+            <span class="tool-icon">🎯</span>
+            <div class="tool-name" data-i18n="tool_odds">Odds Calculator</div>
+            <div class="tool-desc" data-i18n="tool_odds_d">Match prediction confidence meter</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="tools-section">
+        <div class="tools-section-title">⚽ Football Tools</div>
+        <div class="tools-grid">
+          <div class="tool-card" onclick="openUtil('pi-calc')">
+            <span class="tool-icon">π</span>
+            <div class="tool-name" data-i18n="tool_pi">Pi Calculator</div>
+            <div class="tool-desc" data-i18n="tool_pi_d">Convert Pi to USD · GBP · EUR · SAR</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('group-sim')">
+            <span class="tool-icon">📈</span>
+            <div class="tool-name" data-i18n="tool_sim">Group Simulator</div>
+            <div class="tool-desc" data-i18n="tool_sim_d">Simulate group stage outcomes</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('world-time')">
+            <span class="tool-icon">🌍</span>
+            <div class="tool-name" data-i18n="tool_time">Match Times</div>
+            <div class="tool-desc" data-i18n="tool_time_d">Convert ET kick-off to your timezone</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('team-compare')">
+            <span class="tool-icon">⚔️</span>
+            <div class="tool-name" data-i18n="tool_compare">Team Compare</div>
+            <div class="tool-desc" data-i18n="tool_compare_d">Head-to-head team analysis</div>
+          </div>
+          <div class="tool-card" onclick="openUtil('points-calc')">
+            <span class="tool-icon">🏆</span>
+            <div class="tool-name" data-i18n="tool_pts">Points Tracker</div>
+            <div class="tool-desc" data-i18n="tool_pts_d">Full prediction activity history</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- end util-home -->
+
+    <!-- ── PI WALLET PROFILE ── -->
+    <div class="util-screen" id="util-pi-wallet">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_wallet">Pi Wallet Profile</div>
+      </div>
+      <div class="wallet-card">
+        <div class="wallet-top">
+          <div class="wallet-av">⚽</div>
+          <div>
+            <div class="wallet-name" id="piw-name">—</div>
+            <div class="wallet-uid" id="piw-uid">Pi Network · Mainnet</div>
+            <div class="wallet-status"><div class="wallet-live-dot"></div><span>✅ Connected · sandbox:false</span></div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;">
+          <div class="stat-row"><span class="stat-key" data-i18n="fan_level">Level</span><span class="stat-val" id="piw-lvl" style="font-size:.72rem">—</span></div>
+          <div class="stat-row"><span class="stat-key" data-i18n="total_pts">Points</span><span class="stat-val" id="piw-pts">0</span></div>
+          <div class="stat-row"><span class="stat-key" data-i18n="predictions">Preds</span><span class="stat-val" id="piw-preds">0</span></div>
+          <div class="stat-row"><span class="stat-key">Streak</span><span class="stat-val" id="piw-streak">0d</span></div>
+        </div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="send_receive">Send / Request Pi</div>
+        <div class="form-group">
+          <label class="form-label" data-i18n="recipient">Recipient (username or address)</label>
+          <input class="form-input" type="text" id="send-to" placeholder="Pioneer username or G... address">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" data-i18n="amount">Amount (π)</label>
+            <input class="form-input" type="number" id="send-amt" value="0.1" min="0.001" step="0.001">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="memo">Memo</label>
+            <input class="form-input" type="text" id="send-memo" placeholder="Fan tip...">
+          </div>
+        </div>
+        <button class="btn" onclick="sendPi()" data-i18n="btn_send">💸 Send Pi</button>
+        <button class="btn btn-ghost btn-sm" onclick="requestPi()" data-i18n="btn_request">📨 Request Pi</button>
+      </div>
+    </div>
+
+    <!-- ── TICKET SYSTEM ── -->
+    <div class="util-screen" id="util-ticket">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_ticket">Match Tickets</div>
+      </div>
+      <div class="info-box" data-i18n="ticket_desc">Generate a QR digital ticket for any match. Each ticket has a unique ID, is valid for 24 hours, and can only be scanned once — preventing fraud and duplication.</div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="select_match">Select Match</div>
+        <div class="form-group">
+          <label class="form-label">Match</label>
+          <select class="form-input" id="ticket-match" style="cursor:pointer">
+            <option value="">— Choose a match —</option>
+          </select>
+        </div>
+        <button class="btn" onclick="genTicket()" data-i18n="gen_ticket">🎟️ Generate QR Ticket</button>
+      </div>
+      <div id="ticket-output"></div>
+    </div>
+
+    <!-- ── FAN ID CARD ── -->
+    <div class="util-screen" id="util-fan-id">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_fanid">Fan ID Card</div>
+      </div>
+      <div class="info-box" data-i18n="fanid_desc">Your digital Fan ID is auto-generated on every login with a serial number. Share the QR — when another user scans it, they are redirected to your profile and can send you Pi directly.</div>
+      <div class="fan-id-card">
+        <div class="fan-avatar">⚽</div>
+        <div class="fan-name" id="fid-name">—</div>
+        <div class="fan-id-str" id="fid-serial">Fan ID generating...</div>
+        <div class="fan-badges">
+          <span class="fan-badge fb-main">✅ Mainnet</span>
+          <span class="fan-badge fb-prem" id="fid-prem-badge" style="display:none">⭐ Premium</span>
+          <span class="fan-badge fb-lvl" id="fid-lvl-badge">⚽ Fan</span>
+        </div>
+        <div class="fan-stat-grid">
+          <div class="fan-stat"><div class="fan-stat-num" id="fid-pts">0</div><div class="fan-stat-label" data-i18n="points">Points</div></div>
+          <div class="fan-stat"><div class="fan-stat-num" id="fid-preds">0</div><div class="fan-stat-label" data-i18n="predictions">Preds</div></div>
+          <div class="fan-stat"><div class="fan-stat-num" id="fid-streak">0</div><div class="fan-stat-label" data-i18n="streak">Streak</div></div>
+        </div>
+      </div>
+      <div class="qr-container">
+        <div style="font-size:.62rem;color:var(--t3);margin-bottom:.5rem;" data-i18n="scan_to_profile">Scan to view profile · Send Pi · Follow fan</div>
+        <div class="qr-wrap"><canvas id="fan-id-qr"></canvas></div>
+        <div class="qr-id" id="fan-id-str-short">—</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="refreshFanId()" data-i18n="refresh_id">🔄 Refresh Fan ID</button>
+    </div>
+
+    <!-- ── EVENT CHECK-IN ── -->
+    <div class="util-screen" id="util-checkin">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_checkin">Event Check-in</div>
+      </div>
+      <div class="info-box" data-i18n="checkin_desc">Check in to fan zones and simulate stadium entry. Each check-in generates a unique QR valid for that event. +5 pts per check-in.</div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="select_event">Select Event</div>
+        <div class="form-group">
+          <select class="form-input" id="checkin-event" style="cursor:pointer">
+            <option value="fanzone">⚽ WorldCup Fan Zone · worldcup.pi</option>
+            <option value="opening">🏟️ Opening Match · Mexico vs South Africa</option>
+            <option value="usa">🏟️ USA vs Paraguay · Los Angeles</option>
+            <option value="england">🏟️ England vs Croatia · Boston</option>
+            <option value="final">🏆 WorldCup Final · New York</option>
+          </select>
+        </div>
+        <button class="btn" onclick="doCheckin()" data-i18n="checkin_now">📍 Check In Now</button>
+      </div>
+      <div id="checkin-output"></div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="checkin_history">Check-in History</div>
+        <div id="checkin-log"><div class="empty-state" data-i18n="no_checkins">No check-ins yet</div></div>
+      </div>
+    </div>
+
+    <!-- ── TICKET VERIFIER ── -->
+    <div class="util-screen" id="util-verify-ticket">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_verify">Ticket Verifier</div>
+      </div>
+      <div class="info-box">🔒 Anti-cheat system · QR only valid once · Expiry enforced · Instant approve or reject</div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="verify_ticket">Verify Ticket</div>
+        <div class="form-group">
+          <label class="form-label">Ticket ID</label>
+          <input class="scan-input" id="verify-input" placeholder="Paste ticket ID (WC-XXXXXX-XXXX)...">
+        </div>
+        <button class="btn btn-gold" onclick="verifyTicket()" data-i18n="btn_verify">🔍 Verify Ticket</button>
+        <div id="verify-result"></div>
+      </div>
+    </div>
+
+    <!-- ── PREDICTION QR ── -->
+    <div class="util-screen" id="util-pred-qr">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_pred_qr">Prediction QR</div>
+      </div>
+      <div class="info-box">🧠 Your predictions are cryptographically hashed — this QR proves you submitted them before results were known. Anti-cheat certified.</div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="your_predictions">Prediction Proof QR</div>
+        <div id="pred-qr-output"><div class="empty-state">Make predictions first, then generate your proof QR</div></div>
+        <button class="btn" onclick="genPredQR()" data-i18n="gen_pred_qr">🧠 Generate Prediction Proof</button>
+      </div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="scan_verify">Verify Prediction Hash</div>
+        <input class="scan-input" id="pred-verify-input" placeholder="Paste prediction hash...">
+        <button class="btn btn-gold" onclick="verifyPredQR()" data-i18n="btn_verify">✅ Verify Hash</button>
+        <div id="pred-verify-result"></div>
+      </div>
+    </div>
+
+    <!-- ── ANALYTICS ── -->
+    <div class="util-screen" id="util-analytics">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title" data-i18n="tool_analytics">Analytics</div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title" data-i18n="performance">Performance Overview</div>
+        <div class="stat-row"><span class="stat-key" data-i18n="accuracy">Prediction Accuracy</span><span class="stat-val" id="an-acc">0%</span></div>
+        <div class="stat-row"><span class="stat-key" data-i18n="total_preds">Total Predictions</span><span class="stat-val" id="an-tot">0</span></div>
+        <div class="stat-row"><span class="stat-key" data-i18n="correct">Correct</span><span class="stat-val" id="an-cor" style="color:var(--lime)">0</span></div>
+        <div class="stat-row"><span class="stat-key" data-i18n="points_earned">Points Earned</span><span class="stat-val" id="an-pts">0</span></div>
+        <div class="stat-row"><span class="stat-key" data-i18n="best_streak">Best Streak</span><span class="stat-val" id="an-str">0d</span></div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title">Performance Meters</div>
+        <div class="progress-wrap">
+          <div class="progress-head"><span data-i18n="accuracy">Accuracy</span><span id="an-acc2">0%</span></div>
+          <div class="progress-track"><div class="progress-fill" id="an-acc-bar" style="width:0%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-head"><span data-i18n="engagement">Engagement</span><span id="an-eng">0%</span></div>
+          <div class="progress-track"><div class="progress-fill gold" id="an-eng-bar" style="width:0%"></div></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-head"><span data-i18n="streak_health">Streak Health</span><span id="an-sh">0%</span></div>
+          <div class="progress-track"><div class="progress-fill" id="an-sh-bar" style="width:0%"></div></div>
+        </div>
+      </div>
+      <div class="analytics-card">
+        <div class="analytics-title" data-i18n="pts_history">Points · Last 7 Days</div>
+        <div class="chart-wrap" id="an-chart"></div>
+        <div style="margin-top:2rem;font-family:'DM Mono',monospace;font-size:.55rem;color:var(--t3);text-align:center;" data-i18n="chart_note">Bar heights represent relative daily point gains</div>
+      </div>
+    </div>
+
+    <!-- ── ODDS CALCULATOR ── -->
+    <div class="util-screen" id="util-odds-calc">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title">Odds Calculator</div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="confidence">Prediction Confidence</div>
+        <div class="form-group"><label class="form-label" data-i18n="team_a_win">Team A Win %</label><input class="form-input" type="number" id="odds-a" placeholder="e.g. 55" oninput="calcOdds()"></div>
+        <div class="form-group"><label class="form-label" data-i18n="draw">Draw %</label><input class="form-input" type="number" id="odds-d" placeholder="e.g. 25" oninput="calcOdds()"></div>
+        <div class="form-group"><label class="form-label" data-i18n="team_b_win">Team B Win %</label><input class="form-input" type="number" id="odds-b" placeholder="e.g. 20" oninput="calcOdds()"></div>
+        <div class="result-box" id="odds-result" data-i18n="enter_above">Enter percentages above (must total 100%)</div>
+      </div>
+    </div>
+
+    <!-- ── PI CALCULATOR ── -->
+    <div class="util-screen" id="util-pi-calc">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title">π Pi Calculator</div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="convert_pi">Convert Pi to Currency</div>
+        <div class="form-group"><label class="form-label" data-i18n="pi_amount">Pi Amount</label><input class="form-input" type="number" id="pi-amount" placeholder="0" oninput="calcPi()"></div>
+        <div class="form-group"><label class="form-label" data-i18n="pi_price">Pi Price (USD)</label><input class="form-input" type="number" id="pi-price" value="0.17" oninput="calcPi()"></div>
+        <div class="result-box" id="pi-result" data-i18n="enter_above">Enter amount above</div>
+        <div class="tool-card-title" style="margin-top:.75rem;" data-i18n="quick_vals">Quick Values</div>
+        <div class="quick-grid">
+          <button class="btn btn-ghost btn-sm" onclick="setpi(10)">10π</button>
+          <button class="btn btn-ghost btn-sm" onclick="setpi(100)">100π</button>
+          <button class="btn btn-ghost btn-sm" onclick="setpi(1000)">1Kπ</button>
+          <button class="btn btn-ghost btn-sm" onclick="setpi(10000)">10Kπ</button>
+        </div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="tool-card-title" data-i18n="future_val">Future Value</div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label" data-i18n="holdings">Holdings (π)</label><input class="form-input" type="number" id="fut-hold" placeholder="Your Pi" oninput="calcFut()"></div>
+          <div class="form-group"><label class="form-label" data-i18n="target">Target Price $</label><input class="form-input" type="number" id="fut-price" placeholder="e.g. 5" oninput="calcFut()"></div>
+        </div>
+        <div class="result-box" id="fut-result" data-i18n="enter_above">Enter values above</div>
+      </div>
+    </div>
+
+    <!-- ── GROUP SIMULATOR ── -->
+    <div class="util-screen" id="util-group-sim">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title">Group Simulator</div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="form-group"><label class="form-label" data-i18n="select_group">Select Group</label>
+          <select class="form-input" id="sim-group" onchange="runSim()" style="cursor:pointer"><option value="">— Choose —</option></select>
+        </div>
+        <div id="sim-result"></div>
+      </div>
+    </div>
+
+    <!-- ── WORLD TIME ── -->
+    <div class="util-screen" id="util-world-time">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title">Match Time Converter</div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="form-group"><label class="form-label" data-i18n="et_time">Match Kick-off Time (ET)</label>
+          <input class="form-input" type="time" id="match-time-et" oninput="convTime()">
+        </div>
+        <div id="time-result"></div>
+      </div>
+    </div>
+
+    <!-- ── TEAM COMPARE ── -->
+    <div class="util-screen" id="util-team-compare">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title">Team Comparison</div>
+      </div>
+      <div class="tool-card-inner">
+        <div class="form-row">
+          <div class="form-group"><label class="form-label" data-i18n="team_a">Team A</label><select class="form-input" id="comp-a" onchange="compTeams()" style="cursor:pointer"><option value="">Select...</option></select></div>
+          <div class="form-group"><label class="form-label" data-i18n="team_b">Team B</label><select class="form-input" id="comp-b" onchange="compTeams()" style="cursor:pointer"><option value="">Select...</option></select></div>
+        </div>
+        <div id="comp-result"></div>
+      </div>
+    </div>
+
+    <!-- ── POINTS TRACKER ── -->
+    <div class="util-screen" id="util-points-calc">
+      <div class="tool-header">
+        <button class="back-btn" onclick="closeUtil()">←</button>
+        <div class="tool-page-title">Points Tracker</div>
+      </div>
+      <div class="pts-card"><div class="pts-left"><div class="pts-label" data-i18n="total_pts">Total Points</div><div class="pts-value" id="trk-pts">0 PTS</div></div></div>
+      <div class="tile-row">
+        <div class="tile"><div class="tile-num" id="trk-preds">0</div><div class="tile-label" data-i18n="predictions">Predictions</div></div>
+        <div class="tile"><div class="tile-num" id="trk-comments">0</div><div class="tile-label" data-i18n="comments">Comments</div></div>
+        <div class="tile"><div class="tile-num" id="trk-streak">0</div><div class="tile-label" data-i18n="streak">Streak</div></div>
+      </div>
+      <div class="info-box" id="trk-level"></div>
+      <div class="section-head"><div class="section-title" data-i18n="activity_log">Activity Log</div></div>
+      <div id="trk-history"></div>
+    </div>
+
+  </div><!-- end utilities screen -->
+
+  <!-- ══ FAN ZONE ══ -->
+  <div class="screen" id="screen-fanzone">
+    <div class="section-head"><div class="section-title" data-i18n="fan_zone">Fan Zone</div></div>
+    <div class="info-box" data-i18n="fan_zone_desc">Share predictions, reactions and thoughts with the global Pi Network football community.</div>
+    <textarea class="comment-input" id="comment-input" data-i18n-ph="fan_placeholder"></textarea>
+    <button class="btn" onclick="postComment()">
+      <span data-i18n="post_fan">Post to Fan Zone</span>
+      <span class="tag-pill tg">+2 pts</span>
+    </button>
+    <div class="section-head" style="margin-top:1rem;"><div class="section-title" data-i18n="latest_fans">Latest From Fans</div></div>
+    <div id="comments-list"><div class="empty-state">Be first to post! 💬</div></div>
+  </div>
+
+  <!-- ══ PROFILE ══ -->
+  <div class="screen" id="screen-profile">
+    <div class="profile-hero">
+      <div class="profile-av">⚽</div>
+      <div class="profile-name" id="profile-name">Pioneer</div>
+      <div class="profile-role">Pi Network Football Fan</div>
+      <div><div class="profile-level" id="profile-level">⚽ Newcomer</div></div>
+      <div><div class="profile-streak" id="profile-streak">🔥 0 Day Streak</div></div>
+    </div>
+    <div class="tile-row">
+      <div class="tile"><div class="tile-num" id="prof-pts">0</div><div class="tile-label" data-i18n="points">Points</div></div>
+      <div class="tile"><div class="tile-num" id="prof-preds">0</div><div class="tile-label" data-i18n="predictions">Preds</div></div>
+      <div class="tile"><div class="tile-num" id="prof-coms">0</div><div class="tile-label" data-i18n="comments">Posts</div></div>
+    </div>
+    <div class="reward-card">
+      <div class="reward-icon">🎁</div>
+      <div class="reward-title" data-i18n="daily_reward">Daily Reward</div>
+      <div class="reward-desc" data-i18n="daily_desc">+10 pts every 24 hours · 7-day streak = +20 pts bonus</div>
+      <button class="btn" id="daily-btn" onclick="claimDaily()" data-i18n="claim_daily">Claim Daily Reward</button>
+    </div>
+    <div class="premium-card">
+      <div class="premium-title">⭐ <span data-i18n="premium">Premium Fan</span></div>
+      <ul class="premium-perks">
+        <li data-i18n="perk1">Unlimited daily predictions</li>
+        <li data-i18n="perk2">Exclusive ⭐ badge on leaderboard</li>
+        <li data-i18n="perk3">Early match analysis and previews</li>
+        <li data-i18n="perk4">Priority leaderboard placement</li>
+        <li data-i18n="perk5">Ad-free experience</li>
+        <li data-i18n="perk6">All Fan Tools permanently unlocked</li>
+      </ul>
+      <!-- ✅ MAINNET PAYMENT — Real 0.5π — sandbox:false -->
+      <button class="btn btn-gold" id="premium-btn" onclick="buyPremium()">
+        <span data-i18n="unlock_premium">Unlock Premium — 0.5π</span>
+      </button>
+    </div>
+    <div class="section-head"><div class="section-title" data-i18n="tx_history">Transaction History</div></div>
+    <button class="btn btn-ghost btn-sm" onclick="clearTx()" data-i18n="clear_history">Clear History</button>
+    <div id="tx-history"></div>
+    <button class="btn btn-danger btn-sm" style="margin-top:0.8rem;" onclick="logout()" data-i18n="logout">Logout</button>
+  </div>
+
+  <!-- ══ NOTIFICATIONS ══ -->
+  <div class="screen" id="screen-notifs">
+    <div class="section-head">
+      <div class="section-title" data-i18n="notifications">Notifications</div>
+      <div class="section-action" onclick="markAllRead()" data-i18n="mark_read">Mark All Read</div>
+    </div>
+    <div id="notif-list"><div class="empty-state">No notifications yet</div></div>
+  </div>
+
+</main><!-- end main-content -->
+
+<!-- BOTTOM NAV -->
+<nav id="bottom-nav">
+  <button class="bnav-item active" data-screen="matches" onclick="goScreen('matches',this)">
+    <span class="bnav-icon">📅</span>
+    <span class="bnav-label" data-i18n="nav_matches">Matches</span>
+  </button>
+  <button class="bnav-item" data-screen="groups" onclick="goScreen('groups',this)">
+    <span class="bnav-icon">🗂</span>
+    <span class="bnav-label" data-i18n="nav_groups">Groups</span>
+  </button>
+  <button class="bnav-item" data-screen="predict" onclick="goScreen('predict',this)">
+    <span class="bnav-icon">🧠</span>
+    <span class="bnav-label" data-i18n="nav_predict">Predict</span>
+  </button>
+  <button class="bnav-item" data-screen="standings" onclick="goScreen('standings',this)">
+    <span class="bnav-icon">📊</span>
+    <span class="bnav-label" data-i18n="nav_table">Table</span>
+  </button>
+  <button class="bnav-item" data-screen="utilities" onclick="goScreen('utilities',this)">
+    <span class="bnav-icon">🔧</span>
+    <span class="bnav-label" data-i18n="nav_tools">Tools</span>
+  </button>
+  <button class="bnav-item" data-screen="fanzone" onclick="goScreen('fanzone',this)">
+    <span class="bnav-icon">💬</span>
+    <span class="bnav-label" data-i18n="nav_fan">Fan</span>
+  </button>
+  <button class="bnav-item" data-screen="profile" onclick="goScreen('profile',this)">
+    <span class="bnav-icon">👤</span>
+    <span class="bnav-label" data-i18n="nav_profile">Me</span>
+  </button>
+</nav>
+
+</div><!-- end app-shell -->
+
+<div id="toast"></div>
+
+<!-- Pi SDK — loaded LAST · ✅ MAINNET · sandbox:false -->
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script>
+/* ════════════════════════════════════════════════
+   WORLDCUP v11 · MAINNET · sandbox:false
+   ✅ Real Pi authentication
+   ✅ Real Pi payments
+   ✅ Full i18n EN/AR/FR/ES
+   ✅ QR tickets + fan ID
+   ✅ Auto serial ID per login
+   ✅ Analytics dashboard
+   ✅ Live notifications
+════════════════════════════════════════════════ */
+'use strict';
+
+/* ── TRANSLATIONS ──────────────────────────── */
+var I18N = {
+  en:{
+    signin:'Sign In with Pi',disc:'Community fan app · Pi Network Mainnet · sandbox:false\nNot affiliated with any official football organization',
+    tag1:'📅 Live Fixtures',tag2:'🧠 Predictions',tag3:'🎟️ QR Tickets',tag4:'📊 Analytics',tag5:'🔔 Live Alerts',tag6:'👤 Fan ID',
+    nav_matches:'Matches',nav_groups:'Groups',nav_predict:'Predict',nav_table:'Table',nav_tools:'Tools',nav_fan:'Fan',nav_profile:'Me',
+    today_matches:'Today\'s Matches',upcoming:'Upcoming Fixtures',results:'Recent Results',teams:'Teams',matches:'Matches',cities:'Cities',
+    all_groups:'All 12 Groups',groups_desc:'⚽ 48 teams · 12 groups of 4 · Top 2 from each group advance to the Round of 32 knockout stage',
+    your_pts:'Your Points',streak:'Streak',pred_desc:'🧠 Predict match outcomes · +5 pts per prediction · +10 pts if correct · Results verified automatically',pick_winner:'Pick Your Winner',
+    fan_lb:'Fan Leaderboard',group_standings:'Group Standings',
+    tool_wallet:'Pi Wallet Profile',tool_wallet_d:'Verified fan ID · wallet sync · send Pi',tool_ticket:'Match Tickets',tool_ticket_d:'QR digital ticket · stadium entry system',
+    tool_fanid:'Fan ID Card',tool_fanid_d:'Auto-generated profile QR · scan to follow',tool_checkin:'Event Check-in',tool_checkin_d:'Fan zone · stadium QR check-in',
+    tool_verify:'Ticket Verifier',tool_verify_d:'Anti-cheat · one-time QR validation',tool_pred_qr:'Prediction QR',tool_pred_qr_d:'Proof of prediction · tamper-evident',
+    tool_analytics:'Analytics',tool_analytics_d:'Accuracy · history · win streak tracking',tool_odds:'Odds Calculator',tool_odds_d:'Match prediction confidence meter',
+    tool_pi:'Pi Calculator',tool_pi_d:'Convert Pi to USD · GBP · EUR · SAR',tool_sim:'Group Simulator',tool_sim_d:'Simulate group stage outcomes',
+    tool_time:'Match Times',tool_time_d:'Convert ET kick-off to your timezone',tool_compare:'Team Compare',tool_compare_d:'Head-to-head team analysis',
+    tool_pts:'Points Tracker',tool_pts_d:'Full prediction activity history',
+    wallet_identity:'Wallet Identity',username:'Username',network:'Network',sdk:'SDK Mode',fan_level:'Fan Level',total_pts:'Total Points',
+    send_receive:'Send / Request Pi',recipient:'Recipient',amount:'Amount (π)',memo:'Memo',btn_send:'💸 Send Pi',btn_request:'📨 Request Pi',
+    ticket_desc:'Generate a QR digital ticket for any match. Each ticket has a unique ID, is valid for 24 hours, and can only be scanned once.',
+    select_match:'Select Match',gen_ticket:'🎟️ Generate QR Ticket',verify_ticket:'Verify Ticket',btn_verify:'🔍 Verify',
+    your_predictions:'Prediction Proof QR',gen_pred_qr:'🧠 Generate Prediction Proof',scan_verify:'Verify Prediction Hash',
+    fanid_desc:'Your digital Fan ID is auto-generated on every login with a serial number. Share the QR to let others view your profile and send Pi.',
+    scan_to_profile:'Scan to view profile · Send Pi · Follow fan',your_fan_id:'Your Fan ID',fan_stats:'Fan Statistics',predictions:'Preds',comments:'Posts',refresh_id:'🔄 Refresh Fan ID',
+    checkin_desc:'Check in to fan zones and simulate stadium entry. Each check-in generates a unique QR valid for that event. +5 pts per check-in.',
+    select_event:'Select Event',checkin_now:'📍 Check In Now',checkin_history:'Check-in History',no_checkins:'No check-ins yet',
+    performance:'Performance Overview',accuracy:'Prediction Accuracy',total_preds:'Total Predictions',correct:'Correct',points_earned:'Points Earned',best_streak:'Best Streak',
+    accuracy_meter:'Accuracy Meter',prediction_acc:'Prediction Accuracy',engagement:'Engagement Score',streak_health:'Streak Health',pts_history:'Points · Last 7 Days',chart_note:'Bar heights represent relative daily point gains',
+    convert_pi:'Convert Pi to Currency',pi_amount:'Pi Amount',pi_price:'Pi Price (USD)',enter_above:'Enter values above',quick_vals:'Quick Values',future_val:'Future Value',holdings:'Holdings (π)',target:'Target Price $',
+    confidence:'Prediction Confidence',team_a_win:'Team A Win %',draw:'Draw %',team_b_win:'Team B Win %',
+    select_group:'Select Group',et_time:'Match Kick-off Time (ET)',match_time:'Match Time',select_teams:'Select Two Teams',team_a:'Team A',team_b:'Team B',activity_log:'Activity Log',
+    fan_zone:'Fan Zone',fan_zone_desc:'Share predictions, reactions and thoughts with the global Pi Network football community.',fan_placeholder:'Talk about the match, your team, or the tournament...',
+    post_fan:'Post to Fan Zone',latest_fans:'Latest From Fans',
+    points:'Points',daily_reward:'Daily Reward',daily_desc:'+10 pts every 24 hours · 7-day streak = +20 pts bonus',claim_daily:'Claim Daily Reward',
+    premium:'Premium Fan',perk1:'Unlimited daily predictions',perk2:'Exclusive ⭐ badge on leaderboard',perk3:'Early match analysis and previews',perk4:'Priority leaderboard placement',perk5:'Ad-free experience',perk6:'All Fan Tools permanently unlocked',
+    unlock_premium:'Unlock Premium — 0.5π',tx_history:'Transaction History',clear_history:'Clear History',logout:'Logout',
+    notifications:'Notifications',mark_read:'Mark All Read'
+  },
+  ar:{
+    signin:'تسجيل الدخول بـ Pi',disc:'تطبيق مجتمعي · Pi Network · sandbox:false\nغير تابع لأي منظمة كرة قدم رسمية',
+    tag1:'📅 مباريات مباشرة',tag2:'🧠 تنبؤات',tag3:'🎟️ تذاكر QR',tag4:'📊 تحليلات',tag5:'🔔 تنبيهات حية',tag6:'👤 هوية المشجع',
+    nav_matches:'المباريات',nav_groups:'المجموعات',nav_predict:'توقع',nav_table:'الجدول',nav_tools:'أدوات',nav_fan:'منطقة',nav_profile:'ملفي',
+    today_matches:'مباريات اليوم',upcoming:'المباريات القادمة',results:'النتائج الأخيرة',teams:'فرق',matches:'مباريات',cities:'مدن',
+    all_groups:'جميع المجموعات الـ 12',groups_desc:'⚽ 48 فريق · 12 مجموعة · أفضل 2 من كل مجموعة يتأهلان لدور الـ 32',
+    your_pts:'نقاطك',streak:'تواصل',pred_desc:'🧠 توقع نتائج المباريات · +5 نقاط لكل تنبؤ · +10 إذا صح التنبؤ',pick_winner:'اختر الفائز',
+    fan_lb:'قائمة المشجعين',group_standings:'ترتيب المجموعات',
+    tool_wallet:'ملف محفظة Pi',tool_wallet_d:'هوية مشجع موثقة · مزامنة المحفظة · إرسال Pi',tool_ticket:'تذاكر المباريات',tool_ticket_d:'تذكرة QR رقمية · نظام دخول الملعب',
+    tool_fanid:'بطاقة هوية المشجع',tool_fanid_d:'QR ملف شخصي تلقائي · مسح للمتابعة',tool_checkin:'تسجيل الحضور',tool_checkin_d:'منطقة المشجعين · دخول QR الملعب',
+    tool_verify:'التحقق من التذكرة',tool_verify_d:'مانع الغش · التحقق من QR مرة واحدة',tool_pred_qr:'QR التنبؤ',tool_pred_qr_d:'إثبات التنبؤ · محمي من التلاعب',
+    tool_analytics:'التحليلات',tool_analytics_d:'الدقة · التاريخ · تتبع التواصل',tool_odds:'حاسبة الاحتمالات',tool_odds_d:'مقياس ثقة التنبؤ',
+    tool_pi:'حاسبة Pi',tool_pi_d:'تحويل Pi إلى دولار · جنيه · يورو · ريال',tool_sim:'محاكي المجموعة',tool_sim_d:'محاكاة نتائج المجموعات',
+    tool_time:'أوقات المباريات',tool_time_d:'تحويل أوقات ET إلى منطقتك',tool_compare:'مقارنة الفرق',tool_compare_d:'تحليل المواجهات المباشرة',
+    tool_pts:'متتبع النقاط',tool_pts_d:'سجل كامل لنقاط التنبؤ',
+    wallet_identity:'هوية المحفظة',username:'اسم المستخدم',network:'الشبكة',sdk:'وضع SDK',fan_level:'مستوى المشجع',total_pts:'مجموع النقاط',
+    send_receive:'إرسال / طلب Pi',recipient:'المستلم',amount:'المبلغ (π)',memo:'ملاحظة',btn_send:'💸 إرسال Pi',btn_request:'📨 طلب Pi',
+    ticket_desc:'أنشئ تذكرة QR رقمية لأي مباراة. كل تذكرة لها معرف فريد وصالحة لمدة 24 ساعة ويمكن مسحها مرة واحدة فقط.',
+    select_match:'اختر المباراة',gen_ticket:'🎟️ إنشاء تذكرة QR',verify_ticket:'التحقق من التذكرة',btn_verify:'🔍 تحقق',
+    your_predictions:'QR إثبات التنبؤ',gen_pred_qr:'🧠 إنشاء إثبات التنبؤ',scan_verify:'تحقق من هاش التنبؤ',
+    fanid_desc:'يتم إنشاء هويتك الرقمية كمشجع تلقائيًا عند كل تسجيل دخول برقم تسلسلي. شارك QR ليتمكن الآخرون من عرض ملفك وإرسال Pi.',
+    scan_to_profile:'مسح لعرض الملف · إرسال Pi · متابعة المشجع',your_fan_id:'هويتك كمشجع',fan_stats:'إحصاءات المشجع',predictions:'تنبؤات',comments:'منشورات',refresh_id:'🔄 تجديد هوية المشجع',
+    checkin_desc:'سجّل حضورك في مناطق المشجعين وحاكي الدخول للملعب. +5 نقاط لكل تسجيل حضور.',
+    select_event:'اختر الفعالية',checkin_now:'📍 سجّل الحضور الآن',checkin_history:'سجل الحضور',no_checkins:'لا يوجد تسجيل حضور بعد',
+    performance:'نظرة عامة على الأداء',accuracy:'دقة التنبؤ',total_preds:'إجمالي التنبؤات',correct:'صحيح',points_earned:'النقاط المكتسبة',best_streak:'أفضل تواصل',
+    accuracy_meter:'مقياس الدقة',prediction_acc:'دقة التنبؤ',engagement:'نقاط التفاعل',streak_health:'صحة التواصل',pts_history:'النقاط · آخر 7 أيام',chart_note:'ارتفاع الأعمدة يمثل مكاسب النقاط اليومية النسبية',
+    convert_pi:'تحويل Pi إلى عملة',pi_amount:'كمية Pi',pi_price:'سعر Pi (دولار)',enter_above:'أدخل القيم أعلاه',quick_vals:'قيم سريعة',future_val:'القيمة المستقبلية',holdings:'حيازاتك (π)',target:'السعر المستهدف $',
+    confidence:'ثقة التنبؤ',team_a_win:'نسبة فوز الفريق أ %',draw:'تعادل %',team_b_win:'نسبة فوز الفريق ب %',
+    select_group:'اختر المجموعة',et_time:'وقت المباراة (ET)',match_time:'وقت المباراة',select_teams:'اختر فريقين',team_a:'الفريق أ',team_b:'الفريق ب',activity_log:'سجل النشاط',
+    fan_zone:'منطقة المشجعين',fan_zone_desc:'شارك تنبؤاتك وردود أفعالك مع مجتمع Pi Network العالمي.',fan_placeholder:'تحدث عن المباراة، فريقك، أو البطولة...',
+    post_fan:'نشر في المنطقة',latest_fans:'أحدث المنشورات',
+    points:'نقاط',daily_reward:'مكافأة يومية',daily_desc:'+10 نقاط كل 24 ساعة · 7 أيام متواصلة = +20 نقطة إضافية',claim_daily:'استلام المكافأة اليومية',
+    premium:'مشجع مميز',perk1:'تنبؤات يومية غير محدودة',perk2:'شارة ⭐ مميزة في قائمة المتصدرين',perk3:'معاينات المباريات المبكرة',perk4:'أولوية في قائمة المتصدرين',perk5:'تجربة خالية من الإعلانات',perk6:'جميع الأدوات مفتوحة دائمًا',
+    unlock_premium:'فتح المميز — 0.5π',tx_history:'سجل المعاملات',clear_history:'مسح السجل',logout:'تسجيل الخروج',
+    notifications:'الإشعارات',mark_read:'تعيين الكل كمقروء'
+  },
+  fr:{
+    signin:'Se connecter avec Pi',disc:'App communautaire · Pi Network Mainnet · sandbox:false\nNon affiliée à une organisation officielle de football',
+    tag1:'📅 Matchs en direct',tag2:'🧠 Pronostics',tag3:'🎟️ Billets QR',tag4:'📊 Analyses',tag5:'🔔 Alertes live',tag6:'👤 Carte Fan',
+    nav_matches:'Matchs',nav_groups:'Groupes',nav_predict:'Pronostic',nav_table:'Tableau',nav_tools:'Outils',nav_fan:'Fan',nav_profile:'Profil',
+    today_matches:'Matchs d\'Aujourd\'hui',upcoming:'Prochains Matchs',results:'Résultats Récents',teams:'Équipes',matches:'Matchs',cities:'Villes',
+    all_groups:'Les 12 Groupes',groups_desc:'⚽ 48 équipes · 12 groupes · Les 2 premiers de chaque groupe se qualifient pour le tour de 32',
+    your_pts:'Vos Points',streak:'Série',pred_desc:'🧠 Pronostiquez les résultats · +5 pts par pronostic · +10 pts si correct',pick_winner:'Choisissez le Vainqueur',
+    fan_lb:'Classement des Fans',group_standings:'Classement des Groupes',
+    tool_wallet:'Profil Portefeuille Pi',tool_wallet_d:'ID fan vérifié · sync portefeuille · envoyer Pi',tool_ticket:'Billets de Match',tool_ticket_d:'Billet QR numérique · système d\'entrée',
+    tool_fanid:'Carte ID Fan',tool_fanid_d:'QR de profil auto-généré · scannez pour suivre',tool_checkin:'Enregistrement Événement',tool_checkin_d:'Zone fan · enregistrement QR stade',
+    tool_verify:'Vérificateur de Billet',tool_verify_d:'Anti-triche · validation QR unique',tool_pred_qr:'QR Pronostic',tool_pred_qr_d:'Preuve de pronostic · infalsifiable',
+    tool_analytics:'Analyses',tool_analytics_d:'Précision · historique · suivi de série',tool_odds:'Calculateur de Cotes',tool_odds_d:'Jauge de confiance dans les pronostics',
+    tool_pi:'Calculateur Pi',tool_pi_d:'Convertir Pi en USD · GBP · EUR · SAR',tool_sim:'Simulateur de Groupe',tool_sim_d:'Simuler les résultats de groupe',
+    tool_time:'Horaires des Matchs',tool_time_d:'Convertir les horaires ET',tool_compare:'Comparer les Équipes',tool_compare_d:'Analyse tête-à-tête',
+    tool_pts:'Suivi des Points',tool_pts_d:'Historique complet des points',
+    wallet_identity:'Identité du Portefeuille',username:'Nom d\'utilisateur',network:'Réseau',sdk:'Mode SDK',fan_level:'Niveau Fan',total_pts:'Points Totaux',
+    send_receive:'Envoyer / Demander Pi',recipient:'Destinataire',amount:'Montant (π)',memo:'Mémo',btn_send:'💸 Envoyer Pi',btn_request:'📨 Demander Pi',
+    ticket_desc:'Générez un billet QR numérique pour n\'importe quel match. ID unique · valable 24h · usage unique.',
+    select_match:'Sélectionner un Match',gen_ticket:'🎟️ Générer un Billet QR',verify_ticket:'Vérifier un Billet',btn_verify:'🔍 Vérifier',
+    your_predictions:'QR de Preuve de Pronostic',gen_pred_qr:'🧠 Générer Preuve de Pronostic',scan_verify:'Vérifier le Hash de Pronostic',
+    fanid_desc:'Votre Fan ID est auto-généré à chaque connexion avec un numéro de série. Partagez le QR pour que les autres voient votre profil et envoient du Pi.',
+    scan_to_profile:'Scanner pour voir le profil · Envoyer Pi · Suivre le fan',your_fan_id:'Votre ID Fan',fan_stats:'Statistiques Fan',predictions:'Pronostics',comments:'Posts',refresh_id:'🔄 Actualiser l\'ID Fan',
+    checkin_desc:'Enregistrez-vous dans les zones fan et simulez l\'entrée au stade. +5 pts par enregistrement.',
+    select_event:'Sélectionner l\'Événement',checkin_now:'📍 S\'Enregistrer Maintenant',checkin_history:'Historique des Enregistrements',no_checkins:'Aucun enregistrement',
+    performance:'Vue d\'ensemble des Performances',accuracy:'Précision des Pronostics',total_preds:'Total des Pronostics',correct:'Corrects',points_earned:'Points Gagnés',best_streak:'Meilleure Série',
+    accuracy_meter:'Jauge de Précision',prediction_acc:'Précision',engagement:'Engagement',streak_health:'Santé de Série',pts_history:'Points · 7 Derniers Jours',chart_note:'La hauteur des barres représente les gains quotidiens relatifs',
+    convert_pi:'Convertir Pi en Devise',pi_amount:'Montant Pi',pi_price:'Prix Pi (USD)',enter_above:'Entrez les valeurs ci-dessus',quick_vals:'Valeurs Rapides',future_val:'Valeur Future',holdings:'Avoirs (π)',target:'Prix Cible $',
+    confidence:'Confiance dans le Pronostic',team_a_win:'% Victoire Équipe A',draw:'% Nul',team_b_win:'% Victoire Équipe B',
+    select_group:'Sélectionner un Groupe',et_time:'Heure du Match (ET)',match_time:'Heure du Match',select_teams:'Sélectionner Deux Équipes',team_a:'Équipe A',team_b:'Équipe B',activity_log:'Journal d\'Activité',
+    fan_zone:'Zone Fan',fan_zone_desc:'Partagez vos pronostics et réactions avec la communauté mondiale Pi Network.',fan_placeholder:'Parlez du match, de votre équipe ou du tournoi...',
+    post_fan:'Publier dans la Zone Fan',latest_fans:'Dernières Publications',
+    points:'Points',daily_reward:'Récompense Quotidienne',daily_desc:'+10 pts toutes les 24h · 7 jours consécutifs = +20 pts bonus',claim_daily:'Réclamer la Récompense',
+    premium:'Fan Premium',perk1:'Pronostics quotidiens illimités',perk2:'Badge ⭐ sur le classement',perk3:'Aperçus précoces des matchs',perk4:'Priorité sur le classement',perk5:'Expérience sans publicité',perk6:'Tous les outils débloqués',
+    unlock_premium:'Débloquer Premium — 0.5π',tx_history:'Historique des Transactions',clear_history:'Effacer l\'Historique',logout:'Déconnexion',
+    notifications:'Notifications',mark_read:'Tout Marquer Comme Lu'
+  },
+  es:{
+    signin:'Iniciar sesión con Pi',disc:'App comunitaria · Pi Network Mainnet · sandbox:false\nNo afiliada a ninguna organización oficial de fútbol',
+    tag1:'📅 Partidos en vivo',tag2:'🧠 Predicciones',tag3:'🎟️ Tickets QR',tag4:'📊 Análisis',tag5:'🔔 Alertas live',tag6:'👤 ID Fan',
+    nav_matches:'Partidos',nav_groups:'Grupos',nav_predict:'Predecir',nav_table:'Tabla',nav_tools:'Herr.',nav_fan:'Fan',nav_profile:'Perfil',
+    today_matches:'Partidos de Hoy',upcoming:'Próximos Partidos',results:'Resultados Recientes',teams:'Equipos',matches:'Partidos',cities:'Ciudades',
+    all_groups:'Los 12 Grupos',groups_desc:'⚽ 48 equipos · 12 grupos · Los 2 mejores de cada grupo avanzan a la ronda de 32',
+    your_pts:'Tus Puntos',streak:'Racha',pred_desc:'🧠 Predice resultados · +5 pts por predicción · +10 pts si aciertas',pick_winner:'Elige al Ganador',
+    fan_lb:'Clasificación de Fans',group_standings:'Clasificación de Grupos',
+    tool_wallet:'Perfil Cartera Pi',tool_wallet_d:'ID fan verificado · sincronización cartera · enviar Pi',tool_ticket:'Entradas de Partido',tool_ticket_d:'Entrada QR digital · sistema de acceso',
+    tool_fanid:'Tarjeta ID Fan',tool_fanid_d:'QR de perfil auto-generado · escanear para seguir',tool_checkin:'Registro de Evento',tool_checkin_d:'Zona fan · registro QR estadio',
+    tool_verify:'Verificador de Entrada',tool_verify_d:'Anti-trampa · validación QR única',tool_pred_qr:'QR Predicción',tool_pred_qr_d:'Prueba de predicción · a prueba de manipulaciones',
+    tool_analytics:'Análisis',tool_analytics_d:'Precisión · historial · seguimiento de racha',tool_odds:'Calculadora de Cuotas',tool_odds_d:'Medidor de confianza en predicciones',
+    tool_pi:'Calculadora Pi',tool_pi_d:'Convertir Pi a USD · GBP · EUR · SAR',tool_sim:'Simulador de Grupos',tool_sim_d:'Simular resultados de fase de grupos',
+    tool_time:'Horarios de Partidos',tool_time_d:'Convertir horarios ET',tool_compare:'Comparar Equipos',tool_compare_d:'Análisis cara a cara',
+    tool_pts:'Rastreador de Puntos',tool_pts_d:'Historial completo de puntos',
+    wallet_identity:'Identidad de Cartera',username:'Nombre de usuario',network:'Red',sdk:'Modo SDK',fan_level:'Nivel Fan',total_pts:'Puntos Totales',
+    send_receive:'Enviar / Solicitar Pi',recipient:'Destinatario',amount:'Cantidad (π)',memo:'Memo',btn_send:'💸 Enviar Pi',btn_request:'📨 Solicitar Pi',
+    ticket_desc:'Genera una entrada QR digital para cualquier partido. ID único · válida 24h · uso único.',
+    select_match:'Seleccionar Partido',gen_ticket:'🎟️ Generar Entrada QR',verify_ticket:'Verificar Entrada',btn_verify:'🔍 Verificar',
+    your_predictions:'QR de Prueba de Predicción',gen_pred_qr:'🧠 Generar Prueba de Predicción',scan_verify:'Verificar Hash de Predicción',
+    fanid_desc:'Tu Fan ID se auto-genera en cada inicio de sesión con número de serie. Comparte el QR para que otros vean tu perfil y envíen Pi.',
+    scan_to_profile:'Escanear para ver perfil · Enviar Pi · Seguir fan',your_fan_id:'Tu ID Fan',fan_stats:'Estadísticas Fan',predictions:'Predicciones',comments:'Posts',refresh_id:'🔄 Actualizar ID Fan',
+    checkin_desc:'Regístrate en zonas fan y simula la entrada al estadio. +5 pts por registro.',
+    select_event:'Seleccionar Evento',checkin_now:'📍 Registrarme Ahora',checkin_history:'Historial de Registros',no_checkins:'Sin registros aún',
+    performance:'Resumen de Rendimiento',accuracy:'Precisión de Predicciones',total_preds:'Total de Predicciones',correct:'Correctas',points_earned:'Puntos Ganados',best_streak:'Mejor Racha',
+    accuracy_meter:'Medidor de Precisión',prediction_acc:'Precisión',engagement:'Compromiso',streak_health:'Salud de Racha',pts_history:'Puntos · Últimos 7 Días',chart_note:'La altura de las barras representa las ganancias diarias relativas',
+    convert_pi:'Convertir Pi a Divisa',pi_amount:'Cantidad Pi',pi_price:'Precio Pi (USD)',enter_above:'Introduce valores arriba',quick_vals:'Valores Rápidos',future_val:'Valor Futuro',holdings:'Holdings (π)',target:'Precio Objetivo $',
+    confidence:'Confianza en la Predicción',team_a_win:'% Victoria Equipo A',draw:'% Empate',team_b_win:'% Victoria Equipo B',
+    select_group:'Seleccionar Grupo',et_time:'Hora del Partido (ET)',match_time:'Hora del Partido',select_teams:'Seleccionar Dos Equipos',team_a:'Equipo A',team_b:'Equipo B',activity_log:'Registro de Actividad',
+    fan_zone:'Zona Fan',fan_zone_desc:'Comparte predicciones y reacciones con la comunidad global Pi Network.',fan_placeholder:'Habla del partido, tu equipo o el torneo...',
+    post_fan:'Publicar en Zona Fan',latest_fans:'Últimas Publicaciones',
+    points:'Puntos',daily_reward:'Recompensa Diaria',daily_desc:'+10 pts cada 24h · Racha de 7 días = +20 pts de bonus',claim_daily:'Reclamar Recompensa Diaria',
+    premium:'Fan Premium',perk1:'Predicciones diarias ilimitadas',perk2:'Insignia ⭐ en el ranking',perk3:'Vistas previas anticipadas',perk4:'Prioridad en el ranking',perk5:'Experiencia sin anuncios',perk6:'Todas las herramientas desbloqueadas',
+    unlock_premium:'Desbloquear Premium — 0.5π',tx_history:'Historial de Transacciones',clear_history:'Borrar Historial',logout:'Cerrar Sesión',
+    notifications:'Notificaciones',mark_read:'Marcar Todo Leído'
+  }
+};
+
+var lang = localStorage.getItem('wc_lang') || 'en';
+function _(k){ return (I18N[lang]&&I18N[lang][k]) || I18N.en[k] || k; }
+
+function setLang(l, btn) {
+  lang = l;
+  localStorage.setItem('wc_lang', l);
+  document.documentElement.lang = l;
+  var dir = l === 'ar' ? 'rtl' : 'ltr';
+  document.documentElement.dir = dir;
+  document.body.style.direction = dir;
+  applyTranslations();
+  // Update active button
+  document.querySelectorAll('.lang-btn').forEach(function(b){b.classList.remove('active');});
+  if (btn) btn.classList.add('active');
+  else {
+    var match = document.querySelector('.lang-btn[onclick*="\''+l+'\'"]');
+    if (match) match.classList.add('active');
+  }
+  // Sync header select
+  var hs = document.getElementById('header-lang');
+  if (hs) hs.value = l;
+  showToast('🌐 ' + l.toUpperCase());
+}
+
+function applyTranslations(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k = el.getAttribute('data-i18n'), v = _(k);
+    if (v) el.textContent = v;
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(function(el){
+    var k = el.getAttribute('data-i18n-ph'), v = _(k);
+    if (v) el.placeholder = v;
+  });
+}
+
+/* ── DATA ───────────────────────────────── */
+var DATA_URL = 'https://raw.githubusercontent.com/openfootball/worldcup.json/master/2026/worldcup.json';
+var GROUPS = {
+  'Group A':['Mexico','South Africa','South Korea','Czech Republic'],
+  'Group B':['Canada','Bosnia & Herzegovina','Qatar','Switzerland'],
+  'Group C':['Brazil','Morocco','Haiti','Scotland'],
+  'Group D':['USA','Paraguay','Australia','Turkey'],
+  'Group E':['Germany','Curaçao','Ivory Coast','Ecuador'],
+  'Group F':['Netherlands','Japan',
