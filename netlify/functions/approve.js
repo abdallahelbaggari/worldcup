@@ -1,33 +1,103 @@
-const axios = require("axios");
+exports.handler = async function(event) {
 
-exports.handler = async (event) => {
-try {
-const { paymentId } = JSON.parse(event.body);
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
+  }
 
-console.log("Approving payment:", paymentId);  
+  try {
 
-const response = await axios.post(  
-  `https://api.minepi.com/v2/payments/${paymentId}/approve`,  
-  {},  
-  {  
-    headers: {  
-      Authorization: `Key ${process.env.PI_API_KEY}`  
-    }  
-  }  
-);  
+    if (!process.env.PI_API_KEY) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'API key missing' })
+      };
+    }
 
-return {  
-  statusCode: 200,  
-  body: JSON.stringify(response.data)  
-};
+    const body = JSON.parse(event.body || '{}');
 
-} catch (error) {
-console.error("Approve error:", error.response?.data || error.message);
+    const paymentId = body.paymentId;
+    const expectedAmount = body.expectedAmount;
 
-return {  
-  statusCode: 500,  
-  body: JSON.stringify({ error: "Approval failed" })  
-};
+    if (!paymentId) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Missing paymentId' })
+      };
+    }
 
-}
+    /* VERIFY PAYMENT FIRST */
+    const verifyResponse = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}`,
+      {
+        method: 'GET',
+        headers: {
+          Authorization: `Key ${process.env.PI_API_KEY}`
+        }
+      }
+    );
+
+    const payment = await verifyResponse.json();
+
+    /* CHECK PAYMENT EXISTS */
+    if (!payment || payment.error) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Invalid payment' })
+      };
+    }
+
+    /* PREVENT DOUBLE APPROVAL */
+    if (payment.status?.developer_approved === true) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({ error: 'Already approved' })
+      };
+    }
+
+    /* VERIFY AMOUNT */
+    if (
+      expectedAmount &&
+      Number(payment.amount) !== Number(expectedAmount)
+    ) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Amount mismatch'
+        })
+      };
+    }
+
+    /* APPROVE PAYMENT */
+    const approveResponse = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/approve`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Key ${process.env.PI_API_KEY}`,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+
+    const approveData = await approveResponse.json();
+
+    return {
+      statusCode: 200,
+      body: JSON.stringify(approveData)
+    };
+
+  } catch (err) {
+
+    console.error(err);
+
+    return {
+      statusCode: 500,
+      body: JSON.stringify({
+        error: 'Approval failed'
+      })
+    };
+  }
 };
