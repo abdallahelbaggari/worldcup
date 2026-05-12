@@ -1,68 +1,140 @@
-const axios = require("axios");
+exports.handler = async function(event) {
 
-exports.handler = async (event) => {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method not allowed" };
+  if (event.httpMethod !== 'POST') {
+    return {
+      statusCode: 405,
+      body: JSON.stringify({ error: 'Method not allowed' })
+    };
   }
 
   try {
-    const { paymentId, txid } = JSON.parse(event.body || "{}");
+
+    if (!process.env.PI_API_KEY) {
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: 'API key missing' })
+      };
+    }
+
+    const body = JSON.parse(event.body || '{}');
+
+    const paymentId = body.paymentId;
+    const txid = body.txid;
+    const expectedAmount = body.expectedAmount;
 
     if (!paymentId || !txid) {
-      return { statusCode: 400, body: "Missing paymentId or txid" };
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Missing paymentId or txid'
+        })
+      };
     }
 
-    const API_KEY = process.env.PI_API_KEY;
-    const YOUR_WALLET = process.env.PI_MAINNET_WALLET;
-
-    const EXPECTED_AMOUNT = 1;
-    const EXPECTED_MEMO = "worldcup_hub_payment_v1";
-
-    // 🔍 Verify payment again (CRITICAL)
-    const verifyRes = await axios.get(
+    /* GET PAYMENT DETAILS */
+    const verifyResponse = await fetch(
       `https://api.minepi.com/v2/payments/${paymentId}`,
       {
-        headers: { Authorization: `Key ${API_KEY}` }
-      }
-    );
-
-    const payment = verifyRes.data;
-
-    // 🔒 Strong validation
-    if (
-      payment.status !== "APPROVED" ||
-      payment.amount !== EXPECTED_AMOUNT ||
-      payment.to_address !== YOUR_WALLET ||
-      payment.memo !== EXPECTED_MEMO ||
-      !payment.transaction ||
-      payment.transaction.txid !== txid
-    ) {
-      return { statusCode: 400, body: "Verification failed" };
-    }
-
-    // ✅ Complete payment
-    const response = await axios.post(
-      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
-      { txid },
-      {
+        method: 'GET',
         headers: {
-          Authorization: `Key ${API_KEY}`,
-          "Content-Type": "application/json"
+          Authorization: `Key ${process.env.PI_API_KEY}`
         }
       }
     );
 
+    const payment = await verifyResponse.json();
+
+    if (!payment || payment.error) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Invalid payment'
+        })
+      };
+    }
+
+    /* VERIFY APPROVED */
+    if (payment.status?.developer_approved !== true) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Payment not approved'
+        })
+      };
+    }
+
+    /* VERIFY BLOCKCHAIN */
+    if (payment.status?.transaction_verified !== true) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Transaction not verified'
+        })
+      };
+    }
+
+    /* PREVENT DOUBLE COMPLETE */
+    if (payment.status?.developer_completed === true) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Already completed'
+        })
+      };
+    }
+
+    /* VERIFY TXID */
+    if (payment.transaction?.txid !== txid) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'TXID mismatch'
+        })
+      };
+    }
+
+    /* VERIFY AMOUNT */
+    if (
+      expectedAmount &&
+      Number(payment.amount) !== Number(expectedAmount)
+    ) {
+      return {
+        statusCode: 400,
+        body: JSON.stringify({
+          error: 'Amount mismatch'
+        })
+      };
+    }
+
+    /* COMPLETE PAYMENT */
+    const completeResponse = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Key ${process.env.PI_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ txid })
+      }
+    );
+
+    const completeData = await completeResponse.json();
+
     return {
       statusCode: 200,
-      body: JSON.stringify(response.data)
+      body: JSON.stringify(completeData)
     };
 
-  } catch (error) {
-    console.error("Complete error:", error.response?.data || error.message);
+  } catch (err) {
+
+    console.error(err);
 
     return {
       statusCode: 500,
-      body: JSON.stringify({ error: "Completion failed" })
+      body: JSON.stringify({
+        error: 'Completion failed'
+      })
     };
   }
 };
