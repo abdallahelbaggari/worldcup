@@ -4299,15 +4299,37 @@ function _doSendPi(to,amt,memo,fieldId) {
   if (!user)         { toast('⚠️ Sign in first'); return; }
   var pd = {amount:amt,memo:memo||'WorldCup fan',metadata:{type:'send',to:to,app:'worldcup'}};
   var cb = {
-    onReadyForServerApproval: function(id) {
-      fetch(_APPROVE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:id})})
-        .then(function(r){return r.json();}).catch(function(){});
+    onReadyForServerApproval: function(paymentId) {
+      console.log('[WorldCup] Approving send payment:', paymentId);
+      return fetch(_APPROVE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: paymentId })
+      }).then(function(r) {
+        console.log('[WorldCup] Approve status:', r.status);
+        return r.json();
+      }).then(function(d) {
+        console.log('[WorldCup] Approve response:', JSON.stringify(d));
+      });
     },
-    onReadyForServerCompletion: function(id,txid) {
-      fetch(_COMPLETE,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:id,txid:txid})})
-        .then(function(r){return r.json();})
-        .then(function(){addTx('💸 Sent '+amt+'π to @'+to+' · '+memo);toast('💸 '+amt+'π sent to @'+to+'!');})
-        .catch(function(){addTx('💸 Sent '+amt+'π to @'+to);toast('💸 Sent!');});
+    onReadyForServerCompletion: function(paymentId, txid) {
+      console.log('[WorldCup] Completing send payment:', paymentId, txid);
+      return fetch(_COMPLETE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ paymentId: paymentId, txid: txid })
+      }).then(function(r) {
+        console.log('[WorldCup] Complete status:', r.status);
+        return r.json();
+      }).then(function(d) {
+        console.log('[WorldCup] Complete response:', JSON.stringify(d));
+        addTx('💸 Sent '+amt+'π to @'+to+' · '+memo);
+        toast('💸 '+amt+'π sent to @'+to+'!');
+      }).catch(function(err) {
+        console.error('[WorldCup] Complete error:', err);
+        addTx('💸 Sent '+amt+'π to @'+to);
+        toast('💸 Sent!');
+      });
     },
     onCancel: function(){ toast('❌ Cancelled'); },
     onError:  function(e){ toast('⚠️ '+(e.message||'Error')); }
