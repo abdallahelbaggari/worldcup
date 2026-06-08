@@ -1,85 +1,136 @@
-/* =============================================================
-   WORLDCUP · functions/complete.js
-   Cloudflare Pages Function · MAINNET · sandbox:false
+/* ═══════════════════════════════════════════════════════════════
+   WORLDCUP · functions/complete.js · Cloudflare Pages Function
 
-   Route:   POST /complete
-   Health:  GET  /complete → returns JSON status
+   Route: /complete
+   Test:  https://worldcup-eij.pages.dev/complete (GET)
 
-   CRITICAL: Always return HTTP 200
-   Non-200 response = Pi SDK shows "Payment Expired"
-============================================================= */
+   Pi Network Mainnet · sandbox:false
+
+   CRITICAL: Always return HTTP 200 to Pi SDK
+   Non-200 = Pi SDK shows Payment Expired
+   Use completed:true/false in body for debugging only
+═══════════════════════════════════════════════════════════════ */
 
 export async function onRequestGet(context) {
   const key = context.env.PI_API_KEY;
   return new Response(
     JSON.stringify({
-      ok: true,
-      service: "WorldCup complete.js",
-      mode: "MAINNET · sandbox:false",
-      app: "worldcup.pi",
+      success: true,
+      message: "complete.js is working",
+      app: "worldcup-eij.pages.dev",
+      route: "/complete",
       pi_api_key_present: !!key,
-      pi_api_key_prefix: key ? key.substring(0,8)+"..." : "MISSING"
+      pi_api_key_length: key ? key.length : 0,
+      pi_api_key_prefix: key ? key.substring(0, 8) + "..." : "MISSING"
     }),
-    { status:200, headers:{ "Content-Type":"application/json","Access-Control-Allow-Origin":"*" }}
+    {
+      status: 200,
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*"
+      }
+    }
   );
 }
 
 export async function onRequestPost(context) {
-  const CORS = {
+
+  const cors = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "POST,GET,OPTIONS",
+    "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Content-Type": "application/json"
   };
 
-  console.log("[WorldCup] /complete POST — MAINNET");
+  console.log("[WorldCup] complete.js POST called");
 
   try {
+
     const body = await context.request.json();
     const paymentId = body.paymentId;
     const txid = body.txid;
 
-    console.log("[WorldCup] paymentId:", paymentId, "txid:", txid);
+    console.log("[WorldCup] paymentId:", paymentId);
+    console.log("[WorldCup] txid:", txid);
 
     if (!paymentId) {
-      return new Response(JSON.stringify({ completed:false, error:"missing paymentId" }), { status:200, headers:CORS });
+      console.log("[WorldCup] Missing paymentId — bad request");
+      return new Response(
+        JSON.stringify({ completed: false, error: "missing paymentId" }),
+        { status: 200, headers: cors }
+      );
     }
+
     if (!txid) {
-      return new Response(JSON.stringify({ completed:true, skipped:true, message:"waiting for txid" }), { status:200, headers:CORS });
+      console.log("[WorldCup] Missing txid — payment still processing");
+      return new Response(
+        JSON.stringify({ completed: true, skipped: true, message: "waiting for txid" }),
+        { status: 200, headers: cors }
+      );
     }
 
     const PI_API_KEY = context.env.PI_API_KEY;
+    console.log("[WorldCup] PI_API_KEY present:", !!PI_API_KEY);
+    console.log("[WorldCup] PI_API_KEY length:", PI_API_KEY ? PI_API_KEY.length : 0);
+
     if (!PI_API_KEY) {
       console.error("[WorldCup] PI_API_KEY missing");
-      return new Response(JSON.stringify({ completed:true, skipped:true, error:"PI_API_KEY missing" }), { status:200, headers:CORS });
+      return new Response(
+        JSON.stringify({ completed: true, skipped: true, error: "PI_API_KEY missing" }),
+        { status: 200, headers: cors }
+      );
     }
 
-    const res = await fetch("https://api.minepi.com/v2/payments/"+paymentId+"/complete", {
-      method: "POST",
-      headers: { "Authorization":"Key "+PI_API_KEY, "Content-Type":"application/json" },
-      body: JSON.stringify({ txid:txid })
-    });
-    const text = await res.text();
-    console.log("[WorldCup] Complete:", res.status, text);
+    const res = await fetch(
+      `https://api.minepi.com/v2/payments/${paymentId}/complete`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Key ${PI_API_KEY}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ txid })
+      }
+    );
 
+    const text = await res.text();
+
+    console.log("[WorldCup] complete status:", res.status);
+    console.log("[WorldCup] complete raw:", text);
+
+    /* completed: res.ok for honest logging
+       status: 200 always for Pi SDK          */
     return new Response(
-      JSON.stringify({ completed:res.ok, pi_status:res.status, response:text }),
-      { status:200, headers:CORS }  /* ALWAYS 200 */
+      JSON.stringify({
+        completed: res.ok,
+        pi_status: res.status,
+        response: text
+      }),
+      {
+        status: 200, /* Always 200 — never 500 to Pi SDK */
+        headers: cors
+      }
     );
 
   } catch(err) {
     console.error("[WorldCup] complete error:", err.message);
-    return new Response(JSON.stringify({ completed:false, error:err.message }), { status:200, headers:CORS });
+    return new Response(
+      JSON.stringify({ completed: false, error: err.message }),
+      {
+        status: 200, /* Always 200 */
+        headers: cors
+      }
+    );
   }
 }
 
 export async function onRequestOptions() {
   return new Response(null, {
-    status:200,
-    headers:{
-      "Access-Control-Allow-Origin":"*",
-      "Access-Control-Allow-Methods":"POST,GET,OPTIONS",
-      "Access-Control-Allow-Headers":"Content-Type"
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "POST, GET, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type"
     }
   });
 }
