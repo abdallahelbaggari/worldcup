@@ -1,31 +1,22 @@
 {
-  "name": "worldcup-pi-network",
-  "version": "13.0.0",
-  "description": "WorldCup — Football fan app on Pi Network Mainnet",
-
+  "name": "worldcup-pi",
+  "version": "3.0.0",
+  "description": "WorldCup — The #1 Football Fan Platform on Pi Network",
   "private": true,
-
   "scripts": {
     "build": "echo \"Static build\"",
-    "start": "echo \"Netlify deployment\""
+    "start": "echo \"Cloudflare Pages deployment\""
   },
-
   "engines": {
     "node": "18"
   },
-
-  "netlify": {
-    "functions": {
-      "directory": "netlify/functions"
-    }
-  },
-
   "keywords": [
     "pi-network",
     "football",
     "worldcup",
-    "mainnet"
+    "mainnet",
+    "web3",
+    "sports"
   ],
-
   "license": "MIT"
 }
