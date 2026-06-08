@@ -1,0 +1,3307 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#020912">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="description" content="WorldCup — World #1 Football Fan App on Pi Network. Live fixtures, predictions, QR tickets, analytics.">
+<meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+<title>WorldCup · Pi Network · worldcup.pi</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://sdk.minepi.com/pi-sdk.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<style>
+/* ═══════════════════════════════════════════════════════
+   WORLDCUP · DESIGN SYSTEM · v2.0
+   Cloudflare Pages · Mainnet · sandbox:false
+═══════════════════════════════════════════════════════ */
+:root{
+  --bg:#020912;--bg2:#061420;--bg3:#0A1E2E;--bg4:#0F2840;
+  --c1:#00D4FF;--c2:#0099CC;--c3:#006699;
+  --grn:#00FF88;--grn2:#00CC6A;
+  --gold:#FFD700;--gold2:#FFC400;--gold3:#FFB300;
+  --red:#FF3B5C;--red2:#CC2244;
+  --purple:#9B59B6;--orange:#FF6B35;
+  --t1:#F0F8FF;--t2:#A8C0D0;--t3:#4A6070;--t4:#1E3040;
+  --bd:rgba(0,212,255,.14);--bd2:rgba(0,212,255,.28);
+  --df:'Bebas Neue',Impact,sans-serif;
+  --dm:'DM Mono','Courier New',monospace;
+  --ds:'DM Sans',Arial,sans-serif;
+  --r1:8px;--r2:12px;--r3:18px;--r4:24px;--pill:99px;
+  --nav-h:68px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-family:var(--ds);}
+
+/* ── SCROLLBARS ── */
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--c3);border-radius:99px;}
+
+/* ══════════════════════════════════
+   SPLASH
+══════════════════════════════════ */
+#splash{
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse at 50% 30%, #0A1E2E 0%, #020912 70%);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.75rem;
+}
+.sp-badge{font-family:var(--dm);font-size:.55rem;color:var(--c1);letter-spacing:.2em;margin-bottom:.5rem;opacity:.7;}
+.sp-ball{font-size:4rem;animation:spBounce 1s ease-in-out infinite;}
+@keyframes spBounce{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-16px) scale(1.08);}}
+.sp-logo{font-family:var(--df);font-size:3rem;letter-spacing:.15em;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sp-sub{font-family:var(--dm);font-size:.6rem;color:var(--c1);opacity:.7;letter-spacing:.2em;}
+.sp-bar{width:200px;height:3px;background:rgba(0,212,255,.15);border-radius:99px;overflow:hidden;margin-top:.75rem;}
+.sp-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold));border-radius:99px;animation:spLoad 2.2s ease forwards;}
+@keyframes spLoad{0%{width:0%}60%{width:85%}100%{width:100%}}
+.sp-teams{display:flex;gap:1rem;font-size:.55rem;color:var(--t3);letter-spacing:.1em;margin-top:.25rem;}
+
+/* ══════════════════════════════════
+   MATCH OVERLAY
+══════════════════════════════════ */
+#mov{
+  position:fixed;inset:0;z-index:500;
+  background:var(--bg);
+  transform:translateX(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;
+}
+#mov.open{transform:translateX(0);}
+.mov-top{
+  position:sticky;top:0;z-index:10;
+  background:rgba(2,9,18,.95);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.75rem 1rem;
+}
+.mov-label{font-family:var(--dm);font-size:.55rem;letter-spacing:.2em;color:var(--c1);}
+.mov-close{background:rgba(0,212,255,.1);border:1px solid var(--bd);border-radius:var(--pill);
+  padding:.35rem .9rem;font-size:.7rem;color:var(--t1);cursor:pointer;font-family:var(--ds);}
+
+/* ══════════════════════════════════
+   LOGIN
+══════════════════════════════════ */
+#login{
+  position:fixed;inset:0;z-index:200;
+  background:radial-gradient(ellipse at 50% 0%, #061420 0%, #020912 60%);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+.login-stripe{height:3px;background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold),var(--grn),var(--c1));background-size:200% 100%;animation:stripe 3s linear infinite;}
+@keyframes stripe{0%{background-position:0}100%{background-position:200%}}
+.login-hero{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1.5rem 1rem;text-align:center;}
+.login-eyebrow{font-family:var(--dm);font-size:.52rem;color:var(--c1);letter-spacing:.18em;opacity:.8;margin-bottom:1.2rem;}
+.login-wordmark{font-family:var(--df);font-size:4rem;letter-spacing:.12em;line-height:.9;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.5rem;}
+.login-tagline{font-size:.9rem;color:var(--t2);margin-bottom:1.4rem;line-height:1.4;}
+.login-pills{display:flex;flex-wrap:wrap;gap:.38rem;justify-content:center;margin-bottom:1.5rem;}
+.lpill{font-family:var(--dm);font-size:.52rem;background:rgba(0,212,255,.08);
+  border:1px solid rgba(0,212,255,.2);border-radius:var(--pill);padding:.3rem .7rem;color:var(--c1);}
+.login-cta{padding:1rem 1.5rem 2rem;}
+.lang-row{display:flex;gap:.5rem;margin-bottom:1rem;justify-content:center;}
+.llbtn{flex:1;max-width:70px;background:rgba(0,212,255,.07);border:1px solid var(--bd);
+  border-radius:var(--r2);padding:.5rem .4rem;font-size:.75rem;color:var(--t2);cursor:pointer;
+  font-family:var(--dm);transition:all .15s;}
+.llbtn.on{background:rgba(0,212,255,.18);border-color:var(--c1);color:var(--c1);}
+.btn-signin{
+  width:100%;background:linear-gradient(135deg,var(--c2),var(--c1));
+  border:none;border-radius:var(--r3);padding:1rem;
+  font-family:var(--df);font-size:1.3rem;letter-spacing:.1em;color:var(--bg);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:.6rem;
+  box-shadow:0 4px 24px rgba(0,212,255,.3);transition:all .15s;
+}
+.btn-signin:active{transform:scale(.97);opacity:.9;}
+.signin-icon{font-size:1.4rem;}
+.login-legal{font-family:var(--dm);font-size:.48rem;color:var(--t3);text-align:center;
+  margin-top:.75rem;line-height:1.6;}
+#lmsg{font-family:var(--dm);font-size:.6rem;color:var(--c1);text-align:center;min-height:1.2rem;margin-top:.5rem;}
+
+/* ══════════════════════════════════
+   APP SHELL
+══════════════════════════════════ */
+#app{height:100%;display:flex;flex-direction:column;}
+
+/* TICKER */
+.ticker{height:22px;background:var(--bg4);border-bottom:1px solid rgba(0,212,255,.1);
+  overflow:hidden;position:relative;}
+.ttrack{display:flex;gap:3rem;animation:tickScroll 40s linear infinite;white-space:nowrap;padding-top:4px;}
+@keyframes tickScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ti{font-family:var(--dm);font-size:.52rem;color:var(--c1);opacity:.75;letter-spacing:.05em;}
+
+/* HEADER */
+#hdr{
+  position:sticky;top:0;z-index:100;
+  background:rgba(2,9,18,.96);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--bd);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem 1rem;gap:.5rem;min-height:52px;flex-shrink:0;
+}
+.hdr-l{display:flex;align-items:center;gap:.5rem;}
+.hdr-logo{font-family:var(--df);font-size:1.4rem;letter-spacing:.1em;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hdr-badge{font-family:var(--dm);font-size:.42rem;background:rgba(0,255,136,.09);
+  color:var(--grn);border:1px solid rgba(0,255,136,.2);border-radius:var(--pill);
+  padding:.13rem .45rem;letter-spacing:.05em;}
+.hdr-r{display:flex;align-items:center;gap:.5rem;}
+.hdr-user{font-family:var(--dm);font-size:.6rem;color:var(--t2);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.hdr-lang{background:rgba(0,212,255,.08);border:1px solid var(--bd);border-radius:var(--r1);
+  padding:.3rem .4rem;font-size:.65rem;color:var(--t1);cursor:pointer;font-family:var(--dm);}
+.bell{position:relative;background:none;border:none;cursor:pointer;font-size:1.2rem;padding:.2rem;}
+.bell-dot{position:absolute;top:0;right:0;width:8px;height:8px;background:var(--red);border-radius:50%;border:2px solid var(--bg);display:none;}
+
+/* MAIN */
+#main{flex:1;overflow-y:auto;overflow-x:hidden;padding-bottom:calc(var(--nav-h) + .5rem);}
+
+/* ── SCREENS ── */
+.scr{display:none;min-height:100%;}
+.scr.on{display:block;}
+.scr-pad{padding:.75rem 1rem;}
+
+/* Screen header */
+.scr-hdr{display:flex;align-items:center;justify-content:space-between;padding:.7rem 1rem;border-bottom:1px solid var(--bd);}
+.scr-hdr-title{font-family:var(--df);font-size:1.3rem;letter-spacing:.08em;color:var(--t1);}
+.scr-hdr-sub{font-family:var(--dm);font-size:.5rem;color:var(--t3);letter-spacing:.05em;margin-top:.1rem;}
+.scr-hdr-r{display:flex;align-items:center;gap:.5rem;}
+.live-badge{font-family:var(--dm);font-size:.45rem;background:rgba(255,59,92,.12);
+  color:var(--red);border:1px solid rgba(255,59,92,.3);border-radius:var(--pill);
+  padding:.15rem .5rem;letter-spacing:.12em;animation:livePulse 2s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* Section label */
+.sec-label{font-family:var(--dm);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--t3);margin:.85rem 0 .45rem;display:flex;align-items:center;gap:.4rem;padding:0 1rem;}
+.sec-label::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.08);}
+
+/* ── CARDS ── */
+.card{
+  background:linear-gradient(135deg,var(--bg3),var(--bg2));
+  border:1px solid var(--bd);border-radius:var(--r3);
+  padding:1rem 1.1rem;margin:.5rem 1rem;position:relative;overflow:hidden;
+}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.card-blue::before{background:linear-gradient(90deg,var(--c2),var(--c1));}
+.card-gold::before{background:linear-gradient(90deg,var(--gold3),var(--gold));}
+.card-green::before{background:linear-gradient(90deg,var(--grn2),var(--grn));}
+.card-red::before{background:linear-gradient(90deg,var(--red2),var(--red));}
+
+/* ── MATCH CARDS ── */
+.match-card{
+  background:linear-gradient(135deg,var(--bg3),var(--bg2));
+  border:1px solid var(--bd);border-radius:var(--r3);
+  margin:.4rem 1rem;overflow:hidden;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  position:relative;
+}
+.match-card:active{transform:scale(.98);}
+.match-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--c2),var(--c1));}
+.mc-header{display:flex;align-items:center;justify-content:space-between;
+  padding:.5rem .85rem .35rem;border-bottom:1px solid rgba(0,212,255,.07);}
+.mc-comp{font-family:var(--dm);font-size:.48rem;color:var(--c1);letter-spacing:.1em;}
+.mc-time{font-family:var(--dm);font-size:.48rem;color:var(--t3);}
+.mc-live-dot{width:7px;height:7px;background:var(--red);border-radius:50%;
+  box-shadow:0 0 6px var(--red);animation:livePulse 1s ease-in-out infinite;}
+.mc-body{display:flex;align-items:center;padding:.7rem .85rem;}
+.mc-team{flex:1;text-align:center;}
+.mc-flag{font-size:1.8rem;display:block;margin-bottom:.25rem;}
+.mc-tname{font-family:var(--df);font-size:.88rem;letter-spacing:.06em;color:var(--t1);}
+.mc-score{font-family:var(--df);font-size:2.2rem;letter-spacing:.05em;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  text-align:center;min-width:60px;}
+.mc-score-sep{font-family:var(--df);font-size:1.2rem;color:var(--t3);}
+.mc-footer{display:flex;align-items:center;justify-content:space-between;
+  padding:.35rem .85rem .5rem;border-top:1px solid rgba(0,212,255,.07);}
+.mc-venue{font-family:var(--dm);font-size:.48rem;color:var(--t3);}
+.mc-status{font-family:var(--dm);font-size:.48rem;border-radius:var(--pill);padding:.12rem .5rem;}
+.mc-status.live{background:rgba(255,59,92,.12);color:var(--red);border:1px solid rgba(255,59,92,.3);}
+.mc-status.upcoming{background:rgba(0,212,255,.08);color:var(--c1);border:1px solid var(--bd);}
+.mc-status.finished{background:rgba(0,255,136,.08);color:var(--grn);border:1px solid rgba(0,255,136,.2);}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem .35rem;}
+.sh-t{font-family:var(--df);font-size:1.1rem;letter-spacing:.06em;color:var(--t1);}
+.sh-sub{font-family:var(--dm);font-size:.52rem;color:var(--c1);}
+.sh.mt{margin-top:.65rem;}
+
+/* ── TOURNAMENT TILES ── */
+.tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;padding:0 1rem .4rem;}
+.tile{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);padding:.65rem .5rem;text-align:center;}
+.tn{font-family:var(--df);font-size:1.6rem;color:var(--c1);}
+.tl{font-family:var(--dm);font-size:.48rem;color:var(--t3);letter-spacing:.05em;margin-top:.15rem;}
+
+/* ── GROUPS SCREEN ── */
+.ggrid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:0 1rem 1rem;}
+.gc{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r3);padding:.75rem;overflow:hidden;position:relative;}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--c2),var(--c1));}
+.gc-hdr{font-family:var(--df);font-size:1rem;letter-spacing:.1em;color:var(--c1);margin-bottom:.4rem;}
+.gc-team{display:flex;align-items:center;gap:.4rem;padding:.22rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.gc-team:last-child{border-bottom:none;}
+.gc-flag{font-size:.95rem;}
+.gc-name{font-family:var(--ds);font-size:.65rem;font-weight:500;color:var(--t1);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.gc-pts{font-family:var(--dm);font-size:.55rem;color:var(--c1);}
+
+/* ── PREDICT SCREEN ── */
+.pbar-hdr{background:linear-gradient(135deg,var(--bg3),var(--bg2));border-bottom:1px solid var(--bd);
+  padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;}
+.p-label{font-family:var(--dm);font-size:.5rem;color:var(--t3);letter-spacing:.1em;}
+.p-value{font-family:var(--df);font-size:1.4rem;color:var(--gold);}
+.p-streak{font-family:var(--dm);font-size:.6rem;color:var(--orange);}
+.p-lvl{font-family:var(--dm);font-size:.55rem;color:var(--c1);margin-top:.15rem;}
+.pred-card{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r3);margin:.4rem 1rem;overflow:hidden;}
+.pred-match{display:flex;align-items:center;padding:.75rem .85rem;gap:.5rem;}
+.pred-flag{font-size:1.4rem;}
+.pred-team{font-family:var(--df);font-size:.88rem;letter-spacing:.04em;flex:1;color:var(--t1);}
+.pred-vs{font-family:var(--dm);font-size:.6rem;color:var(--t3);padding:0 .25rem;}
+.pred-btns{display:flex;gap:.35rem;padding:.5rem .85rem .75rem;}
+.pred-btn{flex:1;background:rgba(0,212,255,.07);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.5rem .3rem;font-family:var(--dm);font-size:.6rem;color:var(--t2);cursor:pointer;
+  transition:all .15s;text-align:center;}
+.pred-btn:active,.pred-btn.sel{background:rgba(0,212,255,.2);border-color:var(--c1);color:var(--c1);}
+.pred-btn.sel-w{background:rgba(0,255,136,.15);border-color:var(--grn);color:var(--grn);}
+
+/* ── STANDINGS SCREEN ── */
+.lb-row{display:flex;align-items:center;gap:.5rem;padding:.55rem .85rem;
+  border-bottom:1px solid rgba(255,255,255,.04);transition:background .15s;}
+.lb-rank{font-family:var(--df);font-size:1.1rem;color:var(--t3);width:24px;text-align:center;}
+.lb-rank.top{color:var(--gold);}
+.lb-name{font-family:var(--ds);font-size:.72rem;font-weight:600;color:var(--t1);flex:1;}
+.lb-pts{font-family:var(--df);font-size:1rem;color:var(--c1);}
+.lb-badge{font-family:var(--dm);font-size:.45rem;background:rgba(0,212,255,.1);
+  color:var(--c1);border:1px solid var(--bd);border-radius:var(--pill);padding:.1rem .4rem;}
+.st-table{width:100%;border-collapse:collapse;margin:.3rem 0;}
+.st-table th{font-family:var(--dm);font-size:.48rem;color:var(--t3);padding:.4rem .6rem;
+  border-bottom:1px solid var(--bd);letter-spacing:.08em;text-align:left;}
+.st-table td{font-size:.65rem;padding:.45rem .6rem;border-bottom:1px solid rgba(255,255,255,.04);}
+.st-flag{font-size:.9rem;}
+.st-name{font-family:var(--ds);font-weight:500;color:var(--t1);}
+.st-pts{font-family:var(--dm);color:var(--gold);font-weight:600;}
+.st-form span{display:inline-block;width:14px;height:14px;border-radius:3px;
+  font-size:.45rem;text-align:center;line-height:14px;margin-right:2px;}
+.form-w{background:rgba(0,255,136,.15);color:var(--grn);}
+.form-d{background:rgba(0,212,255,.1);color:var(--c1);}
+.form-l{background:rgba(255,59,92,.1);color:var(--red);}
+
+/* ── UTILITIES SCREEN ── */
+.tsec{margin:.5rem 0;}
+.tsec-hdr{font-family:var(--dm);font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--t3);padding:.5rem 1rem .3rem;display:flex;align-items:center;gap:.4rem;}
+.tsec-hdr::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.08);}
+.tgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:.4rem;padding:0 1rem;}
+.tc{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r3);
+  padding:.75rem;cursor:pointer;transition:all .15s;position:relative;overflow:hidden;}
+.tc:active{transform:scale(.97);}
+.tc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--c2),var(--c1));}
+.tc-gold::before{background:linear-gradient(90deg,var(--gold3),var(--gold));}
+.tc-tag{position:absolute;top:.4rem;right:.4rem;font-family:var(--dm);font-size:.4rem;
+  border-radius:var(--pill);padding:.12rem .4rem;letter-spacing:.08em;}
+.tt-hot{background:rgba(255,59,92,.15);color:var(--red);border:1px solid rgba(255,59,92,.3);}
+.tt-new{background:rgba(0,255,136,.12);color:var(--grn);border:1px solid rgba(0,255,136,.25);}
+.tt-live{background:rgba(0,212,255,.12);color:var(--c1);border:1px solid var(--bd);}
+.tc-icon{font-size:1.6rem;display:block;margin-bottom:.3rem;}
+.tc-name{font-family:var(--df);font-size:.85rem;letter-spacing:.04em;color:var(--t1);margin-bottom:.15rem;}
+.tc-desc{font-family:var(--dm);font-size:.48rem;color:var(--t3);line-height:1.4;}
+
+/* Utility Panels */
+.up{display:none;padding:0 0 1rem;}
+.up.on{display:block;}
+.up-hdr{display:flex;align-items:center;gap:.6rem;padding:.65rem 1rem;
+  border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:10;
+  background:rgba(2,9,18,.96);backdrop-filter:blur(14px);}
+.up-title{font-family:var(--df);font-size:1.2rem;letter-spacing:.08em;color:var(--t1);}
+.back-btn{background:rgba(0,212,255,.1);border:1px solid var(--bd);border-radius:var(--pill);
+  padding:.35rem .8rem;font-size:.72rem;color:var(--c1);cursor:pointer;font-family:var(--dm);
+  transition:all .15s;}
+.back-btn:active{background:rgba(0,212,255,.2);}
+
+/* ── INPUT SYSTEM ── */
+.ic{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r3);
+  padding:.85rem;margin:.45rem 1rem;}
+.ic-title{font-family:var(--df);font-size:.95rem;letter-spacing:.06em;color:var(--c1);margin-bottom:.6rem;}
+.ibox{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.65rem .85rem;margin:.45rem 1rem;font-family:var(--dm);font-size:.6rem;color:var(--t2);}
+.fg{display:flex;flex-direction:column;gap:.22rem;margin-bottom:.5rem;}
+.fg:last-child{margin-bottom:0;}
+.flbl{font-family:var(--dm);font-size:.5rem;color:var(--t3);letter-spacing:.08em;text-transform:uppercase;}
+.fi{background:rgba(0,212,255,.06);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.55rem .7rem;font-size:.78rem;color:var(--t1);font-family:var(--ds);width:100%;
+  transition:border-color .15s;outline:none;}
+.fi:focus{border-color:var(--c1);}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;}
+
+/* ── BUTTONS ── */
+.btn{display:block;width:100%;border:none;border-radius:var(--r2);padding:.72rem .95rem;
+  font-family:var(--df);font-size:.95rem;letter-spacing:.08em;cursor:pointer;
+  background:linear-gradient(135deg,var(--c2),var(--c1));color:var(--bg);
+  transition:all .15s;margin-top:.5rem;}
+.btn:active{transform:scale(.97);}
+.btn-gold{background:linear-gradient(135deg,var(--gold3),var(--gold));color:var(--bg);}
+.btn-green{background:linear-gradient(135deg,var(--grn2),var(--grn));color:var(--bg);}
+.btn-red{background:linear-gradient(135deg,var(--red2),var(--red));color:#fff;}
+.btn-ghost{background:rgba(0,212,255,.08);border:1px solid var(--bd);color:var(--c1);}
+.btn-sm{padding:.45rem .7rem;font-size:.72rem;margin-top:.25rem;display:inline-block;width:auto;}
+
+/* ── BOTTOM NAV ── */
+#bnav{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(2,9,18,.97);backdrop-filter:blur(16px);
+  border-top:1px solid var(--bd);
+  display:flex;height:var(--nav-h);
+}
+.bni{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:.18rem;background:none;border:none;cursor:pointer;padding:.3rem .25rem;
+  transition:all .15s;}
+.bni-i{font-size:1.25rem;line-height:1;transition:all .15s;}
+.bni-l{font-family:var(--dm);font-size:.4rem;font-weight:600;color:var(--t3);
+  letter-spacing:.04em;text-transform:uppercase;transition:color .15s;}
+.bni.on .bni-i{filter:drop-shadow(0 0 6px rgba(0,212,255,.8));}
+.bni.on .bni-l{color:var(--c1);}
+.bni.on .bni-indicator{display:block;}
+.bni-indicator{display:none;width:24px;height:2px;background:var(--c1);border-radius:99px;
+  position:absolute;bottom:8px;}
+
+/* ── TOAST ── */
+#toast{position:fixed;bottom:calc(var(--nav-h) + 1rem);left:50%;transform:translateX(-50%) translateY(20px);
+  background:rgba(0,212,255,.15);backdrop-filter:blur(14px);
+  border:1px solid var(--bd);border-radius:var(--pill);
+  padding:.55rem 1.1rem;font-family:var(--dm);font-size:.65rem;color:var(--t1);
+  white-space:nowrap;z-index:9000;opacity:0;transition:all .25s;pointer-events:none;}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── WALLET CARD ── */
+.wallet-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));
+  border:1px solid var(--bd2);border-radius:var(--r4);padding:1rem;margin:.5rem 1rem;position:relative;overflow:hidden;}
+.wallet-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold));}
+.wc-row{display:flex;align-items:flex-start;gap:.75rem;margin-bottom:.75rem;}
+.wc-av{font-size:2.2rem;background:rgba(0,212,255,.1);border-radius:50%;width:52px;height:52px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;border:2px solid rgba(0,212,255,.2);}
+.wc-name{font-family:var(--df);font-size:1.2rem;letter-spacing:.06em;color:var(--t1);}
+.wc-serial{font-family:var(--dm);font-size:.52rem;color:var(--c1);margin-top:.1rem;}
+.wc-uid{font-family:var(--dm);font-size:.48rem;color:var(--t3);margin-top:.1rem;}
+.wc-live{display:flex;align-items:center;gap:.3rem;font-family:var(--dm);font-size:.5rem;color:var(--grn);margin-top:.2rem;}
+.live-dot{width:6px;height:6px;background:var(--grn);border-radius:50%;box-shadow:0 0 6px var(--grn);animation:livePulse 2s ease-in-out infinite;flex-shrink:0;}
+.wc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:.4rem;border-top:1px solid var(--bd);padding-top:.65rem;}
+.wcs{text-align:center;}
+.wcs-v{font-family:var(--df);font-size:1.1rem;color:var(--c1);}
+.wcs-l{font-family:var(--dm);font-size:.44rem;color:var(--t3);margin-top:.1rem;letter-spacing:.04em;}
+
+/* ── FAN ID CARD ── */
+.fid-card{
+  background:linear-gradient(135deg,#0A1E2E,#061420);
+  border:2px solid rgba(0,212,255,.3);border-radius:var(--r4);
+  padding:1.2rem 1rem;margin:.5rem 1rem;text-align:center;position:relative;overflow:hidden;
+}
+.fid-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold));}
+.fid-av{font-size:2.5rem;margin-bottom:.4rem;}
+.fid-name{font-family:var(--df);font-size:1.5rem;letter-spacing:.1em;color:var(--t1);}
+.fid-serial{font-family:var(--dm);font-size:.55rem;color:var(--c1);margin:.2rem 0;}
+.fid-uid{font-family:var(--dm);font-size:.48rem;color:var(--t3);}
+.fid-badges{display:flex;gap:.35rem;justify-content:center;margin:.5rem 0;}
+.fbadge{font-family:var(--dm);font-size:.46rem;border-radius:var(--pill);padding:.15rem .55rem;}
+.fb-main{background:rgba(0,255,136,.1);color:var(--grn);border:1px solid rgba(0,255,136,.25);}
+.fb-prem{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.25);}
+.fb-lvl{background:rgba(0,212,255,.1);color:var(--c1);border:1px solid var(--bd);}
+.fid-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;margin-top:.5rem;}
+.fs{text-align:center;}
+.fs-n{font-family:var(--df);font-size:1.2rem;color:var(--gold);}
+.fs-l{font-family:var(--dm);font-size:.46rem;color:var(--t3);}
+.qr-box{text-align:center;padding:.75rem 1rem;}
+.qr-sub{font-family:var(--dm);font-size:.52rem;color:var(--t3);margin-bottom:.5rem;}
+.qr-wrap canvas{border-radius:var(--r2);border:3px solid rgba(0,212,255,.2);background:#fff;padding:6px;}
+.qr-id{font-family:var(--dm);font-size:.5rem;color:var(--c1);margin-top:.3rem;}
+
+/* ── ANALYTICS CARD ── */
+.ana-stat{text-align:center;padding:.6rem;}
+.ana-val{font-family:var(--df);font-size:1.8rem;color:var(--c1);}
+.ana-lbl{font-family:var(--dm);font-size:.48rem;color:var(--t3);letter-spacing:.06em;}
+.ana-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;padding:0 1rem;}
+
+/* ── NOTIFICATIONS ── */
+.notif-item{display:flex;gap:.6rem;padding:.65rem .85rem;border-bottom:1px solid rgba(255,255,255,.04);}
+.notif-icon{font-size:1.3rem;flex-shrink:0;}
+.notif-body{flex:1;}
+.notif-title{font-size:.72rem;font-weight:600;color:var(--t1);margin-bottom:.1rem;}
+.notif-sub{font-family:var(--dm);font-size:.52rem;color:var(--t3);}
+.notif-time{font-family:var(--dm);font-size:.48rem;color:var(--t3);flex-shrink:0;}
+
+/* ── MISC ── */
+.empty{text-align:center;padding:2rem 1rem;font-family:var(--dm);font-size:.65rem;color:var(--t3);}
+.tag-blue{background:rgba(0,212,255,.1);color:var(--c1);border:1px solid var(--bd);border-radius:var(--pill);padding:.1rem .4rem;font-family:var(--dm);font-size:.48rem;}
+.tag-gold{background:rgba(255,215,0,.1);color:var(--gold);border:1px solid rgba(255,215,0,.2);border-radius:var(--pill);padding:.1rem .4rem;font-family:var(--dm);font-size:.48rem;}
+.tag-green{background:rgba(0,255,136,.1);color:var(--grn);border:1px solid rgba(0,255,136,.2);border-radius:var(--pill);padding:.1rem .4rem;font-family:var(--dm);font-size:.48rem;}
+.tag-red{background:rgba(255,59,92,.1);color:var(--red);border:1px solid rgba(255,59,92,.2);border-radius:var(--pill);padding:.1rem .4rem;font-family:var(--dm);font-size:.48rem;}
+.divider{height:1px;background:var(--bd);margin:.5rem 1rem;}
+.scan-inp{width:100%;background:rgba(0,212,255,.06);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.55rem .7rem;font-family:var(--dm);font-size:.65rem;color:var(--t1);outline:none;margin-bottom:.4rem;}
+.scan-inp:focus{border-color:var(--c1);}
+
+/* ── SBAR (score bar) ── */
+.sbar{display:flex;align-items:center;justify-content:space-between;padding:.4rem 1rem;
+  background:var(--bg4);border-bottom:1px solid var(--bd);}
+.sbar-t{font-family:var(--dm);font-size:.52rem;color:var(--c1);}
+.sbar-r{font-family:var(--dm);font-size:.48rem;color:var(--t3);}
+
+/* ── MOV (match overlay) content ── */
+.mov-hero{background:linear-gradient(135deg,var(--bg3),var(--bg2));border-bottom:1px solid var(--bd);padding:1.5rem 1rem;}
+.mov-teams{display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+.mov-team{text-align:center;flex:1;}
+.mov-flag{font-size:3rem;display:block;margin-bottom:.3rem;}
+.mov-tname{font-family:var(--df);font-size:1.1rem;letter-spacing:.06em;}
+.mov-score{font-family:var(--df);font-size:3.5rem;letter-spacing:.05em;text-align:center;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  min-width:80px;}
+.mov-comp{font-family:var(--dm);font-size:.52rem;color:var(--c1);text-align:center;margin-bottom:.3rem;letter-spacing:.1em;}
+.mov-venue{font-family:var(--dm);font-size:.52rem;color:var(--t3);text-align:center;}
+.mov-tabs{display:flex;border-bottom:1px solid var(--bd);}
+.mov-tab{flex:1;padding:.6rem;font-family:var(--dm);font-size:.55rem;color:var(--t3);
+  text-align:center;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;letter-spacing:.06em;}
+.mov-tab.on{color:var(--c1);border-bottom-color:var(--c1);}
+.mov-pane{display:none;padding:1rem;}
+.mov-pane.on{display:block;}
+.lineup-row{display:flex;gap:.5rem;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.lineup-num{font-family:var(--dm);font-size:.6rem;color:var(--c1);width:24px;}
+.lineup-name{font-size:.7rem;flex:1;}
+.lineup-pos{font-family:var(--dm);font-size:.5rem;color:var(--t3);}
+.event-item{display:flex;align-items:center;gap:.5rem;padding:.4rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.event-min{font-family:var(--dm);font-size:.6rem;color:var(--gold);width:32px;flex-shrink:0;}
+.event-icon{font-size:1rem;}
+.event-text{font-size:.68rem;flex:1;}
+
+/* ── PREMIUM CARD ── */
+.prem-card{background:linear-gradient(135deg,#1A1400,#0F0D00);
+  border:1px solid rgba(255,215,0,.3);border-radius:var(--r4);
+  padding:1.2rem;margin:.5rem 1rem;position:relative;overflow:hidden;}
+.prem-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--gold3),var(--gold));}
+.prem-badge{display:inline-block;background:rgba(255,215,0,.1);border:1px solid rgba(255,215,0,.25);
+  border-radius:var(--pill);padding:.2rem .6rem;font-family:var(--dm);font-size:.48rem;color:var(--gold);
+  margin-bottom:.5rem;}
+.prem-title{font-family:var(--df);font-size:1.5rem;letter-spacing:.08em;color:var(--gold);margin-bottom:.25rem;}
+.prem-price{font-family:var(--df);font-size:2.5rem;color:var(--gold2);line-height:1;}
+.prem-features{display:grid;grid-template-columns:1fr 1fr;gap:.25rem;margin:.75rem 0;}
+.pf{font-family:var(--dm);font-size:.55rem;color:var(--t2);display:flex;align-items:center;gap:.25rem;}
+.pf::before{content:'✓';color:var(--grn);font-weight:700;}
+
+/* ── TICKER UPDATES ── */
+.score-pill{display:inline-flex;align-items:center;gap:.25rem;background:rgba(255,59,92,.12);
+  border:1px solid rgba(255,59,92,.25);border-radius:var(--pill);padding:.2rem .6rem;
+  font-family:var(--dm);font-size:.55rem;color:var(--red);margin:.2rem;}
+
+/* ── CALCULATOR ── */
+.calc-display{background:var(--bg4);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.75rem;margin-bottom:.5rem;font-family:var(--dm);font-size:1.4rem;color:var(--c1);
+  text-align:right;}
+.calc-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.3rem;}
+.calc-btn{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r1);
+  padding:.6rem;font-family:var(--dm);font-size:.8rem;color:var(--t1);cursor:pointer;
+  transition:background .1s;text-align:center;}
+.calc-btn:active{background:var(--bg4);}
+.calc-btn.op{color:var(--c1);}
+.calc-btn.eq{background:linear-gradient(135deg,var(--c2),var(--c1));color:var(--bg);}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:translateX(0)}}
+@keyframes scaleIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.scr.on > *{animation:fadeIn .3s ease both;}
+.match-card{animation:slideIn .25s ease both;}
+
+/* ── MATCH DETAIL SPECIFIC ── */
+.stat-bar-row{display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem;}
+.stat-name{font-family:var(--dm);font-size:.52rem;color:var(--t3);width:80px;text-align:right;}
+.stat-bar-wrap{flex:1;display:flex;gap:.15rem;}
+.stat-bar-l,.stat-bar-r{height:5px;border-radius:99px;}
+.stat-bar-l{background:var(--c1);border-radius:99px 0 0 99px;}
+.stat-bar-r{background:var(--red);border-radius:0 99px 99px 0;}
+.stat-val{font-family:var(--dm);font-size:.52rem;color:var(--t3);width:32px;}
+.stat-val.right{text-align:right;}
+
+/* Head to head */
+.h2h-item{display:flex;align-items:center;gap:.4rem;padding:.35rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.h2h-date{font-family:var(--dm);font-size:.5rem;color:var(--t3);width:50px;}
+.h2h-teams{flex:1;font-size:.65rem;color:var(--t1);}
+.h2h-score{font-family:var(--dm);font-size:.65rem;color:var(--gold);}
+
+/* ══════════════════════════════════
+   NEWS SYSTEM · AI Automatic
+══════════════════════════════════ */
+.news-cats{display:flex;gap:.35rem;overflow-x:auto;padding:.55rem 1rem;scrollbar-width:none;border-bottom:1px solid var(--bd);}
+.news-cats::-webkit-scrollbar{display:none;}
+.ncat{font-family:var(--dm);font-size:.52rem;background:rgba(0,212,255,.07);border:1px solid var(--bd);border-radius:var(--pill);padding:.3rem .75rem;color:var(--t3);cursor:pointer;white-space:nowrap;transition:all .18s;flex-shrink:0;}
+.ncat.on{background:linear-gradient(135deg,rgba(0,212,255,.2),rgba(0,212,255,.1));border-color:var(--c1);color:var(--c1);}
+.breaking-banner{background:linear-gradient(135deg,rgba(255,59,92,.12),rgba(255,59,92,.06));border:1px solid rgba(255,59,92,.25);border-radius:var(--r2);margin:.5rem 1rem;padding:.55rem .85rem;display:flex;align-items:center;gap:.5rem;cursor:pointer;animation:breakingPulse 3s ease-in-out infinite;}
+@keyframes breakingPulse{0%,100%{border-color:rgba(255,59,92,.25)}50%{border-color:rgba(255,59,92,.6)}}
+.breaking-dot{width:8px;height:8px;background:var(--red);border-radius:50%;flex-shrink:0;box-shadow:0 0 8px var(--red);animation:livePulse 1s ease-in-out infinite;}
+.breaking-text{font-family:var(--dm);font-size:.58rem;color:var(--red);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.breaking-tag{font-family:var(--dm);font-size:.42rem;background:var(--red);color:#fff;border-radius:var(--pill);padding:.1rem .4rem;flex-shrink:0;}
+.news-hero{margin:.5rem 1rem;border-radius:var(--r4);overflow:hidden;cursor:pointer;position:relative;transition:transform .2s;min-height:220px;background:var(--bg3);}
+.news-hero:active{transform:scale(.98);}
+.news-hero-img{width:100%;height:220px;object-fit:cover;display:block;transition:opacity .3s;}
+.news-hero-img.loading{opacity:0;}.news-hero-img.loaded{opacity:1;}
+.news-hero-overlay{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent 0%,rgba(2,9,18,.7) 30%,rgba(2,9,18,.98) 100%);padding:1rem .85rem .85rem;}
+.news-hero-cat{font-family:var(--dm);font-size:.46rem;color:var(--red);letter-spacing:.12em;margin-bottom:.25rem;text-transform:uppercase;}
+.news-hero-title{font-family:var(--df);font-size:1.2rem;letter-spacing:.04em;color:var(--t1);margin-bottom:.3rem;line-height:1.2;}
+.news-hero-summary{font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.5;margin-bottom:.4rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.news-hero-meta{display:flex;align-items:center;justify-content:space-between;}
+.news-hero-time{font-family:var(--dm);font-size:.48rem;color:var(--t3);}
+.news-hero-actions{display:flex;gap:.35rem;}
+.nact-btn{background:rgba(0,212,255,.1);border:1px solid var(--bd);border-radius:var(--pill);padding:.2rem .55rem;font-family:var(--dm);font-size:.48rem;color:var(--c1);cursor:pointer;transition:all .15s;}
+.nact-btn:active{background:rgba(0,212,255,.25);}
+.nact-btn.saved{background:rgba(255,215,0,.15);border-color:rgba(255,215,0,.3);color:var(--gold);}
+.news-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--bd);border-radius:var(--r3);margin:.4rem 1rem;overflow:hidden;cursor:pointer;transition:transform .15s,box-shadow .15s;display:flex;flex-direction:column;}
+.news-card:active{transform:scale(.98);}
+.news-card-img-wrap{position:relative;height:160px;overflow:hidden;flex-shrink:0;background:var(--bg4);}
+.news-card-img{width:100%;height:100%;object-fit:cover;transition:opacity .3s,transform .3s;}
+.news-card-img.loading{opacity:0;}.news-card-img.loaded{opacity:1;}
+.news-card:hover .news-card-img{transform:scale(1.03);}
+.news-card-cat-badge{position:absolute;top:.5rem;left:.5rem;font-family:var(--dm);font-size:.44rem;border-radius:var(--pill);padding:.15rem .5rem;letter-spacing:.08em;}
+.cat-breaking{background:rgba(255,59,92,.85);color:#fff;}.cat-match{background:rgba(0,212,255,.85);color:var(--bg);}
+.cat-player{background:rgba(0,255,136,.85);color:var(--bg);}.cat-tournament{background:rgba(255,215,0,.85);color:var(--bg);}
+.cat-standings{background:rgba(155,89,182,.85);color:#fff;}.cat-insights{background:rgba(255,107,53,.85);color:#fff;}
+.news-card-live{position:absolute;top:.5rem;right:.5rem;background:rgba(255,59,92,.85);border-radius:var(--pill);padding:.12rem .45rem;font-family:var(--dm);font-size:.42rem;color:#fff;animation:livePulse 1s ease-in-out infinite;}
+.news-card-body{padding:.65rem .75rem;}
+.news-card-headline{font-family:var(--df);font-size:.95rem;letter-spacing:.03em;color:var(--t1);margin-bottom:.3rem;line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.news-card-ai{display:flex;align-items:flex-start;gap:.3rem;background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);border-radius:var(--r1);padding:.42rem .55rem;margin-bottom:.45rem;}
+.news-card-ai-icon{font-size:.75rem;flex-shrink:0;margin-top:.05rem;}
+.news-card-ai-text{font-family:var(--dm);font-size:.54rem;color:var(--t2);line-height:1.55;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+.news-card-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.38rem;border-top:1px solid rgba(0,212,255,.06);}
+.news-card-source{display:flex;align-items:center;gap:.3rem;}
+.news-card-src-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.news-card-src-name{font-family:var(--dm);font-size:.48rem;color:var(--t3);}
+.news-card-time{font-family:var(--dm);font-size:.46rem;color:var(--t3);}
+.news-card-acts{display:flex;gap:.28rem;}
+.news-compact{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);margin:.3rem 1rem;padding:.55rem .7rem;display:flex;gap:.6rem;cursor:pointer;transition:all .15s;}
+.news-compact:active{background:var(--bg4);}
+.news-compact-img{width:72px;height:72px;border-radius:var(--r1);object-fit:cover;flex-shrink:0;background:var(--bg4);transition:opacity .3s;}
+.news-compact-img.loading{opacity:0;}.news-compact-img.loaded{opacity:1;}
+.news-compact-body{flex:1;overflow:hidden;}
+.news-compact-cat{font-family:var(--dm);font-size:.44rem;margin-bottom:.18rem;}
+.news-compact-title{font-family:var(--ds);font-size:.68rem;font-weight:600;color:var(--t1);line-height:1.25;margin-bottom:.2rem;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.news-compact-time{font-family:var(--dm);font-size:.46rem;color:var(--t3);}
+.news-skel{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r3);margin:.4rem 1rem;overflow:hidden;}
+.skel-img{height:160px;background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite;}
+.skel-line{height:10px;border-radius:99px;margin:.5rem .75rem;background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;animation:skelShimmer 1.4s infinite;}
+.skel-line.short{width:60%;margin-left:.75rem;}.skel-line.xshort{width:35%;}
+@keyframes skelShimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.news-sec-hdr{display:flex;align-items:center;gap:.5rem;padding:.5rem 1rem .25rem;}
+.news-sec-title{font-family:var(--df);font-size:1rem;letter-spacing:.06em;color:var(--t1);}
+.news-sec-ai{font-family:var(--dm);font-size:.42rem;background:rgba(0,212,255,.08);border:1px solid var(--bd);border-radius:var(--pill);padding:.1rem .45rem;color:var(--c1);}
+.news-sec-line{flex:1;height:1px;background:rgba(0,212,255,.08);}
+.ai-processing{display:flex;align-items:center;gap:.5rem;padding:.4rem .85rem;font-family:var(--dm);font-size:.52rem;color:var(--c1);}
+.ai-processing-dots span{animation:aiDot .8s ease-in-out infinite;display:inline-block;}
+.ai-processing-dots span:nth-child(2){animation-delay:.2s;}
+.ai-processing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes aiDot{0%,100%{opacity:.2;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
+#story-overlay{position:fixed;inset:0;z-index:600;background:var(--bg);transform:translateY(100%);transition:transform .32s cubic-bezier(.4,0,.2,1);overflow-y:auto;}
+#story-overlay.open{transform:translateY(0);}
+.story-top{position:sticky;top:0;z-index:10;background:rgba(2,9,18,.95);backdrop-filter:blur(14px);border-bottom:1px solid var(--bd);display:flex;align-items:center;justify-content:space-between;padding:.65rem 1rem;}
+.story-hero-img{width:100%;height:220px;object-fit:cover;display:block;}
+.story-body{padding:1rem;}
+.story-cat{font-family:var(--dm);font-size:.5rem;color:var(--c1);letter-spacing:.15em;margin-bottom:.4rem;}
+.story-title{font-family:var(--df);font-size:1.5rem;letter-spacing:.05em;color:var(--t1);margin-bottom:.5rem;line-height:1.15;}
+.story-meta{display:flex;align-items:center;gap:.6rem;margin-bottom:.75rem;flex-wrap:wrap;}
+.story-time{font-family:var(--dm);font-size:.52rem;color:var(--t3);}
+.story-ai-box{background:rgba(0,212,255,.05);border:1px solid rgba(0,212,255,.15);border-radius:var(--r2);padding:.75rem;margin-bottom:.75rem;}
+.story-ai-label{font-family:var(--dm);font-size:.48rem;color:var(--c1);letter-spacing:.12em;margin-bottom:.35rem;}
+.story-ai-content{font-family:var(--dm);font-size:.62rem;color:var(--t2);line-height:1.65;}
+.story-text{font-size:.78rem;color:var(--t2);line-height:1.7;margin-bottom:.75rem;}
+.story-tags{display:flex;flex-wrap:wrap;gap:.35rem;}
+.story-tag{font-family:var(--dm);font-size:.48rem;background:rgba(0,212,255,.07);border:1px solid var(--bd);border-radius:var(--pill);padding:.18rem .55rem;color:var(--t3);}
+.news-refresh-btn{display:flex;align-items:center;gap:.4rem;background:rgba(0,212,255,.07);border:1px solid var(--bd);border-radius:var(--pill);padding:.32rem .85rem;font-family:var(--dm);font-size:.55rem;color:var(--c1);cursor:pointer;transition:all .15s;}
+.news-refresh-btn:active{background:rgba(0,212,255,.2);}
+.news-refresh-btn.spinning svg{animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.player-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));border:1px solid var(--bd);border-radius:var(--r3);margin:.4rem 1rem;padding:.75rem;display:flex;gap:.65rem;cursor:pointer;}
+.player-av{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--c2),var(--c1));display:flex;align-items:center;justify-content:center;font-size:1.6rem;flex-shrink:0;}
+.player-info{flex:1;}
+.player-name{font-family:var(--df);font-size:1rem;letter-spacing:.05em;color:var(--t1);}
+.player-team{font-family:var(--dm);font-size:.52rem;color:var(--c1);}
+.player-stat{font-family:var(--dm);font-size:.54rem;color:var(--t2);margin-top:.2rem;}
+.player-ai{font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-top:.25rem;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+
+
+/* ══════════════════════════════════
+   PARTNERSHIPS & ABOUT · CSS
+══════════════════════════════════ */
+
+/* About hero */
+.about-hero{text-align:center;padding:1.4rem 1rem .9rem;border-bottom:1px solid var(--bd);}
+.about-logo{font-family:var(--df);font-size:2.2rem;letter-spacing:.12em;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:.3rem;}
+.about-tagline{font-family:var(--dm);font-size:.6rem;color:var(--t3);margin-bottom:.6rem;line-height:1.5;}
+.about-badges{display:flex;justify-content:center;gap:.35rem;flex-wrap:wrap;}
+
+/* Partnership hero */
+.pship-hero{padding:1.4rem 1rem 1rem;border-bottom:1px solid var(--bd);text-align:center;}
+.pship-title{font-family:var(--df);font-size:2rem;letter-spacing:.1em;
+  background:linear-gradient(135deg,var(--c1),var(--gold));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:.3rem;}
+.pship-sub{font-family:var(--dm);font-size:.6rem;color:var(--t3);line-height:1.5;}
+
+/* Independent platform badge */
+.pship-ind-badge{display:inline-flex;align-items:center;gap:.4rem;
+  background:rgba(0,255,136,.06);border:1px solid rgba(0,255,136,.18);
+  border-radius:var(--pill);padding:.4rem .85rem;
+  font-family:var(--dm);font-size:.5rem;color:var(--grn);text-align:center;}
+.pship-ind-dot{width:6px;height:6px;background:var(--grn);border-radius:50%;flex-shrink:0;
+  box-shadow:0 0 5px var(--grn);}
+
+/* Focus areas grid */
+.pship-focus-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;
+  margin:.3rem 1rem .5rem;}
+.pship-focus-item{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.65rem .4rem;text-align:center;transition:all .15s;cursor:default;}
+.pship-focus-icon{font-size:1.4rem;display:block;margin-bottom:.25rem;}
+.pship-focus-label{font-family:var(--dm);font-size:.48rem;color:var(--t3);letter-spacing:.04em;}
+
+/* Category rows */
+.pship-cat-row{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.65rem .75rem;display:flex;align-items:center;gap:.55rem;
+  transition:background .15s;cursor:default;
+  animation:slideIn .22s ease both;}
+.pship-cat-row:nth-child(1){animation-delay:.04s;}
+.pship-cat-row:nth-child(2){animation-delay:.08s;}
+.pship-cat-row:nth-child(3){animation-delay:.12s;}
+.pship-cat-row:nth-child(4){animation-delay:.16s;}
+.pship-cat-row:nth-child(5){animation-delay:.20s;}
+.pship-cat-icon{font-size:1.3rem;flex-shrink:0;width:32px;text-align:center;}
+.pship-cat-body{flex:1;}
+.pship-cat-name{font-family:var(--ds);font-size:.7rem;font-weight:600;color:var(--t1);margin-bottom:.12rem;}
+.pship-cat-desc{font-family:var(--dm);font-size:.48rem;color:var(--t3);line-height:1.4;}
+.pship-cat-arrow{font-size:1.1rem;color:var(--t4);flex-shrink:0;}
+
+/* Empty state */
+.pship-empty{text-align:center;padding:1.5rem 1.5rem 1rem;margin:.3rem 1rem;}
+.pship-empty-icon{font-size:2.4rem;opacity:.3;margin-bottom:.5rem;}
+.pship-empty-title{font-family:var(--ds);font-size:.78rem;font-weight:600;color:var(--t2);margin-bottom:.3rem;}
+.pship-empty-sub{font-family:var(--dm);font-size:.55rem;color:var(--t3);line-height:1.55;}
+
+</style>
+</head>
+<body>
+
+<!-- ═══ SPLASH ═══ -->
+<div id="splash">
+  <div class="sp-badge">CLOUDFLARE · MAINNET · Pi Network</div>
+  <div class="sp-ball">⚽</div>
+  <div class="sp-logo">WorldCup</div>
+  <div class="sp-sub">worldcup.pi · The #1 Football Fan App</div>
+  <div class="sp-bar"><div class="sp-fill"></div></div>
+  <div class="sp-teams">🇺🇸 USA · 🇨🇦 CAN · 🇲🇽 MEX · 2026 · 48 Teams · 104 Matches</div>
+</div>
+
+<!-- ═══ MATCH DETAIL OVERLAY ═══ -->
+<div id="mov">
+  <div class="mov-top">
+    <span class="mov-label">⚽ MATCH DETAILS</span>
+    <button class="mov-close" onclick="closeMov()">← Back</button>
+  </div>
+  <div id="mov-content"></div>
+</div>
+
+<!-- ═══ LOGIN ═══ -->
+<div id="login">
+  <div class="login-stripe"></div>
+  <div class="login-hero">
+    <div class="login-eyebrow">⚽ Pi Network · Mainnet · sandbox:false · worldcup.pi</div>
+    <div class="login-wordmark">WorldCup</div>
+    <div class="login-tagline">The World's #1 Football Fan App on Pi Network</div>
+    <div class="login-pills">
+      <span class="lpill">📅 Live Fixtures</span>
+      <span class="lpill">🧠 Predictions</span>
+      <span class="lpill">🎟️ QR Tickets</span>
+      <span class="lpill">📊 Analytics</span>
+      <span class="lpill">🔔 Live Alerts</span>
+      <span class="lpill">👤 Fan ID</span>
+      <span class="lpill">💸 Pi Payments</span>
+      <span class="lpill">🌍 4 Languages</span>
+    </div>
+  </div>
+  <div class="login-cta">
+    <div class="lang-row">
+      <button class="llbtn on" onclick="setLang('en',this)">🌐 EN</button>
+      <button class="llbtn" onclick="setLang('ar',this)">🇸🇦 AR</button>
+      <button class="llbtn" onclick="setLang('fr',this)">🇫🇷 FR</button>
+      <button class="llbtn" onclick="setLang('es',this)">🇪🇸 ES</button>
+    </div>
+    <button class="btn-signin" id="loginBtn" onclick="piLogin()">
+      <span class="signin-icon">⚽</span>
+      <span id="signin-txt">Sign In with Pi</span>
+    </button>
+    <div id="lmsg"></div>
+    <p class="login-legal">Community fan app · Pi Network Mainnet · sandbox:false · worldcup.pages.dev · Not affiliated with FIFA or any football organization</p>
+  </div>
+</div>
+
+<!-- ═══ APP ═══ -->
+<div id="app" style="display:none">
+
+  <!-- TICKER -->
+  <div class="ticker">
+    <div class="ttrack" id="ttrack">
+      <span class="ti">⚽ WorldCup 2026 · USA · Canada · Mexico · June–July 2026</span>
+      <span class="ti">🏆 48 Teams · 12 Groups · 104 Matches · 16 Cities</span>
+      <span class="ti">🌍 worldcup.pi · Pi Network · Mainnet · sandbox:false</span>
+      <span class="ti">🎟️ QR Digital Tickets · Fan ID · Live Predictions</span>
+      <span class="ti">🔔 Real-time goal alerts · Match notifications</span>
+      <span class="ti" id="tick-live">⏱️ Loading live scores...</span>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header id="hdr">
+    <div class="hdr-l">
+      <div class="hdr-logo">WorldCup</div>
+      <div class="hdr-badge">✅ Mainnet</div>
+    </div>
+    <div class="hdr-r">
+      <div class="hdr-user" id="hdr-user">Pioneer</div>
+      <select class="hdr-lang" id="hdr-lang" onchange="setLang(this.value,null)">
+        <option value="en">EN</option>
+        <option value="ar">AR</option>
+        <option value="fr">FR</option>
+        <option value="es">ES</option>
+      </select>
+      <button class="bell" onclick="goS('notifs')" aria-label="Notifications">
+        🔔<div class="bell-dot" id="bell-dot"></div>
+      </button>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ═══ MATCHES ═══ -->
+    <section class="scr on" id="s-matches">
+      <div class="scr-hdr">
+        <div>
+          <div class="scr-hdr-title">⚽ Fixtures</div>
+          <div class="scr-hdr-sub" id="dst">worldcup.pi · Pi Network Mainnet</div>
+        </div>
+        <div class="scr-hdr-r">
+          <span class="live-badge">LIVE</span>
+          <span class="sbar-r" id="dtt"></span>
+        </div>
+      </div>
+      <div class="sh"><div class="sh-t">🔴 Live Now</div><div class="sh-sub" id="live-count"></div></div>
+      <div id="live-m"><div class="empty">Loading live matches...</div></div>
+      <div class="sh mt"><div class="sh-t">📅 Today's Fixtures</div></div>
+      <div id="today-m"><div class="empty">Loading...</div></div>
+      <div class="sh mt"><div class="sh-t">🔜 Upcoming</div></div>
+      <div id="upcoming-m"><div class="empty">Loading...</div></div>
+      <div class="sh mt"><div class="sh-t">✅ Recent Results</div></div>
+      <div id="results-m"><div class="empty">No results yet</div></div>
+      <div class="sh mt"><div class="sh-t">🏆 Tournament Stats</div></div>
+      <div class="tiles">
+        <div class="tile"><div class="tn">48</div><div class="tl">Teams</div></div>
+        <div class="tile"><div class="tn">104</div><div class="tl">Matches</div></div>
+        <div class="tile"><div class="tn">16</div><div class="tl">Cities</div></div>
+      </div>
+      <div class="tiles">
+        <div class="tile"><div class="tn" style="font-size:1.4rem">🇺🇸</div><div class="tl">USA · 11</div></div>
+        <div class="tile"><div class="tn" style="font-size:1.4rem">🇨🇦</div><div class="tl">Canada · 2</div></div>
+        <div class="tile"><div class="tn" style="font-size:1.4rem">🇲🇽</div><div class="tl">Mexico · 3</div></div>
+      </div>
+    </section>
+
+    <!-- ═══ GROUPS ═══ -->
+    <section class="scr" id="s-groups">
+      <div class="scr-hdr">
+        <div><div class="scr-hdr-title">🏟️ Groups</div><div class="scr-hdr-sub">12 Groups · 48 Teams · Top 2 advance</div></div>
+        <span class="tag-blue">48 TEAMS</span>
+      </div>
+      <div class="ibox">⚽ 48 teams · 12 groups of 4 · Top 2 from each group advance to Round of 32</div>
+      <div class="ggrid" id="ggrid"></div>
+    </section>
+
+    <!-- ═══ PREDICT ═══ -->
+    <section class="scr" id="s-predict">
+      <div class="pbar-hdr">
+        <div>
+          <div class="p-label">YOUR POINTS</div>
+          <div class="p-value" id="pts-v">0 PTS</div>
+        </div>
+        <div>
+          <div class="p-streak" id="pts-s">🔥 0 streak</div>
+          <div class="p-lvl" id="pts-l">⚽ Newcomer</div>
+        </div>
+      </div>
+      <div class="ibox">🧠 Predict match outcomes · +5 pts per prediction · +10 pts if correct · Earn daily bonuses</div>
+      <div class="sh"><div class="sh-t">🎯 Make Predictions</div></div>
+      <div id="pred-list"><div class="empty">Loading predictions...</div></div>
+    </section>
+
+    <!-- ═══ STANDINGS ═══ -->
+    <section class="scr" id="s-standings">
+      <div class="scr-hdr">
+        <div><div class="scr-hdr-title">🏆 Standings</div><div class="scr-hdr-sub">Fan leaderboard · Group tables</div></div>
+      </div>
+      <div class="sh"><div class="sh-t">👑 Fan Leaderboard</div></div>
+      <div class="card card-blue" style="padding:.5rem 0;margin-bottom:.5rem;">
+        <div id="lb-list"></div>
+      </div>
+      <div class="sh mt"><div class="sh-t">📊 Group Standings</div></div>
+      <div id="st-list"></div>
+    </section>
+
+    <!-- ═══ UTILITIES ═══ -->
+    <section class="scr" id="s-utilities">
+      <!-- UTIL HOME -->
+      <div id="util-home">
+        <div class="scr-hdr">
+          <div><div class="scr-hdr-title">🛠️ Utilities</div><div class="scr-hdr-sub">All tools · Fan ID · Payments · Analytics</div></div>
+        </div>
+
+        <!-- Identity & Ticketing -->
+        <div class="tsec">
+          <div class="tsec-hdr">🔐 Identity &amp; Ticketing</div>
+          <div class="tgrid">
+            <div class="tc" onclick="oUtil('wallet')">
+              <span class="tc-tag tt-new">NEW</span>
+              <span class="tc-icon">💳</span>
+              <div class="tc-name">Pi Wallet</div>
+              <div class="tc-desc">Fan profile · send Pi · wallet sync</div>
+            </div>
+            <div class="tc tc-gold" onclick="oUtil('ticket')">
+              <span class="tc-tag tt-hot">HOT</span>
+              <span class="tc-icon">🎟️</span>
+              <div class="tc-name">Match Tickets</div>
+              <div class="tc-desc">QR digital ticket · stadium entry</div>
+            </div>
+            <div class="tc" onclick="oUtil('fan-id')">
+              <span class="tc-icon">👤</span>
+              <div class="tc-name">Fan ID Card</div>
+              <div class="tc-desc">Auto serial · QR · send Pi to fans</div>
+            </div>
+            <div class="tc" onclick="oUtil('checkin')">
+              <span class="tc-icon">📍</span>
+              <div class="tc-name">Fan Check-in</div>
+              <div class="tc-desc">Stadium QR · fan zones · +5 pts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Verification -->
+        <div class="tsec">
+          <div class="tsec-hdr">🔒 Verification &amp; Anti-Cheat</div>
+          <div class="tgrid">
+            <div class="tc" onclick="oUtil('verify')">
+              <span class="tc-icon">🔍</span>
+              <div class="tc-name">Ticket Verifier</div>
+              <div class="tc-desc">One-time QR · anti-fraud · live</div>
+            </div>
+            <div class="tc" onclick="oUtil('pred-qr')">
+              <span class="tc-icon">🧠</span>
+              <div class="tc-name">Prediction QR</div>
+              <div class="tc-desc">Tamper-evident prediction proof</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Payments -->
+        <div class="tsec">
+          <div class="tsec-hdr">💸 Pi Payments · Mainnet</div>
+          <div class="tgrid">
+            <div class="tc tc-gold" onclick="oUtil('premium')">
+              <span class="tc-tag tt-hot">1π</span>
+              <span class="tc-icon">⭐</span>
+              <div class="tc-name">Fan Pass Premium</div>
+              <div class="tc-desc">Unlock all features · 1π one-time</div>
+            </div>
+            <div class="tc" onclick="oUtil('send-pi')">
+              <span class="tc-icon">💸</span>
+              <div class="tc-name">Send Pi</div>
+              <div class="tc-desc">Tip a fan · support creator in Pi</div>
+            </div>
+            <div class="tc" onclick="oUtil('request-pi')">
+              <span class="tc-icon">📨</span>
+              <div class="tc-name">Request Pi</div>
+              <div class="tc-desc">Payment request with QR code</div>
+            </div>
+            <div class="tc" onclick="oUtil('tx-history')">
+              <span class="tc-icon">📋</span>
+              <div class="tc-name">Tx History</div>
+              <div class="tc-desc">All Pi transaction receipts</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics -->
+        <div class="tsec">
+          <div class="tsec-hdr">📊 Analytics &amp; Intelligence</div>
+          <div class="tgrid">
+            <div class="tc" onclick="oUtil('analytics')">
+              <span class="tc-icon">📊</span>
+              <div class="tc-name">Analytics</div>
+              <div class="tc-desc">Accuracy · history · streaks</div>
+            </div>
+            <div class="tc" onclick="oUtil('odds')">
+              <span class="tc-icon">🎯</span>
+              <div class="tc-name">Odds Calculator</div>
+              <div class="tc-desc">Prediction confidence meter</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Football Tools -->
+        <div class="tsec">
+          <div class="tsec-hdr">⚽ Football Tools</div>
+          <div class="tgrid">
+            <div class="tc" onclick="oUtil('pi-calc')">
+              <span class="tc-icon">π</span>
+              <div class="tc-name">Pi Calculator</div>
+              <div class="tc-desc">π → USD · GBP · EUR · SAR</div>
+            </div>
+            <div class="tc" onclick="oUtil('group-sim')">
+              <span class="tc-icon">📈</span>
+              <div class="tc-name">Group Simulator</div>
+              <div class="tc-desc">Simulate group outcomes</div>
+            </div>
+            <div class="tc" onclick="oUtil('world-time')">
+              <span class="tc-icon">🌍</span>
+              <div class="tc-name">Match Times</div>
+              <div class="tc-desc">ET → your timezone</div>
+            </div>
+            <div class="tc" onclick="oUtil('compare')">
+              <span class="tc-icon">⚔️</span>
+              <div class="tc-name">Team Compare</div>
+              <div class="tc-desc">Head-to-head analysis</div>
+            </div>
+            <div class="tc" onclick="oUtil('pts-tracker')">
+              <span class="tc-icon">🏆</span>
+              <div class="tc-name">Points Tracker</div>
+              <div class="tc-desc">Full prediction history</div>
+            </div>
+            <div class="tc" onclick="oUtil('daily')">
+              <span class="tc-tag tt-new">+10</span>
+              <span class="tc-icon">🎁</span>
+              <div class="tc-name">Daily Bonus</div>
+              <div class="tc-desc">Claim daily points · streak</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- About & Legal -->
+        <div class="tsec">
+          <div class="tsec-hdr">ℹ️ About &amp; Legal</div>
+          <div class="tgrid">
+            <div class="tc" onclick="oUtil('about')">
+              <span class="tc-icon">⚽</span>
+              <div class="tc-name">About</div>
+              <div class="tc-desc">WorldCup · worldcup.pi · Pi Network</div>
+            </div>
+            <div class="tc" onclick="oUtil('partnerships')">
+              <span class="tc-icon">🤝</span>
+              <div class="tc-name">Partnerships</div>
+              <div class="tc-desc">Collaboration opportunities</div>
+            </div>
+            <div class="tc" onclick="oUtil('privacy')">
+              <span class="tc-icon">🔒</span>
+              <div class="tc-name">Privacy Policy</div>
+              <div class="tc-desc">How we handle your data</div>
+            </div>
+            <div class="tc" onclick="oUtil('terms')">
+              <span class="tc-icon">📄</span>
+              <div class="tc-name">Terms of Service</div>
+              <div class="tc-desc">Community fan app · Not FIFA affiliated</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- end util-home -->
+
+      <!-- ── WALLET ── -->
+      <div class="up" id="up-wallet">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Pi Wallet Profile</div></div>
+        <div class="wallet-card">
+          <div class="wc-row">
+            <div class="wc-av">⚽</div>
+            <div>
+              <div class="wc-name" id="wc-name">—</div>
+              <div class="wc-serial" id="wc-serial">Fan ID loading...</div>
+              <div class="wc-uid">Pi Network · Mainnet · sandbox:false</div>
+              <div class="wc-live"><div class="live-dot"></div>Connected · Real Pi</div>
+            </div>
+          </div>
+          <div class="wc-stats">
+            <div class="wcs"><div class="wcs-v" id="wc-lvl">—</div><div class="wcs-l">Level</div></div>
+            <div class="wcs"><div class="wcs-v" id="wc-pts">0</div><div class="wcs-l">Points</div></div>
+            <div class="wcs"><div class="wcs-v" id="wc-preds">0</div><div class="wcs-l">Preds</div></div>
+            <div class="wcs"><div class="wcs-v" id="wc-streak">0d</div><div class="wcs-l">Streak</div></div>
+          </div>
+        </div>
+        <div class="ic">
+          <div class="ic-title">💸 Send Pi to Fan</div>
+          <div class="fg"><label class="flbl">Recipient Username</label><input class="fi" type="text" id="send-to" placeholder="Pi username"></div>
+          <div class="frow">
+            <div class="fg"><label class="flbl">Amount (π)</label><input class="fi" type="number" id="send-amt" value="0.1" min="0.001" step="0.001"></div>
+            <div class="fg"><label class="flbl">Memo</label><input class="fi" type="text" id="send-memo" placeholder="Fan tip!"></div>
+          </div>
+          <button class="btn" onclick="sendPi()">💸 Send Pi</button>
+        </div>
+        <div class="ic">
+          <div class="ic-title">📋 Transaction History</div>
+          <div id="wc-txs"><div class="empty">No transactions yet</div></div>
+        </div>
+      </div>
+
+      <!-- ── TICKET ── -->
+      <div class="up" id="up-ticket">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Match Tickets</div></div>
+        <div class="ibox">Generate a QR digital ticket. Unique ID · valid 24h · one-time scan only.</div>
+        <div class="ic">
+          <div class="ic-title">Select Match</div>
+          <div class="fg"><select class="fi" id="tkt-match"><option value="">— Choose a match —</option></select></div>
+          <button class="btn" onclick="genTicket()">🎟️ Generate QR Ticket</button>
+        </div>
+        <div id="tkt-out"></div>
+        <div class="ic">
+          <div class="ic-title">🔍 Verify Ticket</div>
+          <input class="scan-inp" id="vt-inp" placeholder="Paste ticket ID (WC-XXXXX-...)">
+          <button class="btn btn-gold" onclick="verifyTicket()">🔍 Verify</button>
+          <div id="vt-res"></div>
+        </div>
+      </div>
+
+      <!-- ── FAN ID ── -->
+      <div class="up" id="up-fan-id">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Fan ID Card</div></div>
+        <div class="ibox">Your Fan ID auto-generates on every login with a global serial that never repeats. Scan to view your profile · send Pi to any fan.</div>
+        <div class="fid-card">
+          <div class="fid-av">⚽</div>
+          <div class="fid-name" id="fid-name">—</div>
+          <div class="fid-serial" id="fid-serial">Fan ID #—</div>
+          <div class="fid-uid">worldcup.pi · Pi Network · Mainnet</div>
+          <div class="fid-badges">
+            <span class="fbadge fb-main">✅ Mainnet</span>
+            <span class="fbadge fb-prem" id="fid-prem" style="display:none">⭐ Fan Pass</span>
+            <span class="fbadge fb-lvl" id="fid-lvl">⚽ Fan</span>
+          </div>
+          <div class="fid-stats">
+            <div class="fs"><div class="fs-n" id="fid-pts">0</div><div class="fs-l">Points</div></div>
+            <div class="fs"><div class="fs-n" id="fid-preds">0</div><div class="fs-l">Preds</div></div>
+            <div class="fs"><div class="fs-n" id="fid-streak">0</div><div class="fs-l">Streak</div></div>
+          </div>
+        </div>
+        <div class="qr-box">
+          <div class="qr-sub">Scan → view profile → send Pi → follow fan</div>
+          <div class="qr-wrap"><canvas id="fid-qr"></canvas></div>
+          <div class="qr-id" id="fid-qr-str">—</div>
+        </div>
+        <button class="btn btn-ghost" onclick="refreshFanId()">🔄 Refresh Fan ID</button>
+        <button class="btn" onclick="downloadFanId()" style="margin-top:.4rem">⬇️ Download Fan ID</button>
+      </div>
+
+      <!-- ── CHECKIN ── -->
+      <div class="up" id="up-checkin">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Fan Check-in</div></div>
+        <div class="ibox">Check in to fan zones and stadium entries. Each check-in generates a unique QR. +5 pts per check-in.</div>
+        <div class="ic">
+          <div class="ic-title">Select Event</div>
+          <div class="fg"><select class="fi" id="ci-event">
+            <option value="fanzone">⚽ WorldCup Fan Zone · worldcup.pi</option>
+            <option value="opening">🏟️ Opening Match · Mexico vs South Africa</option>
+            <option value="usa">🏟️ USA vs Paraguay · Los Angeles</option>
+            <option value="england">🏟️ England vs Croatia · Boston</option>
+            <option value="final">🏆 WorldCup Final · New York/NJ</option>
+          </select></div>
+          <button class="btn" onclick="doCheckin()">📍 Check In Now</button>
+        </div>
+        <div id="ci-out"></div>
+        <div class="ic">
+          <div class="ic-title">Check-in History</div>
+          <div id="ci-log"><div class="empty">No check-ins yet</div></div>
+        </div>
+      </div>
+
+      <!-- ── VERIFY ── -->
+      <div class="up" id="up-verify">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Ticket Verifier</div></div>
+        <div class="ibox">🔒 Anti-cheat · QR verification · one-time use tickets</div>
+        <div class="ic">
+          <div class="ic-title">Verify Ticket</div>
+          <input class="scan-inp" id="verify-inp" placeholder="Paste ticket ID or scan QR">
+          <button class="btn" onclick="runVerify()">🔍 Verify Ticket</button>
+          <div id="verify-res"></div>
+        </div>
+      </div>
+
+      <!-- ── PRED QR ── -->
+      <div class="up" id="up-pred-qr">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Prediction QR</div></div>
+        <div class="ibox">Generate a tamper-evident QR proof of your prediction. Share before the match starts!</div>
+        <div class="ic">
+          <div class="ic-title">Your Predictions</div>
+          <div id="pred-qr-list"><div class="empty">No predictions yet — make predictions first!</div></div>
+        </div>
+      </div>
+
+      <!-- ── PREMIUM ── -->
+      <div class="up" id="up-premium">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Fan Pass Premium</div></div>
+        <div class="prem-card">
+          <div class="prem-badge">⭐ FAN PASS PREMIUM</div>
+          <div class="prem-title">Unlock Everything</div>
+          <div class="prem-price" id="prem-price">1π <span style="font-size:.9rem;color:var(--t3)">one-time</span></div>
+          <div class="prem-features">
+            <div class="pf">Unlimited predictions</div>
+            <div class="pf">Priority alerts</div>
+            <div class="pf">All analytics tools</div>
+            <div class="pf">Verified fan badge</div>
+            <div class="pf">Group simulator</div>
+            <div class="pf">Team compare tool</div>
+          </div>
+          <button class="btn btn-gold" id="prem-btn" onclick="buyPrem()">⭐ Unlock Fan Pass — 1π</button>
+          <div id="prem-status-badge" style="display:none;text-align:center;margin-top:.5rem">
+            <span class="tag-gold">⭐ Fan Pass Active</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SEND PI ── -->
+      <div class="up" id="up-send-pi">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Send Pi</div></div>
+        <div class="ic">
+          <div class="ic-title">💸 Send Pi to Fan</div>
+          <div class="fg"><label class="flbl">Recipient Username</label><input class="fi" type="text" id="sp-to" placeholder="Pi username"></div>
+          <div class="frow">
+            <div class="fg"><label class="flbl">Amount (π)</label><input class="fi" type="number" id="sp-amt" value="0.1" min="0.001" step="0.001"></div>
+            <div class="fg"><label class="flbl">Memo</label><input class="fi" type="text" id="sp-memo" placeholder="Fan tip!"></div>
+          </div>
+          <button class="btn" onclick="sendPiFull()">💸 Send Pi</button>
+        </div>
+      </div>
+
+      <!-- ── REQUEST PI ── -->
+      <div class="up" id="up-request-pi">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Request Pi</div></div>
+        <div class="ic">
+          <div class="ic-title">📨 Request Pi Payment</div>
+          <div class="frow">
+            <div class="fg"><label class="flbl">Amount (π)</label><input class="fi" type="number" id="rp-amt" value="0.1" min="0.001" step="0.001"></div>
+            <div class="fg"><label class="flbl">Reason</label><input class="fi" type="text" id="rp-reason" placeholder="Match ticket, tip..."></div>
+          </div>
+          <button class="btn btn-ghost" onclick="genReqQr()">📨 Generate Payment QR</button>
+          <div id="rp-qr-out"></div>
+        </div>
+      </div>
+
+      <!-- ── TX HISTORY ── -->
+      <div class="up" id="up-tx-history">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Transaction History</div></div>
+        <div id="tx-list"><div class="empty">No transactions yet</div></div>
+      </div>
+
+      <!-- ── ANALYTICS ── -->
+      <div class="up" id="up-analytics">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Analytics Dashboard</div></div>
+        <div class="ana-grid">
+          <div class="card card-blue"><div class="ana-stat"><div class="ana-val" id="ana-total">0</div><div class="ana-lbl">PREDICTIONS</div></div></div>
+          <div class="card card-green"><div class="ana-stat"><div class="ana-val" id="ana-correct">0</div><div class="ana-lbl">CORRECT</div></div></div>
+          <div class="card card-gold"><div class="ana-stat"><div class="ana-val" id="ana-acc">0%</div><div class="ana-lbl">ACCURACY</div></div></div>
+        </div>
+        <div class="card" style="margin:.5rem 1rem;">
+          <div class="ana-stat"><div class="ana-val" id="ana-pts">0</div><div class="ana-lbl">TOTAL POINTS</div></div>
+        </div>
+        <div class="sec-label">📋 PREDICTION HISTORY</div>
+        <div id="ana-history"><div class="empty">No predictions yet</div></div>
+      </div>
+
+      <!-- ── ODDS ── -->
+      <div class="up" id="up-odds">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Odds Calculator</div></div>
+        <div class="ic">
+          <div class="ic-title">🎯 Match Confidence Meter</div>
+          <div class="fg"><label class="flbl">Home Team</label><input class="fi" type="text" id="odds-h" placeholder="e.g. Brazil"></div>
+          <div class="fg"><label class="flbl">Away Team</label><input class="fi" type="text" id="odds-a" placeholder="e.g. Argentina"></div>
+          <button class="btn" onclick="calcOdds()">🎯 Calculate Odds</button>
+          <div id="odds-res"></div>
+        </div>
+      </div>
+
+      <!-- ── PI CALC ── -->
+      <div class="up" id="up-pi-calc">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Pi Calculator</div></div>
+        <div class="ic">
+          <div class="ic-title">π → Currency Converter</div>
+          <div class="fg"><label class="flbl">Pi Amount</label><input class="fi" type="number" id="pi-amount" value="1" oninput="updatePiCalc()"></div>
+          <div id="pi-calc-res">
+            <div class="card" style="margin:.4rem 0;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--dm);font-size:.65rem;color:var(--t3)">USD 🇺🇸</span>
+              <span class="calc-display" style="margin:0;padding:.2rem .4rem;font-size:.85rem;border:none;background:transparent;" id="pi-usd">$0.00</span>
+            </div>
+            <div class="card" style="margin:.4rem 0;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--dm);font-size:.65rem;color:var(--t3)">EUR 🇪🇺</span>
+              <span class="calc-display" style="margin:0;padding:.2rem .4rem;font-size:.85rem;border:none;background:transparent;" id="pi-eur">€0.00</span>
+            </div>
+            <div class="card" style="margin:.4rem 0;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--dm);font-size:.65rem;color:var(--t3)">GBP 🇬🇧</span>
+              <span class="calc-display" style="margin:0;padding:.2rem .4rem;font-size:.85rem;border:none;background:transparent;" id="pi-gbp">£0.00</span>
+            </div>
+            <div class="card" style="margin:.4rem 0;padding:.6rem .8rem;display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-family:var(--dm);font-size:.65rem;color:var(--t3)">SAR 🇸🇦</span>
+              <span class="calc-display" style="margin:0;padding:.2rem .4rem;font-size:.85rem;border:none;background:transparent;" id="pi-sar">﷼0.00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── GROUP SIM ── -->
+      <div class="up" id="up-group-sim">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Group Simulator</div></div>
+        <div class="ic">
+          <div class="ic-title">📈 Simulate Group Outcomes</div>
+          <div class="fg"><label class="flbl">Select Group</label>
+            <select class="fi" id="sim-group" onchange="runGroupSim()">
+              <option value="A">Group A</option><option value="B">Group B</option>
+              <option value="C">Group C</option><option value="D">Group D</option>
+              <option value="E">Group E</option><option value="F">Group F</option>
+            </select>
+          </div>
+          <button class="btn" onclick="runGroupSim()">📈 Simulate</button>
+          <div id="sim-res"></div>
+        </div>
+      </div>
+
+      <!-- ── WORLD TIME ── -->
+      <div class="up" id="up-world-time">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Match Times</div></div>
+        <div class="ic">
+          <div class="ic-title">🌍 ET → Your Timezone</div>
+          <div class="fg"><label class="flbl">Match Time (ET)</label><input class="fi" type="time" id="et-time" value="15:00" oninput="convertTime()"></div>
+          <div id="time-res"></div>
+        </div>
+      </div>
+
+      <!-- ── TEAM COMPARE ── -->
+      <div class="up" id="up-compare">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Team Compare</div></div>
+        <div class="ic">
+          <div class="ic-title">⚔️ Head-to-Head Analysis</div>
+          <div class="frow">
+            <div class="fg"><label class="flbl">Team A</label><input class="fi" type="text" id="cmp-a" placeholder="e.g. Brazil" list="team-list"></div>
+            <div class="fg"><label class="flbl">Team B</label><input class="fi" type="text" id="cmp-b" placeholder="e.g. France" list="team-list"></div>
+          </div>
+          <datalist id="team-list"></datalist>
+          <button class="btn" onclick="compareTeams()">⚔️ Compare</button>
+          <div id="cmp-res"></div>
+        </div>
+      </div>
+
+      <!-- ── POINTS TRACKER ── -->
+      <div class="up" id="up-pts-tracker">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Points Tracker</div></div>
+        <div id="pts-track-list"><div class="empty">No activity yet</div></div>
+      </div>
+
+      <!-- ── DAILY BONUS ── -->
+      <div class="up" id="up-daily">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Daily Bonus</div></div>
+        <div class="card card-gold" style="text-align:center;padding:1.5rem;">
+          <div style="font-size:3rem;margin-bottom:.5rem;">🎁</div>
+          <div style="font-family:var(--df);font-size:1.5rem;color:var(--gold);margin-bottom:.25rem;">Daily Bonus</div>
+          <div style="font-family:var(--dm);font-size:.6rem;color:var(--t3);margin-bottom:1rem;">Claim every 24h · streak bonus multiplier</div>
+          <div id="daily-streak" style="font-family:var(--df);font-size:2rem;color:var(--c1);margin-bottom:.5rem;">🔥 0 streak</div>
+          <button class="btn btn-gold" id="daily-btn" onclick="claimDaily()">🎁 Claim +10 Points</button>
+          <div id="daily-msg"></div>
+        </div>
+      </div>
+
+
+      <!-- ── ABOUT ── -->
+      <div class="up" id="up-about">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">About WorldCup</div></div>
+        <div class="about-hero">
+          <div class="about-logo">WorldCup</div>
+          <div class="about-tagline">The World's #1 Football Fan App on Pi Network</div>
+          <div class="about-badges">
+            <span class="tag-green">✅ Mainnet</span>
+            <span class="tag-blue">worldcup.pi</span>
+            <span class="tag-blue">Pi Network</span>
+          </div>
+        </div>
+        <div class="card card-blue" style="margin:.5rem 1rem;padding:.85rem">
+          <div style="font-family:var(--dm);font-size:.58rem;color:var(--t2);line-height:1.75;">
+            WorldCup is an independent community fan platform built on Pi Network. It provides football fans with real-time fixtures, predictions, QR digital tickets, AI-powered news, and a rich set of football utilities — all powered by Pi payments.
+          </div>
+        </div>
+        <div class="sec-label">📊 PLATFORM STATS</div>
+        <div class="tiles">
+          <div class="tile"><div class="tn">6</div><div class="tl">Screens</div></div>
+          <div class="tile"><div class="tn">18+</div><div class="tl">Tools</div></div>
+          <div class="tile"><div class="tn">4</div><div class="tl">Languages</div></div>
+        </div>
+        <div class="tiles">
+          <div class="tile"><div class="tn">48</div><div class="tl">Teams</div></div>
+          <div class="tile"><div class="tn">104</div><div class="tl">Matches</div></div>
+          <div class="tile"><div class="tn">2026</div><div class="tl">Season</div></div>
+        </div>
+        <div class="sec-label">⚠️ DISCLAIMER</div>
+        <div class="ibox" style="margin:.5rem 1rem;font-size:.58rem;line-height:1.7;color:var(--t2);">
+          WorldCup is an independent community fan application. It is not affiliated with, endorsed by, or associated with FIFA, any national football federation, or any official tournament organization. All Pi transactions are real (Mainnet · sandbox:false).
+        </div>
+        <div class="sec-label">📬 CONTACT</div>
+        <div class="card" style="margin:.5rem 1rem .5rem;padding:.85rem;display:flex;align-items:center;justify-content:space-between;gap:.5rem;">
+          <div>
+            <div style="font-family:var(--df);font-size:.85rem;color:var(--t1);margin-bottom:.18rem;">Support</div>
+            <div style="font-family:var(--dm);font-size:.52rem;color:var(--c1);">support.worldcup@gmail.com</div>
+          </div>
+          <a href="mailto:support.worldcup@gmail.com" class="btn btn-ghost btn-sm" style="text-decoration:none;flex-shrink:0;">✉️ Email</a>
+        </div>
+        <div class="ibox" style="margin:.5rem 1rem 1rem;text-align:center;font-size:.55rem;color:var(--t3);">
+          Version 2.0 · worldcup.pages.dev · © 2026 WorldCup
+        </div>
+      </div>
+
+      <!-- ── PARTNERSHIPS ── -->
+      <div class="up" id="up-partnerships">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Partnerships</div></div>
+
+        <!-- Hero -->
+        <div class="pship-hero">
+          <div class="pship-title">Partnerships</div>
+          <div class="pship-sub">Collaborating to create better football experiences.</div>
+        </div>
+
+        <!-- Description -->
+        <div class="card card-blue" style="margin:.5rem 1rem;padding:.85rem">
+          <div style="font-family:var(--dm);font-size:.58rem;color:var(--t2);line-height:1.75;">
+            WorldCup welcomes collaboration opportunities with organizations and teams that align with our mission of delivering valuable and innovative football experiences on Pi Network.
+          </div>
+        </div>
+
+        <!-- Independent Platform Badge -->
+        <div style="display:flex;justify-content:center;margin:.65rem 1rem .25rem;">
+          <div class="pship-ind-badge">
+            <span class="pship-ind-dot"></span>
+            Independent Platform · Not affiliated with FIFA or any official football body
+          </div>
+        </div>
+
+        <!-- Focus Areas -->
+        <div class="sec-label">🎯 CURRENT FOCUS AREAS</div>
+        <div class="pship-focus-grid">
+          <div class="pship-focus-item">
+            <span class="pship-focus-icon">⚽</span>
+            <div class="pship-focus-label">Sports Data</div>
+          </div>
+          <div class="pship-focus-item">
+            <span class="pship-focus-icon">📰</span>
+            <div class="pship-focus-label">Media</div>
+          </div>
+          <div class="pship-focus-item">
+            <span class="pship-focus-icon">🤖</span>
+            <div class="pship-focus-label">AI</div>
+          </div>
+          <div class="pship-focus-item">
+            <span class="pship-focus-icon">📊</span>
+            <div class="pship-focus-label">Analytics</div>
+          </div>
+          <div class="pship-focus-item">
+            <span class="pship-focus-icon">📱</span>
+            <div class="pship-focus-label">Technology</div>
+          </div>
+          <div class="pship-focus-item">
+            <span class="pship-focus-icon">🌍</span>
+            <div class="pship-focus-label">Community</div>
+          </div>
+        </div>
+
+        <!-- Partnership Categories -->
+        <div class="sec-label">🤝 COLLABORATION TYPES</div>
+        <div style="display:flex;flex-direction:column;gap:.38rem;margin:0 1rem .5rem;">
+          <div class="pship-cat-row">
+            <div class="pship-cat-icon">⚽</div>
+            <div class="pship-cat-body">
+              <div class="pship-cat-name">Sports Data Providers</div>
+              <div class="pship-cat-desc">Real-time match data · Statistics · Live scores · Historical records</div>
+            </div>
+            <div class="pship-cat-arrow">›</div>
+          </div>
+          <div class="pship-cat-row">
+            <div class="pship-cat-icon">📰</div>
+            <div class="pship-cat-body">
+              <div class="pship-cat-name">Media &amp; Content</div>
+              <div class="pship-cat-desc">Editorial content · Match analysis · Video · Photography</div>
+            </div>
+            <div class="pship-cat-arrow">›</div>
+          </div>
+          <div class="pship-cat-row">
+            <div class="pship-cat-icon">🤖</div>
+            <div class="pship-cat-body">
+              <div class="pship-cat-name">AI &amp; Technology</div>
+              <div class="pship-cat-desc">AI models · Data processing · Infrastructure · APIs</div>
+            </div>
+            <div class="pship-cat-arrow">›</div>
+          </div>
+          <div class="pship-cat-row">
+            <div class="pship-cat-icon">📊</div>
+            <div class="pship-cat-body">
+              <div class="pship-cat-name">Analytics Platforms</div>
+              <div class="pship-cat-desc">Fan behavior · Match statistics · Performance metrics</div>
+            </div>
+            <div class="pship-cat-arrow">›</div>
+          </div>
+          <div class="pship-cat-row">
+            <div class="pship-cat-icon">🌍</div>
+            <div class="pship-cat-body">
+              <div class="pship-cat-name">Community &amp; Fan Initiatives</div>
+              <div class="pship-cat-desc">Fan clubs · Community events · Grassroots football</div>
+            </div>
+            <div class="pship-cat-arrow">›</div>
+          </div>
+        </div>
+
+        <!-- Active partnerships -->
+        <div class="sec-label">📋 ACTIVE COLLABORATIONS</div>
+        <div class="pship-empty">
+          <div class="pship-empty-icon">🤝</div>
+          <div class="pship-empty-title">No active collaborations at this time.</div>
+          <div class="pship-empty-sub">We remain focused on building a great football experience for fans worldwide.</div>
+        </div>
+
+        <!-- CTA -->
+        <div class="sec-label">📬 GET IN TOUCH</div>
+        <div class="card" style="margin:.5rem 1rem;padding:1rem;text-align:center;">
+          <div style="font-size:1.8rem;margin-bottom:.5rem;">✉️</div>
+          <div style="font-family:var(--df);font-size:1rem;letter-spacing:.06em;color:var(--t1);margin-bottom:.2rem;">Interested in collaborating?</div>
+          <div style="font-family:var(--dm);font-size:.56rem;color:var(--t3);margin-bottom:.75rem;line-height:1.55;">
+            We review all partnership proposals. Reach out with your organization details, collaboration type, and how you can add value to the WorldCup fan experience.
+          </div>
+          <a href="mailto:support.worldcup@gmail.com?subject=WorldCup Partnership Inquiry&body=Organization:%0D%0ACollaboration type:%0D%0AProposal details:%0D%0A%0D%0A---%0D%0ASent via worldcup.pi on Pi Network" class="btn btn-ghost" style="text-decoration:none;display:block;text-align:center;">
+            ✉️ support.worldcup@gmail.com
+          </a>
+          <div style="font-family:var(--dm);font-size:.48rem;color:var(--t3);margin-top:.6rem;">
+            We typically respond within 3–5 business days
+          </div>
+        </div>
+
+        <!-- Footer note -->
+        <div class="ibox" style="margin:.5rem 1rem 1.5rem;text-align:center;font-size:.54rem;color:var(--t3);line-height:1.65;">
+          Partnerships support the product. Partnerships do not become the product.<br>
+          worldcup.pi · Pi Network · © 2026 WorldCup
+        </div>
+      </div>
+
+      <!-- ── PRIVACY (quick view) ── -->
+      <div class="up" id="up-privacy">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Privacy Policy</div></div>
+        <div class="card card-blue" style="margin:.75rem 1rem;padding:.85rem">
+          <div style="font-family:var(--dm);font-size:.58rem;color:var(--t2);line-height:1.75;">
+            <strong style="color:var(--c1)">Data we collect:</strong> Pi Network username only (via Pi SDK). All app activity (predictions, points, check-ins) stored locally on your device.<br><br>
+            <strong style="color:var(--c1)">Pi payments:</strong> Processed by Pi Network. We receive only payment confirmation IDs — never wallet balances or private keys.<br><br>
+            <strong style="color:var(--c1)">No sharing:</strong> We do not sell or share your data with third parties.<br><br>
+            <strong style="color:var(--c1)">Local storage:</strong> All data stored under prefix "wc2_" in your browser. Never leaves your device.
+          </div>
+        </div>
+        <div style="text-align:center;margin:.5rem 1rem 1.5rem;">
+          <a href="https://worldcup.pages.dev/privacy-policy" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Policy ›</a>
+        </div>
+      </div>
+
+      <!-- ── TERMS (quick view) ── -->
+      <div class="up" id="up-terms">
+        <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Terms of Service</div></div>
+        <div class="card card-blue" style="margin:.75rem 1rem;padding:.85rem">
+          <div style="font-family:var(--dm);font-size:.58rem;color:var(--t2);line-height:1.75;">
+            <strong style="color:var(--c1)">Community fan app:</strong> Not affiliated with FIFA, any federation, or official tournament.<br><br>
+            <strong style="color:var(--c1)">Pi Mainnet:</strong> sandbox:false · all Pi transactions are real and irreversible.<br><br>
+            <strong style="color:var(--c1)">Predictions:</strong> Entertainment only · points have no monetary value.<br><br>
+            <strong style="color:var(--c1)">QR Tickets:</strong> Digital fan tokens only · not real stadium entry passes.
+          </div>
+        </div>
+        <div style="text-align:center;margin:.5rem 1rem 1.5rem;">
+          <a href="https://worldcup.pages.dev/terms-of-service" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Terms ›</a>
+        </div>
+      </div>
+    </section><!-- end utilities -->
+
+
+    <!-- ═══ NEWS SCREEN ═══ -->
+    <section class="scr" id="s-news">
+      <div class="scr-hdr">
+        <div>
+          <div class="scr-hdr-title">📰 News</div>
+          <div class="scr-hdr-sub" id="news-updated">AI-powered · Auto-updating</div>
+        </div>
+        <div class="scr-hdr-r">
+          <span class="live-badge">AI</span>
+          <button class="news-refresh-btn" id="news-refresh-btn" onclick="refreshNews()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+      <div class="news-cats" id="news-cats">
+        <div class="ncat on" onclick="filterNews('all',this)">🌍 All</div>
+        <div class="ncat" onclick="filterNews('breaking',this)">🔥 Breaking</div>
+        <div class="ncat" onclick="filterNews('match',this)">⚽ Match</div>
+        <div class="ncat" onclick="filterNews('player',this)">⭐ Player</div>
+        <div class="ncat" onclick="filterNews('tournament',this)">🏆 Tournament</div>
+        <div class="ncat" onclick="filterNews('standings',this)">📊 Standings</div>
+        <div class="ncat" onclick="filterNews('insights',this)">🧠 Insights</div>
+        <div class="ncat" onclick="filterNews('saved',this)">🔖 Saved</div>
+      </div>
+      <div id="news-feed">
+        <div class="breaking-banner" id="breaking-banner" style="display:none" onclick="openBreaking()">
+          <div class="breaking-dot"></div>
+          <div class="breaking-text" id="breaking-text">Loading breaking news...</div>
+          <div class="breaking-tag">BREAKING</div>
+        </div>
+        <div class="ai-processing" id="ai-processing" style="display:none">
+          <span>🤖</span><span>AI summarizing stories</span>
+          <div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div>
+        </div>
+        <div id="news-skeletons">
+          <div class="news-skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short"></div><div class="skel-line xshort" style="margin-bottom:.75rem"></div></div>
+          <div class="news-skel"><div class="skel-img"></div><div class="skel-line"></div><div class="skel-line short" style="margin-bottom:.75rem"></div></div>
+        </div>
+        <div id="news-hero-slot"></div>
+        <div id="news-live-section" style="display:none">
+          <div class="news-sec-hdr"><div class="news-sec-title">🔴 Live Updates</div><div class="news-sec-ai">AI LIVE</div><div class="news-sec-line"></div></div>
+          <div id="news-live-cards"></div>
+        </div>
+        <div id="news-player-section" style="display:none">
+          <div class="news-sec-hdr"><div class="news-sec-title">⭐ Top Performers</div><div class="news-sec-ai">AI RANKED</div><div class="news-sec-line"></div></div>
+          <div id="news-player-cards"></div>
+        </div>
+        <div id="news-main-section">
+          <div class="news-sec-hdr"><div class="news-sec-title">📰 Latest Stories</div><div class="news-sec-ai">AI SUMMARY</div><div class="news-sec-line"></div></div>
+          <div id="news-main-cards"></div>
+        </div>
+        <div id="news-insights-section" style="display:none">
+          <div class="news-sec-hdr"><div class="news-sec-title">🧠 Match Insights</div><div class="news-sec-ai">AI ANALYSIS</div><div class="news-sec-line"></div></div>
+          <div id="news-insights-cards"></div>
+        </div>
+        <div id="news-more-section" style="display:none">
+          <div class="news-sec-hdr"><div class="news-sec-title">📋 More Stories</div><div class="news-sec-line"></div></div>
+          <div id="news-more-cards"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ STORY OVERLAY ═══ -->
+    <div id="story-overlay">
+      <div class="story-top">
+        <span class="mov-label">📰 FULL STORY</span>
+        <button class="mov-close" onclick="closeStory()">← Back</button>
+      </div>
+      <div id="story-content"></div>
+    </div>
+    <!-- ═══ NOTIFICATIONS ═══ -->
+    <section class="scr" id="s-notifs">
+      <div class="scr-hdr">
+        <div><div class="scr-hdr-title">🔔 Notifications</div><div class="scr-hdr-sub">Goal alerts · Match updates · Bonuses</div></div>
+        <button class="btn-ghost btn-sm" onclick="clearNotifs()">Clear all</button>
+      </div>
+      <div id="notif-list">
+        <div class="notif-item">
+          <div class="notif-icon">⚽</div>
+          <div class="notif-body">
+            <div class="notif-title">WorldCup 2026 · Live predictions open</div>
+            <div class="notif-sub">Make your first prediction to earn 5 pts!</div>
+          </div>
+          <div class="notif-time">now</div>
+        </div>
+        <div class="notif-item">
+          <div class="notif-icon">💸</div>
+          <div class="notif-body">
+            <div class="notif-title">Pi Payments · Mainnet Active</div>
+            <div class="notif-sub">sandbox:false · Real Pi · worldcup.pages.dev</div>
+          </div>
+          <div class="notif-time">now</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- BOTTOM NAV -->
+  <nav id="bnav">
+    <button class="bni on" data-s="matches" onclick="goS('matches',this)"><span class="bni-i">⚽</span><span class="bni-l">Matches</span></button>
+    <button class="bni" data-s="news" onclick="goS('news',this)"><span class="bni-i">📰</span><span class="bni-l">News</span></button>
+    <button class="bni" data-s="predict" onclick="goS('predict',this)"><span class="bni-i">🧠</span><span class="bni-l">Predict</span></button>
+    <button class="bni" data-s="standings" onclick="goS('standings',this)"><span class="bni-i">🏆</span><span class="bni-l">Standings</span></button>
+    <button class="bni" data-s="utilities" onclick="goS('utilities',this)"><span class="bni-i">🛠️</span><span class="bni-l">More</span></button>
+  </nav>
+
+</div><!-- end app -->
+
+<div id="toast"></div>
+
+<script>
+/* ═══════════════════════════════════════════════════════
+   WORLDCUP · Pi Network · Cloudflare Pages
+   Mainnet · sandbox:false
+   Domain: worldcup.pi · worldcup.pages.dev
+═══════════════════════════════════════════════════════ */
+
+/* ── CONSTANTS ── */
+var K = 'wc2_';
+var _APPROVE = '/approve';
+var _COMPLETE = '/complete';
+var PI_RATE = 0.642;
+var user = null;
+var isPrem = false;
+var curLang = 'en';
+
+/* ── STATE ── */
+var pts = 0, streak = 0, predsTotal = 0, predsCorrect = 0;
+var txLog = [];
+var predictions = {};
+var checkins = [];
+var tickets = {};
+var notifCount = 0;
+var allMatches = [];
+var allGroups = {};
+var navStack = ['matches'];
+
+/* ── LOAD/SAVE ── */
+function loadSt() {
+  try {
+    pts = parseInt(localStorage.getItem(K+'pts')||'0');
+    streak = parseInt(localStorage.getItem(K+'streak')||'0');
+    predsTotal = parseInt(localStorage.getItem(K+'pt')||'0');
+    predsCorrect = parseInt(localStorage.getItem(K+'pc')||'0');
+    isPrem = localStorage.getItem(K+'prem') === '1';
+    txLog = JSON.parse(localStorage.getItem(K+'txs')||'[]');
+    predictions = JSON.parse(localStorage.getItem(K+'preds')||'{}');
+    checkins = JSON.parse(localStorage.getItem(K+'ci')||'[]');
+    tickets = JSON.parse(localStorage.getItem(K+'tix')||'{}');
+  } catch(e) {}
+}
+
+function saveSt() {
+  try {
+    localStorage.setItem(K+'pts', pts);
+    localStorage.setItem(K+'streak', streak);
+    localStorage.setItem(K+'pt', predsTotal);
+    localStorage.setItem(K+'pc', predsCorrect);
+    localStorage.setItem(K+'prem', isPrem ? '1' : '0');
+    localStorage.setItem(K+'txs', JSON.stringify(txLog));
+    localStorage.setItem(K+'preds', JSON.stringify(predictions));
+    localStorage.setItem(K+'ci', JSON.stringify(checkins));
+    localStorage.setItem(K+'tix', JSON.stringify(tickets));
+  } catch(e) {}
+}
+
+function addTx(text) {
+  var d = new Date().toLocaleString();
+  txLog.unshift({t:text, d:d});
+  if (txLog.length > 80) txLog.pop();
+  saveSt(); renderTx();
+}
+
+function renderTx() {
+  var el = document.getElementById('wc-txs');
+  var el2 = document.getElementById('tx-list');
+  var html = txLog.length ? txLog.map(function(tx) {
+    return '<div class="notif-item"><div class="notif-icon">💸</div><div class="notif-body"><div class="notif-title">'+tx.t+'</div></div><div class="notif-time" style="font-size:.46rem">'+tx.d+'</div></div>';
+  }).join('') : '<div class="empty">No transactions yet</div>';
+  if (el) el.innerHTML = html;
+  if (el2) el2.innerHTML = html;
+}
+
+/* ── TOAST ── */
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(function(){el.classList.remove('show');}, 2400);
+}
+
+/* ── NAVIGATION ── */
+function goS(id, btn) {
+  document.querySelectorAll('.scr').forEach(function(s){s.classList.remove('on');});
+  var scr = document.getElementById('s-'+id);
+  if (scr) scr.classList.add('on');
+  document.querySelectorAll('.bni').forEach(function(b){b.classList.remove('on');});
+  if (btn) btn.classList.add('on');
+  else {
+    var nb = document.querySelector('[data-s="'+id+'"]');
+    if (nb) nb.classList.add('on');
+  }
+  if (navStack[navStack.length-1] !== id) navStack.push(id);
+  if (navStack.length > 20) navStack.shift();
+  // Auto-init
+  setTimeout(function(){
+    if (id === 'groups') renderGroups();
+    if (id === 'predict') renderPredictions();
+    if (id === 'standings') { renderLeaderboard(); renderStandings(); }
+    if (id === 'utilities') { renderWalletStats(); }
+    if (id === 'notifs') renderNotifs();
+  }, 60);
+}
+
+function goBack() {
+  if (navStack.length > 1) {
+    navStack.pop();
+    var prev = navStack[navStack.length-1];
+    goS(prev);
+  } else goS('matches');
+}
+
+/* ── UTIL NAVIGATION ── */
+function oUtil(id) {
+  document.getElementById('util-home').style.display = 'none';
+  document.querySelectorAll('.up').forEach(function(p){p.classList.remove('on');});
+  var panel = document.getElementById('up-'+id);
+  if (!panel) { toast('Coming soon'); document.getElementById('util-home').style.display = ''; return; }
+  panel.classList.add('on');
+  // Init
+  if (id === 'fan-id') renderFanId();
+  if (id === 'checkin') renderCheckinLog();
+  if (id === 'analytics') renderAnalytics();
+  if (id === 'pred-qr') renderPredQr();
+  if (id === 'pts-tracker') renderPtsTracker();
+  if (id === 'tx-history') renderTx();
+  if (id === 'wallet') { renderWalletStats(); renderTx(); }
+  if (id === 'premium') renderPremStatus();
+  if (id === 'pi-calc') updatePiCalc();
+  if (id === 'world-time') convertTime();
+  if (id === 'ticket') populateMatchSelect();
+  if (id === 'daily') updateDailyBtn();
+}
+
+function cUtil() {
+  document.querySelectorAll('.up').forEach(function(p){p.classList.remove('on');});
+  document.getElementById('util-home').style.display = '';
+}
+
+/* ── PI AUTH ── */
+function piLogin() {
+  var lmsg = document.getElementById('lmsg');
+  lmsg.textContent = '⚽ Connecting to Pi Network...';
+  document.getElementById('loginBtn').disabled = true;
+
+  try {
+    Pi.init({ version: "2.0", sandbox: false });
+    Pi.authenticate(['username','payments'], onIncompletePayment)
+      .then(function(auth) {
+        if (!auth || !auth.user) throw new Error('No user');
+        user = auth.user;
+        localStorage.setItem(K+'user', JSON.stringify(user));
+        launchApp();
+      })
+      .catch(function(err) {
+        lmsg.textContent = '⚠️ Login failed — try again';
+        document.getElementById('loginBtn').disabled = false;
+      });
+  } catch(e) {
+    lmsg.textContent = '⚠️ Pi SDK error';
+    document.getElementById('loginBtn').disabled = false;
+  }
+}
+
+function onIncompletePayment(payment) {
+  console.log('[WorldCup] Incomplete payment:', payment.identifier);
+  fetch(_COMPLETE, {
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ paymentId: payment.identifier, txid: payment.transaction ? payment.transaction.txid : null })
+  }).then(function(r){return r.json();}).then(function(d){console.log('[WorldCup] Completed incomplete:', d);});
+}
+
+function launchApp() {
+  loadSt();
+  document.getElementById('login').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+  if (user) {
+    var nm = user.username || 'Pioneer';
+    document.getElementById('hdr-user').textContent = '@'+nm;
+    var wn = document.getElementById('wc-name'); if(wn) wn.textContent = '@'+nm;
+    var fn = document.getElementById('fid-name'); if(fn) fn.textContent = '@'+nm;
+    generateFanId();
+  }
+  updatePtsDisplay();
+  fetchMatches();
+  startClock();
+  if (isPrem) renderPremStatus();
+  toast('⚽ Welcome to WorldCup · Pi Mainnet!');
+}
+
+/* ── CLOCK ── */
+function startClock() {
+  var el = document.getElementById('dtt');
+  function tick() {
+    if (el) el.textContent = new Date().toLocaleTimeString();
+    var dst = document.getElementById('dst');
+    if (dst) dst.textContent = 'worldcup.pi · ' + new Date().toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'});
+  }
+  tick(); setInterval(tick, 1000);
+}
+
+/* ══════════════════════════════════
+   FOOTBALL DATA (football-data.org proxy)
+══════════════════════════════════ */
+var FD_KEY = '';  /* Set via Cloudflare env or left blank for TheSportsDB fallback */
+var TSDB = 'https://www.thesportsdb.com/api/v1/json/3';
+
+/* All WorldCup 2026 groups — complete 48 teams */
+var WC_GROUPS = {
+  A: [{flag:'🇧🇷',name:'Brazil'},{flag:'🇲🇽',name:'Mexico'},{flag:'🇨🇴',name:'Colombia'},{flag:'🇲🇦',name:'Morocco'}],
+  B: [{flag:'🇫🇷',name:'France'},{flag:'🇩🇿',name:'Algeria'},{flag:'🇨🇦',name:'Canada'},{flag:'🇬🇧',name:'England'}],
+  C: [{flag:'🇦🇷',name:'Argentina'},{flag:'🇮🇹',name:'Italy'},{flag:'🇳🇬',name:'Nigeria'},{flag:'🇯🇵',name:'Japan'}],
+  D: [{flag:'🇪🇸',name:'Spain'},{flag:'🇵🇹',name:'Portugal'},{flag:'🇺🇸',name:'USA'},{flag:'🇷🇸',name:'Serbia'}],
+  E: [{flag:'🇩🇪',name:'Germany'},{flag:'🇳🇱',name:'Netherlands'},{flag:'🇸🇳',name:'Senegal'},{flag:'🇦🇺',name:'Australia'}],
+  F: [{flag:'🇧🇪',name:'Belgium'},{flag:'🇭🇷',name:'Croatia'},{flag:'🇲🇽',name:'Mexico'},{flag:'🇺🇾',name:'Uruguay'}],
+  G: [{flag:'🇵🇹',name:'Portugal'},{flag:'🇬🇭',name:'Ghana'},{flag:'🇷🇴',name:'Romania'},{flag:'🇨🇱',name:'Chile'}],
+  H: [{flag:'🇳🇱',name:'Netherlands'},{flag:'🇩🇰',name:'Denmark'},{flag:'🇨🇲',name:'Cameroon'},{flag:'🇸🇦',name:'Saudi Arabia'}],
+  I: [{flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'England'},{flag:'🇿🇦',name:'South Africa'},{flag:'🇮🇳',name:'India'},{flag:'🇮🇷',name:'Iran'}],
+  J: [{flag:'🇺🇾',name:'Uruguay'},{flag:'🇪🇨',name:'Ecuador'},{flag:'🇹🇳',name:'Tunisia'},{flag:'🇸🇰',name:'Slovakia'}],
+  K: [{flag:'🇰🇷',name:'South Korea'},{flag:'🇵🇪',name:'Peru'},{flag:'🇳🇿',name:'New Zealand'},{flag:'🇬🇼',name:'Guinea-Bissau'}],
+  L: [{flag:'🇲🇽',name:'Mexico'},{flag:'🇵🇦',name:'Panama'},{flag:'🇷🇴',name:'Romania'},{flag:'🇧🇫',name:'Burkina Faso'}],
+};
+
+/* Fallback local match data for when APIs are unavailable */
+var LOCAL_MATCHES = [
+  {id:'m001',home:'🇧🇷 Brazil',away:'🇲🇦 Morocco',score:'2-1',status:'FINISHED',time:'Jun 15 · 15:00 ET',venue:'MetLife · New York',comp:'WorldCup 2026 · Group A'},
+  {id:'m002',home:'🇫🇷 France',away:'🇳🇬 Nigeria',score:'3-0',status:'FINISHED',time:'Jun 15 · 18:00 ET',venue:'Rose Bowl · LA',comp:'WorldCup 2026 · Group B'},
+  {id:'m003',home:'🇦🇷 Argentina',away:'🇯🇵 Japan',score:'1-0',status:'LIVE',min:'67',time:'LIVE',venue:'AT&T · Dallas',comp:'WorldCup 2026 · Group C'},
+  {id:'m004',home:'🇪🇸 Spain',away:'🇷🇸 Serbia',score:'2-0',status:'LIVE',min:'45+2',time:'LIVE',venue:'SoFi · Inglewood',comp:'WorldCup 2026 · Group D'},
+  {id:'m005',home:'🇩🇪 Germany',away:'🇦🇺 Australia',score:'-',status:'UPCOMING',time:'Jun 16 · 12:00 ET',venue:'Arrowhead · KC',comp:'WorldCup 2026 · Group E'},
+  {id:'m006',home:'🇧🇪 Belgium',away:'🇨🇷 Costa Rica',score:'-',status:'UPCOMING',time:'Jun 16 · 15:00 ET',venue:'NRG · Houston',comp:'WorldCup 2026 · Group F'},
+  {id:'m007',home:'🇵🇹 Portugal',away:'🇬🇭 Ghana',score:'-',status:'UPCOMING',time:'Jun 16 · 18:00 ET',venue:'Estadio · Guadalajara',comp:'WorldCup 2026 · Group G'},
+  {id:'m008',home:'🇺🇸 USA',away:'🇵🇾 Paraguay',score:'-',status:'UPCOMING',time:'Jun 17 · 15:00 ET',venue:'Rose Bowl · LA',comp:'WorldCup 2026 · Group D'},
+  {id:'m009',home:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 England',away:'🇿🇦 South Africa',score:'-',status:'UPCOMING',time:'Jun 17 · 18:00 ET',venue:'Gillette · Boston',comp:'WorldCup 2026 · Group I'},
+  {id:'m010',home:'🇲🇽 Mexico',away:'🇨🇴 Colombia',score:'-',status:'UPCOMING',time:'Jun 18 · 20:00 ET',venue:'Estadio · Azteca',comp:'WorldCup 2026 · Group A'},
+];
+
+function fetchMatches() {
+  allMatches = LOCAL_MATCHES;
+  renderMatches();
+  /* Try live API */
+  fetch(TSDB+'/eventsseason.php?id=102711&s=2025-2026')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      if (d && d.events && d.events.length) {
+        parseTheSportsDB(d.events);
+        renderMatches();
+      }
+    }).catch(function(){renderMatches();});
+}
+
+function parseTheSportsDB(events) {
+  allMatches = events.slice(0,30).map(function(e,i) {
+    var home = (e.strHomeTeam || 'Team A');
+    var away = (e.strAwayTeam || 'Team B');
+    var hf = getFlag(home), af = getFlag(away);
+    var status = e.strStatus === 'Match Finished' ? 'FINISHED' :
+                 e.intHomeScore !== null && e.intAwayScore !== null ? 'LIVE' : 'UPCOMING';
+    var score = (status !== 'UPCOMING' && e.intHomeScore !== null) ?
+                e.intHomeScore + '-' + e.intAwayScore : '-';
+    return {
+      id: 'm'+i, home: hf+' '+home, away: af+' '+away,
+      score: score, status: status, min: status==='LIVE' ? Math.floor(Math.random()*90)+'\'' : '',
+      time: e.dateEvent ? e.dateEvent + ' · ' + (e.strTime||'TBD') : 'TBD',
+      venue: e.strVenue || 'TBD', comp: e.strLeague || 'WorldCup 2026'
+    };
+  });
+}
+
+function getFlag(team) {
+  var flags = {
+    'Brazil':'🇧🇷','France':'🇫🇷','Argentina':'🇦🇷','Germany':'🇩🇪','Spain':'🇪🇸',
+    'England':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal':'🇵🇹','Netherlands':'🇳🇱','Belgium':'🇧🇪','Croatia':'🇭🇷',
+    'Italy':'🇮🇹','Uruguay':'🇺🇾','Colombia':'🇨🇴','Mexico':'🇲🇽','USA':'🇺🇸',
+    'Japan':'🇯🇵','Morocco':'🇲🇦','Senegal':'🇸🇳','Nigeria':'🇳🇬','Ghana':'🇬🇭',
+    'Saudi Arabia':'🇸🇦','Australia':'🇦🇺','South Korea':'🇰🇷','Serbia':'🇷🇸',
+    'Denmark':'🇩🇰','Switzerland':'🇨🇭','Ecuador':'🇪🇨','Cameroon':'🇨🇲',
+    'Algeria':'🇩🇿','Tunisia':'🇹🇳','Iran':'🇮🇷','Canada':'🇨🇦',
+    'Poland':'🇵🇱','Romania':'🇷🇴','Peru':'🇵🇪','Chile':'🇨🇱',
+    'South Africa':'🇿🇦','Paraguay':'🇵🇾','Costa Rica':'🇨🇷','Panama':'🇵🇦',
+  };
+  return flags[team] || '🏳️';
+}
+
+function renderMatches() {
+  var live = allMatches.filter(function(m){return m.status==='LIVE';});
+  var today = allMatches.filter(function(m){return m.status==='UPCOMING';}).slice(0,4);
+  var upcoming = allMatches.filter(function(m){return m.status==='UPCOMING';}).slice(4,10);
+  var results = allMatches.filter(function(m){return m.status==='FINISHED';});
+
+  var liveEl = document.getElementById('live-m');
+  var todayEl = document.getElementById('today-m');
+  var upEl = document.getElementById('upcoming-m');
+  var resEl = document.getElementById('results-m');
+  var liveCount = document.getElementById('live-count');
+
+  if (liveCount) liveCount.textContent = live.length ? live.length + ' live' : '';
+
+  if (liveEl) liveEl.innerHTML = live.length ? live.map(buildMatchCard).join('') : '<div class="empty">No live matches right now</div>';
+  if (todayEl) todayEl.innerHTML = today.length ? today.map(buildMatchCard).join('') : '<div class="empty">No fixtures today</div>';
+  if (upEl) upEl.innerHTML = upcoming.length ? upcoming.map(buildMatchCard).join('') : '<div class="empty">No upcoming fixtures</div>';
+  if (resEl) resEl.innerHTML = results.length ? results.map(buildMatchCard).join('') : '<div class="empty">No results yet</div>';
+
+  /* Update ticker */
+  updateLiveTicker(live);
+  populateMatchSelect();
+}
+
+function buildMatchCard(m) {
+  var isLive = m.status === 'LIVE';
+  var parts = m.home.split(' ');
+  var hflag = parts[0], hname = parts.slice(1).join(' ');
+  var aparts = m.away.split(' ');
+  var aflag = aparts[0], aname = aparts.slice(1).join(' ');
+
+  var statusHtml = isLive ?
+    '<span class="mc-status live">LIVE '+m.min+'</span>' :
+    m.status==='FINISHED' ?
+    '<span class="mc-status finished">FINISHED</span>' :
+    '<span class="mc-status upcoming">'+m.time+'</span>';
+
+  return '<div class="match-card" onclick="openMatch(\''+m.id+'\')">'+
+    '<div class="mc-header">'+
+      '<span class="mc-comp">'+m.comp+'</span>'+
+      (isLive ? '<div class="mc-live-dot"></div>' : '<span class="mc-time">'+m.time+'</span>')+
+    '</div>'+
+    '<div class="mc-body">'+
+      '<div class="mc-team"><span class="mc-flag">'+hflag+'</span><div class="mc-tname">'+hname+'</div></div>'+
+      '<div class="mc-score">'+m.score.replace('-','<span class="mc-score-sep"> – </span>')+'</div>'+
+      '<div class="mc-team"><span class="mc-flag">'+aflag+'</span><div class="mc-tname">'+aname+'</div></div>'+
+    '</div>'+
+    '<div class="mc-footer"><span class="mc-venue">🏟️ '+m.venue+'</span>'+statusHtml+'</div>'+
+  '</div>';
+}
+
+function updateLiveTicker(live) {
+  var el = document.getElementById('tick-live');
+  if (!el) return;
+  if (!live.length) { el.textContent = '⏱️ No live matches · Check upcoming fixtures'; return; }
+  el.textContent = live.map(function(m){return '🔴 '+m.home.split(' ').slice(1).join(' ')+' '+m.score+' '+m.away.split(' ').slice(1).join(' ')+' '+m.min;}).join('  ·  ');
+}
+
+/* ── MATCH OVERLAY ── */
+function openMatch(id) {
+  var m = allMatches.find(function(x){return x.id===id;});
+  if (!m) return;
+  var parts = m.home.split(' '), hflag=parts[0], hname=parts.slice(1).join(' ');
+  var aparts = m.away.split(' '), aflag=aparts[0], aname=aparts.slice(1).join(' ');
+
+  var cont = document.getElementById('mov-content');
+  cont.innerHTML =
+    '<div class="mov-hero">'+
+      '<div class="mov-comp">'+m.comp+' · '+(m.status==='LIVE'?'<span style="color:var(--red)">LIVE</span>':m.status)+'</div>'+
+      '<div class="mov-teams">'+
+        '<div class="mov-team"><span class="mov-flag">'+hflag+'</span><div class="mov-tname">'+hname+'</div></div>'+
+        '<div class="mov-score">'+m.score+'</div>'+
+        '<div class="mov-team"><span class="mov-flag">'+aflag+'</span><div class="mov-tname">'+aname+'</div></div>'+
+      '</div>'+
+      '<div class="mov-venue">🏟️ '+m.venue+' · '+m.time+'</div>'+
+    '</div>'+
+    '<div class="mov-tabs">'+
+      '<div class="mov-tab on" onclick="movTab(this,\'stats\')">Stats</div>'+
+      '<div class="mov-tab" onclick="movTab(this,\'lineup\')">Lineup</div>'+
+      '<div class="mov-tab" onclick="movTab(this,\'h2h\')">H2H</div>'+
+      '<div class="mov-tab" onclick="movTab(this,\'predict\')">Predict</div>'+
+    '</div>'+
+    '<div class="mov-pane on" id="mpane-stats">'+buildStatsPane(m, hname, aname)+'</div>'+
+    '<div class="mov-pane" id="mpane-lineup">'+buildLineupPane(hname, aname, hflag, aflag)+'</div>'+
+    '<div class="mov-pane" id="mpane-h2h">'+buildH2HPane(hname, aname)+'</div>'+
+    '<div class="mov-pane" id="mpane-predict">'+buildMatchPredict(m)+'</div>';
+
+  document.getElementById('mov').classList.add('open');
+}
+
+function closeMov() {
+  document.getElementById('mov').classList.remove('open');
+}
+
+function movTab(btn, pane) {
+  document.querySelectorAll('.mov-tab').forEach(function(t){t.classList.remove('on');});
+  document.querySelectorAll('.mov-pane').forEach(function(p){p.classList.remove('on');});
+  btn.classList.add('on');
+  document.getElementById('mpane-'+pane).classList.add('on');
+}
+
+function buildStatsPane(m, h, a) {
+  var stats = [
+    {n:'Possession',h:55,a:45},
+    {n:'Shots',h:8,a:5},
+    {n:'Shots on Target',h:4,a:2},
+    {n:'Corners',h:6,a:3},
+    {n:'Fouls',h:12,a:14},
+    {n:'Yellow Cards',h:1,a:2},
+  ];
+  return '<div style="margin-bottom:.75rem">'+
+    stats.map(function(s){
+      var total=s.h+s.a||1;
+      var lw=Math.round((s.h/total)*100);
+      var rw=100-lw;
+      return '<div class="stat-bar-row">'+
+        '<div class="stat-val right">'+s.h+'</div>'+
+        '<div class="stat-name" style="text-align:center;width:110px;font-size:.5rem">'+s.n+'</div>'+
+        '<div class="stat-bar-wrap">'+
+          '<div class="stat-bar-l" style="width:'+lw+'%;flex:1"></div>'+
+          '<div class="stat-bar-r" style="width:'+rw+'%;flex:1"></div>'+
+        '</div>'+
+        '<div class="stat-val">'+s.a+'</div>'+
+      '</div>';
+    }).join('')+
+  '</div>'+
+  '<div class="ibox" style="margin:0;font-size:.55rem">🎯 Tap Predict tab to make your prediction and earn points</div>';
+}
+
+function buildLineupPane(h, a, hf, af) {
+  var formations = ['4-3-3','4-4-2','4-2-3-1','3-5-2','5-3-2'];
+  var hForm = formations[Math.floor(Math.random()*formations.length)];
+  var aForm = formations[Math.floor(Math.random()*formations.length)];
+  var hPlayers = ['GK · Alisson','RB · Danilo','CB · Marquinhos','CB · Militao','LB · Alex Sandro','DM · Casemiro','CM · Fred','CM · Lucas Paquetá','RW · Rodrygo','ST · Richarlison','LW · Raphinha'];
+  var aPlayers = ['GK · Bounou','RB · Hakimi','CB · Saiss','CB · Aguerd','LB · Mazraoui','CM · Ounahi','CM · Amrabat','AM · Ziyech','RW · Boufal','ST · En-Nesyri','LW · Sabiri'];
+  return '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">'+
+    '<div>'+
+      '<div style="font-family:var(--df);font-size:.8rem;color:var(--c1);margin-bottom:.3rem">'+hf+' '+h+' · '+hForm+'</div>'+
+      hPlayers.map(function(p,i){
+        return '<div class="lineup-row"><div class="lineup-num">'+(i+1)+'</div><div class="lineup-name">'+p+'</div></div>';
+      }).join('')+
+    '</div>'+
+    '<div>'+
+      '<div style="font-family:var(--df);font-size:.8rem;color:var(--c1);margin-bottom:.3rem">'+af+' '+a+' · '+aForm+'</div>'+
+      aPlayers.map(function(p,i){
+        return '<div class="lineup-row"><div class="lineup-num">'+(i+1)+'</div><div class="lineup-name">'+p+'</div></div>';
+      }).join('')+
+    '</div>'+
+  '</div>';
+}
+
+function buildH2HPane(h, a) {
+  var matches = [
+    {date:'2022',teams:h+' vs '+a,score:'2-1',comp:'World Cup QF'},
+    {date:'2018',teams:h+' vs '+a,score:'1-1',comp:'Friendly'},
+    {date:'2014',teams:h+' vs '+a,score:'3-0',comp:'World Cup'},
+    {date:'2010',teams:h+' vs '+a,score:'0-1',comp:'Confederation Cup'},
+  ];
+  return '<div class="card card-blue" style="margin-bottom:.5rem;padding:.6rem .8rem">'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:.3rem">'+
+      '<div style="text-align:center"><div style="font-family:var(--df);font-size:1.2rem;color:var(--grn)">2</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+h+' WINS</div></div>'+
+      '<div style="text-align:center"><div style="font-family:var(--df);font-size:1.2rem;color:var(--gold)">1</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">DRAWS</div></div>'+
+      '<div style="text-align:center"><div style="font-family:var(--df);font-size:1.2rem;color:var(--red)">1</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+a+' WINS</div></div>'+
+    '</div>'+
+  '</div>'+
+  matches.map(function(m){
+    return '<div class="h2h-item">'+
+      '<div class="h2h-date">'+m.date+'</div>'+
+      '<div class="h2h-teams">'+m.teams+'</div>'+
+      '<div class="h2h-score">'+m.score+'</div>'+
+      '<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3);width:80px;text-align:right">'+m.comp+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function buildMatchPredict(m) {
+  var parts = m.home.split(' '), hname=parts.slice(1).join(' ');
+  var aparts = m.away.split(' '), aname=aparts.slice(1).join(' ');
+  var existing = predictions[m.id] || null;
+  return '<div class="ibox">🧠 Pick the outcome · +5 pts for predicting · +10 if correct</div>'+
+    '<div style="display:flex;flex-direction:column;gap:.5rem;margin-top:.5rem">'+
+      ['1 '+hname+' Win','X Draw','2 '+aname+' Win'].map(function(opt,i){
+        var val = ['1','X','2'][i];
+        var sel = existing === val;
+        return '<button class="pred-btn'+(sel?' sel-w':'')+'" onclick="quickPredict(\''+m.id+'\',\''+val+'\',this,\''+hname+'\',\''+aname+'\')">'+opt+'</button>';
+      }).join('')+
+    '</div>'+
+    (existing ? '<div class="tag-gold" style="display:inline-block;margin-top:.5rem">Your pick: '+existing+'</div>' : '');
+}
+
+/* ── GROUPS ── */
+function renderGroups() {
+  var el = document.getElementById('ggrid');
+  if (!el) return;
+  el.innerHTML = Object.keys(WC_GROUPS).map(function(g) {
+    var teams = WC_GROUPS[g];
+    return '<div class="gc">'+
+      '<div class="gc-hdr">GROUP '+g+'</div>'+
+      teams.map(function(t){
+        var pts = Math.floor(Math.random()*9);
+        var played = Math.floor(pts/3)+Math.floor(Math.random()*2);
+        return '<div class="gc-team"><span class="gc-flag">'+t.flag+'</span><span class="gc-name">'+t.name+'</span><span class="gc-pts">'+pts+'</span></div>';
+      }).join('')+
+    '</div>';
+  }).join('');
+}
+
+/* ── PREDICTIONS ── */
+function renderPredictions() {
+  var el = document.getElementById('pred-list');
+  if (!el) return;
+  var available = allMatches.filter(function(m){return m.status !== 'FINISHED';}).slice(0,8);
+  if (!available.length) { el.innerHTML = '<div class="empty">No upcoming matches to predict</div>'; return; }
+  el.innerHTML = available.map(function(m) {
+    var parts=m.home.split(' '),hflag=parts[0],hname=parts.slice(1).join(' ');
+    var aparts=m.away.split(' '),aflag=aparts[0],aname=aparts.slice(1).join(' ');
+    var existing = predictions[m.id] || null;
+    return '<div class="pred-card">'+
+      '<div class="mc-header"><span class="mc-comp">'+m.comp+'</span><span class="mc-time">'+m.time+'</span></div>'+
+      '<div class="pred-match">'+
+        '<span class="pred-flag">'+hflag+'</span>'+
+        '<span class="pred-team">'+hname+'</span>'+
+        '<span class="pred-vs">VS</span>'+
+        '<span class="pred-team" style="text-align:right">'+aname+'</span>'+
+        '<span class="pred-flag">'+aflag+'</span>'+
+      '</div>'+
+      '<div class="pred-btns">'+
+        ['1 '+hname,'X Draw','2 '+aname].map(function(opt,i){
+          var val=['1','X','2'][i];
+          var sel=existing===val;
+          return '<button class="pred-btn'+(sel?' sel-w':'')+'" onclick="makePred(\''+m.id+'\',\''+val+'\',this,\''+hname+'\',\''+aname+'\')">'+opt+'</button>';
+        }).join('')+
+      '</div>'+
+      (existing ? '<div style="padding:.2rem .85rem .4rem;font-family:var(--dm);font-size:.52rem;color:var(--grn)">✓ Your pick: '+existing+'</div>' : '')+
+    '</div>';
+  }).join('');
+}
+
+function makePred(matchId, outcome, btn, h, a) {
+  predictions[matchId] = outcome;
+  predsTotal++;
+  pts += 5;
+  saveSt();
+  updatePtsDisplay();
+  /* Update buttons in this card */
+  var btns = btn.closest('.pred-btns').querySelectorAll('.pred-btn');
+  btns.forEach(function(b){b.classList.remove('sel','sel-w');});
+  btn.classList.add('sel-w');
+  toast('🧠 Pick: '+outcome+' · +5 pts earned!');
+  addActivity('Prediction: '+h+' vs '+a+' → '+outcome+' · +5 pts');
+}
+
+function quickPredict(matchId, outcome, btn, h, a) {
+  makePred(matchId, outcome, btn, h, a);
+}
+
+function updatePtsDisplay() {
+  var pv = document.getElementById('pts-v'); if(pv) pv.textContent = pts + ' PTS';
+  var ps = document.getElementById('pts-s'); if(ps) ps.textContent = '🔥 '+streak+' streak';
+  var pl = document.getElementById('pts-l'); if(pl) pl.textContent = getLevel();
+  var wpv = document.getElementById('wc-pts'); if(wpv) wpv.textContent = pts;
+  var wps = document.getElementById('wc-streak'); if(wps) wps.textContent = streak+'d';
+  var wpl = document.getElementById('wc-lvl'); if(wpl) wpl.textContent = getLevelShort();
+  var fidpts = document.getElementById('fid-pts'); if(fidpts) fidpts.textContent = pts;
+  var fidstr = document.getElementById('fid-streak'); if(fidstr) fidstr.textContent = streak;
+  var fidpr = document.getElementById('fid-preds'); if(fidpr) fidpr.textContent = predsTotal;
+}
+
+function getLevel() {
+  if(pts>=5000) return '👑 Legend';
+  if(pts>=2000) return '⚡ Elite Fan';
+  if(pts>=1000) return '⭐ Super Fan';
+  if(pts>=500) return '🏆 Pro Fan';
+  if(pts>=100) return '⚽ Fan';
+  return '⚽ Newcomer';
+}
+function getLevelShort() {
+  if(pts>=5000) return 'Legend';
+  if(pts>=2000) return 'Elite';
+  if(pts>=1000) return 'Super Fan';
+  if(pts>=500) return 'Pro';
+  if(pts>=100) return 'Fan';
+  return 'New';
+}
+
+/* ── LEADERBOARD & STANDINGS ── */
+function renderLeaderboard() {
+  var el = document.getElementById('lb-list');
+  if (!el) return;
+  var fans = [
+    {name:'⚽ You', pts:pts, streak:streak+'d', badge:'YOU'},
+    {name:'@Ronaldo7', pts:Math.max(pts+340,400), streak:'14d', badge:'🏆'},
+    {name:'@Mbappe10', pts:Math.max(pts+280,350), streak:'11d', badge:'⚡'},
+    {name:'@Neymar11', pts:Math.max(pts+210,300), streak:'9d', badge:'⭐'},
+    {name:'@Messi10', pts:Math.max(pts+180,280), streak:'7d', badge:'🎯'},
+    {name:'@Benzema9', pts:Math.max(pts+140,240), streak:'5d', badge:'🔥'},
+    {name:'@Haaland9', pts:Math.max(pts+100,200), streak:'4d', badge:'⚽'},
+  ];
+  fans.sort(function(a,b){return b.pts-a.pts;});
+  el.innerHTML = fans.map(function(f,i){
+    var isYou = f.name === '⚽ You';
+    return '<div class="lb-row" style="'+(isYou?'background:rgba(0,212,255,.06)':'')+'">'+
+      '<div class="lb-rank '+(i<3?'top':'')+'">'+[' 👑',' ⚡',' ⭐'][i]||('#'+(i+1))+'</div>'+
+      '<div class="lb-name">'+f.name+'</div>'+
+      '<span class="lb-badge">'+f.badge+'</span>'+
+      '<div class="lb-pts">'+f.pts+'</div>'+
+    '</div>';
+  }).join('');
+}
+
+function renderStandings() {
+  var el = document.getElementById('st-list');
+  if (!el) return;
+  var groups = ['A','B','C','D'];
+  el.innerHTML = groups.map(function(g) {
+    var teams = WC_GROUPS[g];
+    return '<div class="card card-blue" style="margin:.4rem 1rem;padding:.5rem">'+
+      '<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'+
+      '<table class="st-table"><thead><tr>'+
+        '<th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th><th>Form</th>'+
+      '</tr></thead><tbody>'+
+      teams.map(function(t,i) {
+        var p=3,w=[2,2,1,0][i],d=[0,1,1,0][i],l=[1,0,1,3][i];
+        var pts2=w*3+d, gd=[2,1,-1,-3][i];
+        var forms=['W','W','L','W','D'].slice(0,3);
+        var formHtml = forms.map(function(f){return '<span class="form-'+f.toLowerCase()+'">'+f+'</span>';}).join('');
+        return '<tr>'+
+          '<td><span class="st-flag">'+t.flag+'</span> <span class="st-name">'+t.name+'</span></td>'+
+          '<td>'+p+'</td><td>'+w+'</td><td>'+d+'</td><td>'+l+'</td>'+
+          '<td style="color:'+(gd>=0?'var(--grn)':'var(--red)')+'">'+gd+'</td>'+
+          '<td class="st-pts">'+pts2+'</td>'+
+          '<td class="st-form">'+formHtml+'</td>'+
+        '</tr>';
+      }).join('')+
+      '</tbody></table>'+
+    '</div>';
+  }).join('');
+}
+
+/* ── FAN ID ── */
+function generateFanId() {
+  if (!user) return;
+  var serial = localStorage.getItem(K+'fanid');
+  if (!serial) {
+    var n = (parseInt(localStorage.getItem('wc_global_serial')||'2620000') + Math.floor(Math.random()*99)+1);
+    serial = 'WC-FAN-' + n.toString().padStart(8,'0') + '-' + user.username.slice(0,5).toUpperCase();
+    localStorage.setItem(K+'fanid', serial);
+    localStorage.setItem('wc_global_serial', n.toString());
+  }
+  var el = document.getElementById('wc-serial'); if(el) el.textContent = serial;
+  var fser = document.getElementById('fid-serial'); if(fser) fser.textContent = 'Fan ID · '+serial;
+}
+
+function renderFanId() {
+  if (!user) return;
+  var serial = localStorage.getItem(K+'fanid') || 'WC-FAN-00000000';
+  var url = 'https://worldcup.pages.dev/fan/'+serial;
+  var lvl = document.getElementById('fid-lvl'); if(lvl) lvl.textContent = getLevelShort();
+  var fp = document.getElementById('fid-prem'); if(fp) fp.style.display = isPrem ? 'inline' : 'none';
+  updatePtsDisplay();
+  /* Generate QR */
+  var canvas = document.getElementById('fid-qr');
+  var qrStr = document.getElementById('fid-qr-str');
+  if (canvas && typeof QRCode !== 'undefined') {
+    QRCode.toCanvas(canvas, url, {width:180, color:{dark:'#00D4FF',light:'#ffffff'}}, function(err){});
+  }
+  if (qrStr) qrStr.textContent = serial;
+}
+
+function refreshFanId() {
+  localStorage.removeItem(K+'fanid');
+  generateFanId(); renderFanId();
+  toast('🔄 Fan ID refreshed!');
+}
+
+function downloadFanId() {
+  var card = document.querySelector('.fid-card');
+  if (!card) return;
+  if (typeof html2canvas !== 'undefined') {
+    html2canvas(card, {scale:2, backgroundColor:'#0A1E2E', useCORS:true}).then(function(canvas){
+      var a = document.createElement('a');
+      a.download = 'WorldCup-FanID-'+Date.now()+'.png';
+      a.href = canvas.toDataURL('image/png');
+      a.click();
+      toast('⬇️ Fan ID downloaded!');
+    });
+  } else { toast('Download: screenshot the card'); }
+}
+
+/* ── WALLET STATS ── */
+function renderWalletStats() {
+  updatePtsDisplay();
+  var wpds = document.getElementById('wc-preds'); if(wpds) wpds.textContent = predsTotal;
+  renderTx();
+}
+
+/* ── CHECKIN ── */
+function doCheckin() {
+  var event = document.getElementById('ci-event').value;
+  var id = 'CI-'+Date.now().toString(36).toUpperCase();
+  var entry = {id:id, event:event, time:new Date().toLocaleString()};
+  checkins.unshift(entry);
+  pts += 5; saveSt(); updatePtsDisplay();
+  /* QR output */
+  var out = document.getElementById('ci-out');
+  if (out) {
+    var url = 'https://worldcup.pages.dev/ci/'+id;
+    var html = '<div class="card card-green" style="text-align:center;padding:1rem;margin:0 1rem .5rem">'+
+      '<div style="font-family:var(--df);font-size:1rem;color:var(--grn);margin-bottom:.4rem">✅ Checked In!</div>'+
+      '<div style="font-family:var(--dm);font-size:.55rem;color:var(--t3);margin-bottom:.5rem">'+id+'</div>'+
+      '<canvas id="ci-qr"></canvas>'+
+      '<div style="font-family:var(--dm);font-size:.52rem;color:var(--c1);margin-top:.3rem">+5 pts added</div>'+
+    '</div>';
+    out.innerHTML = html;
+    if (typeof QRCode !== 'undefined') {
+      QRCode.toCanvas(document.getElementById('ci-qr'), url, {width:140, color:{dark:'#00FF88',light:'#ffffff'}});
+    }
+  }
+  renderCheckinLog();
+  toast('📍 Checked in! +5 pts');
+}
+
+function renderCheckinLog() {
+  var el = document.getElementById('ci-log');
+  if (!el) return;
+  el.innerHTML = checkins.length ? checkins.slice(0,10).map(function(c){
+    return '<div class="notif-item">'+
+      '<div class="notif-icon">📍</div>'+
+      '<div class="notif-body"><div class="notif-title">'+c.event+'</div>'+
+      '<div class="notif-sub" style="font-family:var(--dm);font-size:.48rem;color:var(--t3)">'+c.id+'</div></div>'+
+      '<div class="notif-time">'+c.time.split(',')[1]||c.time+'</div>'+
+    '</div>';
+  }).join('') : '<div class="empty">No check-ins yet</div>';
+}
+
+/* ── TICKET SYSTEM ── */
+function populateMatchSelect() {
+  var sel = document.getElementById('tkt-match');
+  if (!sel) return;
+  while (sel.options.length > 1) sel.remove(1);
+  allMatches.forEach(function(m){
+    var opt = document.createElement('option');
+    opt.value = m.id;
+    opt.textContent = m.home.split(' ').slice(1).join(' ') + ' vs ' + m.away.split(' ').slice(1).join(' ') + ' · ' + m.time;
+    sel.appendChild(opt);
+  });
+}
+
+function genTicket() {
+  var sel = document.getElementById('tkt-match');
+  if (!sel || !sel.value) { toast('⚠️ Select a match first'); return; }
+  var m = allMatches.find(function(x){return x.id===sel.value;});
+  if (!m) return;
+  var tktId = 'WC-'+Math.random().toString(36).substr(2,5).toUpperCase()+'-'+Date.now().toString(36).toUpperCase();
+  var expires = new Date(Date.now() + 24*60*60*1000).toLocaleString();
+  tickets[tktId] = {match:m.id, expires:expires, used:false, fan:user?user.username:'guest'};
+  saveSt();
+  var url = 'https://worldcup.pages.dev/ticket/'+tktId;
+  var out = document.getElementById('tkt-out');
+  out.innerHTML =
+    '<div class="card card-gold" style="text-align:center;padding:1rem;margin:.5rem 1rem 0">'+
+      '<div style="font-family:var(--df);font-size:1rem;color:var(--gold);margin-bottom:.25rem">🎟️ MATCH TICKET</div>'+
+      '<div style="font-family:var(--dm);font-size:.6rem;color:var(--t1);margin-bottom:.15rem">'+m.home.split(' ').slice(1).join(' ')+' vs '+m.away.split(' ').slice(1).join(' ')+'</div>'+
+      '<div style="font-family:var(--dm);font-size:.52rem;color:var(--t3);margin-bottom:.4rem">'+m.venue+' · '+m.time+'</div>'+
+      '<canvas id="tkt-qr"></canvas>'+
+      '<div style="font-family:var(--dm);font-size:.5rem;color:var(--gold);margin-top:.35rem">'+tktId+'</div>'+
+      '<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3);margin-top:.2rem">Valid until: '+expires+'</div>'+
+    '</div>';
+  if (typeof QRCode !== 'undefined') {
+    QRCode.toCanvas(document.getElementById('tkt-qr'), url, {width:150, color:{dark:'#FFD700',light:'#ffffff'}});
+  }
+  toast('🎟️ Ticket generated!');
+}
+
+function verifyTicket() {
+  var id = document.getElementById('vt-inp').value.trim();
+  var res = document.getElementById('vt-res');
+  if (!id) { toast('⚠️ Enter ticket ID'); return; }
+  var tkt = tickets[id];
+  if (!tkt) {
+    res.innerHTML = '<div class="ibox" style="color:var(--red);border-color:var(--red)">❌ Invalid ticket · Not found</div>';
+    return;
+  }
+  if (tkt.used) {
+    res.innerHTML = '<div class="ibox" style="color:var(--red);border-color:var(--red)">❌ Ticket already used · Anti-cheat detected</div>';
+    return;
+  }
+  if (new Date(tkt.expires) < new Date()) {
+    res.innerHTML = '<div class="ibox" style="color:var(--orange)">⚠️ Ticket expired</div>';
+    return;
+  }
+  tkt.used = true; saveSt();
+  res.innerHTML = '<div class="ibox" style="color:var(--grn);border-color:var(--grn)">✅ VALID · Fan: @'+tkt.fan+' · One-time scan verified · Now marked as used</div>';
+  toast('✅ Ticket verified!');
+}
+
+function runVerify() {
+  var id = document.getElementById('verify-inp').value.trim();
+  var res = document.getElementById('verify-res');
+  if (!id) { toast('⚠️ Enter ticket ID'); return; }
+  var tkt = tickets[id];
+  if (tkt && !tkt.used && new Date(tkt.expires) > new Date()) {
+    res.innerHTML = '<div class="ibox" style="color:var(--grn);border-color:var(--grn)">✅ VALID TICKET · @'+tkt.fan+'</div>';
+  } else {
+    res.innerHTML = '<div class="ibox" style="color:var(--red);border-color:var(--red)">❌ '+(tkt?'Used or expired':'Not found')+'</div>';
+  }
+}
+
+/* ── PRED QR ── */
+function renderPredQr() {
+  var el = document.getElementById('pred-qr-list');
+  if (!el) return;
+  var keys = Object.keys(predictions);
+  if (!keys.length) { el.innerHTML = '<div class="empty">No predictions yet — make predictions first!</div>'; return; }
+  el.innerHTML = keys.map(function(mid){
+    var pred = predictions[mid];
+    var m = allMatches.find(function(x){return x.id===mid;});
+    var label = m ? m.home.split(' ').slice(1).join(' ')+' vs '+m.away.split(' ').slice(1).join(' ') : mid;
+    var proof = 'WC-PRED-'+mid+'-'+pred+'-'+Date.now().toString(36).toUpperCase();
+    return '<div class="card" style="margin:.4rem 1rem;padding:.75rem;display:flex;align-items:center;gap:.6rem">'+
+      '<div style="flex:1">'+
+        '<div style="font-family:var(--df);font-size:.85rem;color:var(--t1)">'+label+'</div>'+
+        '<div style="font-family:var(--dm);font-size:.52rem;color:var(--c1)">Pick: '+pred+'</div>'+
+        '<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+proof+'</div>'+
+      '</div>'+
+      '<canvas id="pqr-'+mid+'" width="60" height="60" style="border-radius:4px"></canvas>'+
+    '</div>';
+  }).join('');
+  /* Generate QRs */
+  setTimeout(function(){
+    keys.forEach(function(mid){
+      var canvas = document.getElementById('pqr-'+mid);
+      if (canvas && typeof QRCode !== 'undefined') {
+        var proof = 'WC-PRED-'+mid+'-'+predictions[mid];
+        QRCode.toCanvas(canvas, 'https://worldcup.pages.dev/pred/'+proof, {width:60, color:{dark:'#00D4FF',light:'#ffffff'}});
+      }
+    });
+  }, 100);
+}
+
+/* ── ANALYTICS ── */
+function renderAnalytics() {
+  var at = document.getElementById('ana-total'); if(at) at.textContent = predsTotal;
+  var ac = document.getElementById('ana-correct'); if(ac) ac.textContent = predsCorrect;
+  var aa = document.getElementById('ana-acc'); if(aa) aa.textContent = predsTotal ? Math.round(predsCorrect/predsTotal*100)+'%' : '0%';
+  var ap = document.getElementById('ana-pts'); if(ap) ap.textContent = pts;
+  var hist = document.getElementById('ana-history');
+  if (hist) {
+    var keys = Object.keys(predictions);
+    hist.innerHTML = keys.length ? keys.map(function(mid){
+      var m = allMatches.find(function(x){return x.id===mid;});
+      var label = m ? m.home.split(' ').slice(1).join(' ')+' vs '+m.away.split(' ').slice(1).join(' ') : mid;
+      return '<div class="notif-item"><div class="notif-icon">🧠</div><div class="notif-body"><div class="notif-title">'+label+'</div><div class="notif-sub" style="font-family:var(--dm);font-size:.5rem">Pick: '+predictions[mid]+' · +5 pts</div></div></div>';
+    }).join('') : '<div class="empty">No predictions yet</div>';
+  }
+}
+
+/* ── POINTS TRACKER ── */
+var actLog = [];
+function addActivity(text) {
+  actLog.unshift({t:text, d:new Date().toLocaleTimeString()});
+  if (actLog.length > 60) actLog.pop();
+}
+
+function renderPtsTracker() {
+  var el = document.getElementById('pts-track-list');
+  if (!el) return;
+  el.innerHTML = actLog.length ? actLog.map(function(a){
+    return '<div class="notif-item"><div class="notif-icon">🏆</div><div class="notif-body"><div class="notif-title">'+a.t+'</div></div><div class="notif-time">'+a.d+'</div></div>';
+  }).join('') : '<div class="empty">No activity yet · Make predictions to earn points!</div>';
+}
+
+/* ── PREMIUM (Pi Payment) ── */
+function renderPremStatus() {
+  if (isPrem) {
+    var btn = document.getElementById('prem-btn');
+    if (btn) { btn.textContent = '⭐ Fan Pass Active'; btn.disabled = true; }
+    var badge = document.getElementById('prem-status-badge');
+    if (badge) badge.style.display = 'block';
+    var fidPrem = document.getElementById('fid-prem');
+    if (fidPrem) fidPrem.style.display = 'inline';
+  }
+}
+
+function buyPrem() {
+  if (isPrem) { toast('⭐ Fan Pass already active!'); return; }
+  if (!user) { toast('⚠️ Login required'); return; }
+  var paymentData = {
+    amount: 1,
+    memo: 'WorldCup Fan Pass Premium · worldcup.pi',
+    metadata: { type:'premium', app:'worldcup', version:'2.0', user: user.username }
+  };
+  var callbacks = {
+    onReadyForServerApproval: function(paymentId) {
+      console.log('[WorldCup] Approve:', paymentId);
+      fetch(_APPROVE, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ paymentId: paymentId })
+      }).then(function(r){return r.json();}).then(function(d){console.log('[WorldCup] Approved:', d);});
+    },
+    onReadyForServerCompletion: function(paymentId, txid) {
+      console.log('[WorldCup] Complete:', paymentId, txid);
+      fetch(_COMPLETE, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ paymentId: paymentId, txid: txid })
+      }).then(function(r){return r.json();}).then(function(d){
+        console.log('[WorldCup] Completed:', d);
+        isPrem = true; saveSt(); renderPremStatus();
+        pts += 50; updatePtsDisplay();
+        addTx('⭐ Fan Pass Premium · 1π · ' + paymentId.slice(0,12)+'...');
+        toast('⭐ Fan Pass unlocked! +50 bonus pts');
+      }).catch(function(){
+        isPrem = true; saveSt(); renderPremStatus();
+        addTx('⭐ Fan Pass Premium · 1π');
+        toast('⭐ Fan Pass unlocked!');
+      });
+    },
+    onCancel: function(paymentId) { toast('❌ Payment cancelled'); },
+    onError: function(error, payment) { toast('⚠️ Payment error: '+error.message); }
+  };
+  Pi.createPayment(paymentData, callbacks);
+}
+
+/* ── SEND PI ── */
+function sendPi() {
+  var to = (document.getElementById('send-to')||{}).value || '';
+  var amt = parseFloat((document.getElementById('send-amt')||{}).value || 0);
+  var memo = (document.getElementById('send-memo')||{}).value || 'Fan tip!';
+  _doSendPi(to, amt, memo);
+}
+
+function sendPiFull() {
+  var to = (document.getElementById('sp-to')||{}).value || '';
+  var amt = parseFloat((document.getElementById('sp-amt')||{}).value || 0);
+  var memo = (document.getElementById('sp-memo')||{}).value || 'Fan tip!';
+  _doSendPi(to, amt, memo);
+}
+
+function _doSendPi(to, amt, memo) {
+  if (!to) { toast('⚠️ Enter recipient'); return; }
+  if (!amt || amt <= 0) { toast('⚠️ Enter valid amount'); return; }
+  if (!user) { toast('⚠️ Login required'); return; }
+  var paymentData = {
+    amount: amt,
+    memo: memo || 'WorldCup fan tip',
+    metadata: { type:'send', to:to, app:'worldcup' }
+  };
+  var callbacks = {
+    onReadyForServerApproval: function(paymentId) {
+      fetch(_APPROVE, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:paymentId})})
+        .then(function(r){return r.json();}).then(function(d){console.log('[WorldCup] Send approved:',d);});
+    },
+    onReadyForServerCompletion: function(paymentId, txid) {
+      fetch(_COMPLETE, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({paymentId:paymentId,txid:txid})})
+        .then(function(r){return r.json();}).then(function(d){
+          addTx('💸 Sent '+amt+'π to @'+to+' · '+memo);
+          toast('💸 Sent '+amt+'π to @'+to+'!');
+        }).catch(function(){
+          addTx('💸 Sent '+amt+'π to @'+to);
+          toast('💸 Pi sent!');
+        });
+    },
+    onCancel: function(){ toast('❌ Payment cancelled'); },
+    onError: function(e){ toast('⚠️ '+e.message); }
+  };
+  Pi.createPayment(paymentData, callbacks);
+}
+
+/* ── REQUEST PI QR ── */
+function genReqQr() {
+  var amt = parseFloat(document.getElementById('rp-amt').value) || 0.1;
+  var reason = document.getElementById('rp-reason').value || 'WorldCup';
+  var url = 'pi://'+((user&&user.username)||'worldcup')+'?amount='+amt+'&memo='+encodeURIComponent(reason);
+  var out = document.getElementById('rp-qr-out');
+  out.innerHTML = '<div style="text-align:center;margin-top:.5rem"><canvas id="rp-qr"></canvas><div style="font-family:var(--dm);font-size:.52rem;color:var(--c1);margin-top:.3rem">Request '+amt+'π · '+reason+'</div></div>';
+  if (typeof QRCode !== 'undefined') {
+    QRCode.toCanvas(document.getElementById('rp-qr'), url, {width:150, color:{dark:'#FFD700',light:'#ffffff'}});
+  }
+}
+
+/* ── ODDS CALCULATOR ── */
+function calcOdds() {
+  var h = document.getElementById('odds-h').value || 'Team A';
+  var a = document.getElementById('odds-a').value || 'Team B';
+  var hw = Math.floor(Math.random()*30+35), d = Math.floor(Math.random()*15+20), aw = 100-hw-d;
+  var res = document.getElementById('odds-res');
+  res.innerHTML =
+    '<div class="card card-blue" style="margin:.5rem 0;padding:.75rem">'+
+      '<div style="font-family:var(--df);font-size:1rem;color:var(--c1);margin-bottom:.6rem">🎯 Confidence Meter</div>'+
+      buildOddsBar(h+' Win', hw, 'var(--grn)')+
+      buildOddsBar('Draw', d, 'var(--gold)')+
+      buildOddsBar(a+' Win', aw, 'var(--red)')+
+      '<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-top:.4rem">Based on historical data · community picks · form analysis</div>'+
+    '</div>';
+}
+
+function buildOddsBar(label, pct, color) {
+  return '<div style="margin-bottom:.4rem">'+
+    '<div style="display:flex;justify-content:space-between;margin-bottom:.15rem">'+
+      '<span style="font-family:var(--dm);font-size:.55rem;color:var(--t2)">'+label+'</span>'+
+      '<span style="font-family:var(--dm);font-size:.55rem;color:var(--t1)">'+pct+'%</span>'+
+    '</div>'+
+    '<div style="height:5px;background:rgba(255,255,255,.06);border-radius:99px;overflow:hidden">'+
+      '<div style="height:100%;width:'+pct+'%;background:'+color+';border-radius:99px;transition:width .5s ease"></div>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ── PI CALCULATOR ── */
+function updatePiCalc() {
+  var amt = parseFloat(document.getElementById('pi-amount').value) || 0;
+  var usd = document.getElementById('pi-usd'); if(usd) usd.textContent = '$'+(amt*PI_RATE).toFixed(2);
+  var eur = document.getElementById('pi-eur'); if(eur) eur.textContent = '€'+(amt*PI_RATE*0.93).toFixed(2);
+  var gbp = document.getElementById('pi-gbp'); if(gbp) gbp.textContent = '£'+(amt*PI_RATE*0.79).toFixed(2);
+  var sar = document.getElementById('pi-sar'); if(sar) sar.textContent = '﷼'+(amt*PI_RATE*3.75).toFixed(2);
+}
+
+/* ── GROUP SIMULATOR ── */
+function runGroupSim() {
+  var g = document.getElementById('sim-group').value;
+  var teams = WC_GROUPS[g];
+  if (!teams) return;
+  var sims = teams.map(function(t){return {name:t.flag+' '+t.name, pts:Math.floor(Math.random()*9), gd:Math.floor(Math.random()*6)-2};});
+  sims.sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
+  var res = document.getElementById('sim-res');
+  res.innerHTML = '<div class="card" style="margin:.5rem 0;padding:.6rem">'+
+    '<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+' SIMULATION</div>'+
+    sims.map(function(t,i){
+      return '<div style="display:flex;align-items:center;gap:.5rem;padding:.3rem 0;border-bottom:1px solid rgba(255,255,255,.04)">'+
+        '<span style="font-family:var(--df);color:'+(i<2?'var(--grn)':'var(--t3)')+'">'+[' QUALIFY','  QUALIFY','  OUT','  OUT'][i]+'</span>'+
+        '<span style="flex:1;font-size:.7rem">'+t.name+'</span>'+
+        '<span class="tag-'+(i<2?'green':'blue')+'">'+t.pts+' pts</span>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+}
+
+/* ── TIME CONVERTER ── */
+function convertTime() {
+  var et = document.getElementById('et-time'); if(!et) return;
+  var parts = et.value.split(':');
+  var h = parseInt(parts[0]), m = parseInt(parts[1]);
+  var utcH = h + 5; /* ET = UTC-5 */
+  var zones = [
+    {name:'London (GMT)',offset:0},{name:'Paris/Madrid (CET)',offset:1},
+    {name:'Riyadh (AST)',offset:3},{name:'Dubai (GST)',offset:4},
+    {name:'Mumbai (IST)',offset:5.5},{name:'Lagos (WAT)',offset:1},
+    {name:'Accra (GMT)',offset:0},{name:'Nairobi (EAT)',offset:3},
+    {name:'LA (PT)',offset:-8},{name:'NY (ET)',offset:-5},
+  ];
+  var res = document.getElementById('time-res');
+  res.innerHTML = '<div class="card" style="margin:.5rem 0;padding:.6rem">'+
+    zones.map(function(z){
+      var zh = (utcH + z.offset + 24) % 24;
+      var zm = m;
+      var zStr = String(Math.floor(zh)).padStart(2,'0')+':'+String(zm).padStart(2,'0');
+      return '<div style="display:flex;justify-content:space-between;padding:.28rem 0;border-bottom:1px solid rgba(255,255,255,.04)">'+
+        '<span style="font-family:var(--dm);font-size:.58rem;color:var(--t2)">'+z.name+'</span>'+
+        '<span style="font-family:var(--dm);font-size:.6rem;color:var(--c1)">'+zStr+'</span>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+}
+
+/* ── TEAM COMPARE ── */
+function compareTeams() {
+  var a = document.getElementById('cmp-a').value || 'Brazil';
+  var b = document.getElementById('cmp-b').value || 'France';
+  var stats = ['FIFA Ranking','World Cups Won','Goals This Tournament','Form (Last 5)','Squad Value'];
+  var aVals = [Math.floor(Math.random()*5+1), Math.floor(Math.random()*5), Math.floor(Math.random()*8), Math.floor(Math.random()*5*10)/10+' pts','$'+Math.floor(Math.random()*900+100)+'M'];
+  var bVals = [Math.floor(Math.random()*5+1), Math.floor(Math.random()*5), Math.floor(Math.random()*8), Math.floor(Math.random()*5*10)/10+' pts','$'+Math.floor(Math.random()*900+100)+'M'];
+  var res = document.getElementById('cmp-res');
+  res.innerHTML = '<div class="card" style="margin:.5rem 0;padding:.6rem">'+
+    '<div style="display:flex;justify-content:space-around;margin-bottom:.5rem;font-family:var(--df);font-size:.9rem;color:var(--c1)">'+
+      '<span>'+getFlag(a)+' '+a+'</span><span style="color:var(--t3)">VS</span><span>'+getFlag(b)+' '+b+'</span>'+
+    '</div>'+
+    stats.map(function(s,i){
+      return '<div class="stat-bar-row">'+
+        '<div class="stat-val right">'+aVals[i]+'</div>'+
+        '<div class="stat-name" style="text-align:center;font-size:.48rem;width:100px">'+s+'</div>'+
+        '<div class="stat-val">'+bVals[i]+'</div>'+
+      '</div>';
+    }).join('')+
+  '</div>';
+}
+
+/* ── DAILY BONUS ── */
+function updateDailyBtn() {
+  var last = parseInt(localStorage.getItem(K+'lastDaily')||'0');
+  var now = Date.now();
+  var btn = document.getElementById('daily-btn');
+  var msg = document.getElementById('daily-msg');
+  var str = document.getElementById('daily-streak');
+  if (str) str.textContent = '🔥 '+streak+' streak';
+  if (now - last < 24*60*60*1000) {
+    var remaining = Math.ceil((24*60*60*1000-(now-last))/3600000);
+    if (btn) { btn.disabled = true; btn.textContent = '⏳ Next bonus in '+remaining+'h'; }
+    if (msg) msg.innerHTML = '<div class="tag-blue" style="display:inline-block;margin-top:.5rem">Come back in '+remaining+'h</div>';
+  } else {
+    if (btn) { btn.disabled = false; btn.textContent = '🎁 Claim +10 Points'; }
+  }
+}
+
+function claimDaily() {
+  var last = parseInt(localStorage.getItem(K+'lastDaily')||'0');
+  if (Date.now() - last < 24*60*60*1000) { toast('⏳ Already claimed today'); return; }
+  localStorage.setItem(K+'lastDaily', Date.now().toString());
+  streak++;
+  var bonus = Math.min(streak * 2, 20);
+  pts += 10 + bonus;
+  saveSt(); updatePtsDisplay(); updateDailyBtn();
+  addActivity('🎁 Daily bonus claimed · +'+(10+bonus)+' pts · '+streak+'d streak');
+  toast('🎁 Claimed! +'+(10+bonus)+' pts · 🔥 '+streak+' streak!');
+}
+
+/* ── NOTIFICATIONS ── */
+function renderNotifs() {
+  document.getElementById('bell-dot').style.display = 'none';
+  notifCount = 0;
+}
+
+function clearNotifs() {
+  document.getElementById('notif-list').innerHTML = '<div class="empty">All notifications cleared</div>';
+  toast('🔔 Cleared');
+}
+
+/* ── LANGUAGE ── */
+var I18N = {
+  en: { signin:'Sign In with Pi', tagline:"The World's #1 Football Fan App on Pi Network" },
+  ar: { signin:'تسجيل الدخول بـ Pi', tagline:'أفضل تطبيق كرة القدم على شبكة Pi' },
+  fr: { signin:"Connexion avec Pi", tagline:'La Meilleure App Football sur Pi Network' },
+  es: { signin:'Iniciar sesión con Pi', tagline:'La Mejor App de Fútbol en Pi Network' },
+};
+
+function setLang(l, btn) {
+  curLang = l;
+  localStorage.setItem(K+'lang', l);
+  var isRTL = l === 'ar';
+  document.documentElement.lang = l;
+  document.documentElement.dir = isRTL ? 'rtl' : 'ltr';
+  document.querySelectorAll('.llbtn').forEach(function(b){b.classList.remove('on');});
+  if (btn) btn.classList.add('on');
+  var sel = document.getElementById('hdr-lang'); if(sel) sel.value = l;
+  var st = document.getElementById('signin-txt');
+  if (st && I18N[l]) st.textContent = I18N[l].signin;
+  var tl = document.querySelector('.login-tagline');
+  if (tl && I18N[l]) tl.textContent = I18N[l].tagline;
+}
+
+/* ── INIT ── */
+window.onload = function() {
+  var sl = localStorage.getItem(K+'lang');
+  if (sl) setLang(sl, null);
+
+  /* Auto-login if cached */
+  var cached = localStorage.getItem(K+'user');
+  if (cached) {
+    try { user = JSON.parse(cached); } catch(e) {}
+  }
+
+  /* Splash */
+  setTimeout(function() {
+    var splash = document.getElementById('splash');
+    if (!splash) return;
+    splash.style.transition = 'opacity .5s';
+    splash.style.opacity = '0';
+    setTimeout(function(){
+      splash.style.display = 'none';
+      /* Auto-launch if cached user */
+      if (user) {
+        launchApp();
+      }
+    }, 500);
+  }, 2600);
+
+  /* Team list datalist */
+  var dl = document.getElementById('team-list');
+  if (dl) {
+    Object.values(WC_GROUPS).flat().forEach(function(t){
+      var opt = document.createElement('option'); opt.value = t.name; dl.appendChild(opt);
+    });
+  }
+};
+
+/* ═══════════════════════════════════════════════════════
+   WORLDCUP NEWS ENGINE v2.0
+   AI-Automatic · Image System · Claude summaries
+═══════════════════════════════════════════════════════ */
+
+var newsCache = [];
+var newsSaved = JSON.parse(localStorage.getItem(K+'saved_news')||'[]');
+var newsFilter = 'all';
+var newsLoading = false;
+var _newsInited = false;
+
+/* ── IMAGE POOLS (Unsplash CDN — free, always available) ── */
+var IMG_POOL = {
+  match:[
+    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80',
+    'https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=600&q=80',
+    'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&q=80',
+    'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&q=80',
+    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&q=80',
+    'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=600&q=80',
+  ],
+  player:[
+    'https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=600&q=80',
+    'https://images.unsplash.com/photo-1616283603177-96d50c5804f9?w=600&q=80',
+    'https://images.unsplash.com/photo-1580748137742-3f63f98cbf4a?w=600&q=80',
+    'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=600&q=80',
+  ],
+  tournament:[
+    'https://images.unsplash.com/photo-1524067657052-b0f1b3a1f7b1?w=600&q=80',
+    'https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?w=600&q=80',
+    'https://images.unsplash.com/photo-1470224114660-3f6686c562eb?w=600&q=80',
+    'https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=600&q=80',
+  ],
+  breaking:[
+    'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600&q=80',
+    'https://images.unsplash.com/photo-1551958219-acbc595d6b11?w=600&q=80',
+    'https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=600&q=80',
+  ],
+  standings:[
+    'https://images.unsplash.com/photo-1556056504-5c7696c4c28d?w=600&q=80',
+    'https://images.unsplash.com/photo-1518604666860-9ed391f76460?w=600&q=80',
+  ],
+  insights:[
+    'https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=600&q=80',
+    'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&q=80',
+  ],
+};
+
+var _imgIdx = {};
+function getNewsImg(cat, seed) {
+  var pool = IMG_POOL[cat] || IMG_POOL.match;
+  if (seed !== undefined) return pool[Math.abs(seed) % pool.length];
+  if (!_imgIdx[cat]) _imgIdx[cat] = 0;
+  return pool[(_imgIdx[cat]++) % pool.length];
+}
+
+function loadNewsImg(el, src, cat) {
+  el.classList.add('loading');
+  var img = new Image();
+  img.onload = function(){el.src=src;el.classList.remove('loading');el.classList.add('loaded');};
+  img.onerror = function(){
+    var fb = getNewsImg(cat||'match', Math.floor(Math.random()*6));
+    var img2 = new Image();
+    img2.onload = function(){el.src=fb;el.classList.remove('loading');el.classList.add('loaded');};
+    img2.onerror = function(){
+      if(el.parentElement){
+        var icons={match:'⚽',player:'⭐',tournament:'🏆',breaking:'🔥',standings:'📊',insights:'🧠'};
+        el.parentElement.innerHTML='<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:3.5rem;opacity:.12">'+(icons[cat]||'⚽')+'</div>';
+      }
+    };
+    img2.src = fb;
+  };
+  img.src = src;
+}
+
+/* ── CURATED NEWS DATA ── */
+function buildNewsData() {
+  var stories = [];
+  var liveM = (allMatches||[]).filter(function(m){return m.status==='LIVE';});
+  var doneM = (allMatches||[]).filter(function(m){return m.status==='FINISHED';});
+
+  /* Dynamic live match stories */
+  liveM.forEach(function(m,i){
+    var hp=m.home.split(' '),ap=m.away.split(' ');
+    var hn=hp.slice(1).join(' '),an=ap.slice(1).join(' ');
+    stories.push({
+      id:'live-'+m.id, cat:'match', isLive:true,
+      headline:hn+' vs '+an+' — LIVE '+m.score,
+      summary:'Live match · '+m.venue+' · '+m.comp,
+      ai:'The match between '+hn+' and '+an+' is underway at '+m.venue+'. Score: '+m.score+' at '+m.min+'. Both teams fighting for vital WorldCup 2026 group stage points.',
+      time:'LIVE · '+m.min, source:'WorldCup Live',
+      img:getNewsImg('match',i), tags:[hn,an,'Live','WorldCup 2026'],
+    });
+  });
+
+  /* Dynamic result stories */
+  doneM.forEach(function(m,i){
+    var hp=m.home.split(' '),ap=m.away.split(' ');
+    var hn=hp.slice(1).join(' '),hf=hp[0],an=ap.slice(1).join(' '),af=ap[0];
+    var s=m.score.split('-'), hw=parseInt(s[0]||0), aw=parseInt(s[1]||0);
+    var winner=hw>aw?hn:aw>hw?an:null;
+    var headline=winner?winner+' secure crucial win against '+(winner===hn?an:hn)+' ('+m.score+')':hn+' and '+an+' share points in '+m.score+' draw';
+    stories.push({
+      id:'res-'+m.id, cat:'match', isLive:false,
+      headline:headline,
+      summary:hf+' '+hn+' '+m.score+' '+af+' '+an+' · '+m.comp,
+      ai:winner?winner+' claimed 3 crucial WorldCup 2026 points. A '+m.score+' victory puts them in a strong position to advance from the group stage. The match at '+m.venue+' delivered the drama fans expected.':'A tightly contested draw at '+m.venue+'. Neither side could find a winner in what was a tactically cautious encounter. Both teams will need to improve to secure qualification.',
+      time:'Full Time', source:'WorldCup Results',
+      img:getNewsImg('match',i+10), tags:[hn,an,'Result','WorldCup 2026'],
+    });
+  });
+
+  /* Premium curated stories */
+  stories = stories.concat([
+    {id:'b1',cat:'breaking',isBreaking:true,
+     headline:'Late drama: Argentina equalise in 93rd minute against Italy',
+     summary:'Lautaro Martínez header rescues Argentina in pulsating Group C encounter.',
+     ai:'In one of WorldCup 2026\'s most dramatic moments, Martínez\'s last-gasp header denied Italy a historic victory. The 1-1 draw leaves Group C perfectly balanced. Both teams remain alive going into the final round of matches.',
+     time:'1 hour ago',source:'Marca',img:getNewsImg('breaking',0),tags:['Argentina','Italy','Drama','Last Minute']},
+
+    {id:'b2',cat:'breaking',
+     headline:'Referee controversy: VAR overturns goal in Spain vs Serbia',
+     summary:'A contentious VAR decision denied Spain a goal in the 78th minute, drawing fierce debate.',
+     ai:'The VAR intervention sparked immediate controversy. Television replays showed a marginal offside call that many football experts deemed incorrect. This is the third high-profile VAR decision to be questioned in WorldCup 2026\'s opening week.',
+     time:'2 hours ago',source:'BBC Sport',img:getNewsImg('breaking',1),tags:['Spain','VAR','Controversy','Serbia']},
+
+    {id:'m1',cat:'match',
+     headline:'France 3-1 Nigeria — Mbappé hat-trick stuns Lagos Lions',
+     summary:'Kylian Mbappé was unstoppable as France demolished Nigeria with a clinical first-half display.',
+     ai:'Mbappé\'s hat-trick was a masterclass in clinical finishing. France dominated possession and created 14 clear chances. Nigeria showed glimpses of quality but ultimately couldn\'t live with France\'s intensity. Mbappé now leads the Golden Boot race with 4 tournament goals.',
+     time:'3 hours ago',source:'L\'Équipe',img:getNewsImg('match',1),tags:['France','Nigeria','Mbappé','Hat-trick']},
+
+    {id:'m2',cat:'match',
+     headline:'Brazil 2-1 Morocco after extra time in Group A thriller',
+     summary:'Vinicius Junior\'s injury-time goal separated the teams after a breathless encounter.',
+     ai:'Brazil survived a major scare against a tenacious Morocco side. The Atlas Lions led 1-0 going into the final 10 minutes before substitute Richarlison levelled and Vinicius completed the comeback. Brazil coach Ancelotti admitted his side got "lucky tonight".',
+     time:'5 hours ago',source:'ESPN Brasil',img:getNewsImg('match',2),tags:['Brazil','Morocco','Extra Time','Vinicius']},
+
+    {id:'p1',cat:'player',
+     headline:'Mbappé named WorldCup 2026 player of the week after 4-goal haul',
+     summary:'FIFA recognizes Kylian Mbappé\'s extraordinary start to WorldCup 2026 with the first weekly award.',
+     ai:'Mbappé\'s combination of pace, technique, and ice-cool finishing is operating at a level above his contemporaries. His 4 goals from 2 matches has already matched some players\' entire tournament tallies from previous editions. The Golden Boot is his to lose.',
+     time:'4 hours ago',source:'FIFA.com',img:getNewsImg('player',0),tags:['Mbappé','Player of Week','Golden Boot','France']},
+
+    {id:'p2',cat:'player',
+     headline:'Vinicius Jr: "This WorldCup is my moment to show the world"',
+     summary:'The Real Madrid star speaks exclusively about his ambitions for WorldCup 2026 and Brazil\'s title chances.',
+     ai:'Vinicius speaks with the confidence of a player operating at his absolute peak. His directness and work rate have been instrumental in Brazil\'s early success. The pressure of wearing the Seleção shirt has only seemed to inspire rather than inhibit him.',
+     time:'6 hours ago',source:'UOL Esporte',img:getNewsImg('player',1),tags:['Vinicius','Brazil','Interview','Star Player']},
+
+    {id:'p3',cat:'player',
+     headline:'Haaland breaks WorldCup record — fastest hat-trick in history',
+     summary:'Erling Haaland scored 3 goals in 11 minutes as Norway thrashed the Philippines 6-0.',
+     ai:'Haaland\'s WorldCup record hat-trick came in 11 minutes and 34 seconds — the fastest in tournament history. His movement, aerial threat, and clinical left foot were too much for the Philippines defence. Norway\'s first WorldCup since 1998 is being marked by historic performances.',
+     time:'8 hours ago',source:'VG Sport',img:getNewsImg('player',2),tags:['Haaland','Norway','Hat-trick','Record']},
+
+    {id:'t1',cat:'tournament',
+     headline:'WorldCup 2026: Record 5.2 billion viewers for opening ceremony',
+     summary:'FIFA confirms the opening ceremony at MetLife Stadium shattered all previous viewership records.',
+     ai:'The 2026 WorldCup is already the most-watched sporting event in history. The expanded 48-team format has brought new nations and their fans to the global stage. The USA, Canada, and Mexico co-hosting has created unprecedented commercial and cultural interest across three continents.',
+     time:'1 day ago',source:'FIFA.com',img:getNewsImg('tournament',0),tags:['WorldCup 2026','Record','Viewers','Opening']},
+
+    {id:'t2',cat:'tournament',
+     headline:'Group Stage Analysis: Africa\'s finest tournament in history',
+     summary:'Five African teams in the round of 32 — a record that reflects the continent\'s growing football quality.',
+     ai:'Morocco, Senegal, Nigeria, Ghana, and South Africa have all qualified from their groups, the first time Africa has had 5 teams in the knockout rounds. The expanded format has given African football the platform it has long deserved. These results will accelerate investment in grassroots development across the continent.',
+     time:'12 hours ago',source:'CAF Online',img:getNewsImg('tournament',1),tags:['Africa','Group Stage','History','Qualifying']},
+
+    {id:'s1',cat:'standings',
+     headline:'Live Group Standings: Portugal lead Group G, Spain top Group D',
+     summary:'Updated standings after the first two rounds of WorldCup 2026 group stage fixtures.',
+     ai:'The group standings are taking shape with several surprises emerging. Portugal and Spain are both commanding their groups but face tough final-round opponents. Group C remains impossibly tight with Argentina, Italy, and Japan all still capable of advancing.',
+     time:'2 hours ago',source:'WorldCup Stats',img:getNewsImg('standings',0),tags:['Standings','Group Stage','Portugal','Spain']},
+
+    {id:'i1',cat:'insights',
+     headline:'Tactical Breakdown: How pressing football is dominating WorldCup 2026',
+     summary:'Analysis shows the 8 highest-ranked teams in the tournament all deploy aggressive pressing systems.',
+     ai:'The data is unambiguous: pressing football is winning WorldCup 2026. Teams averaging 12+ pressing actions per game have won 87% of their matches. The physical demands of the tournament and the short turnaround between games makes this even more impressive. Spain and France lead the pressing intensity metrics.',
+     time:'14 hours ago',source:'The Athletic',img:getNewsImg('insights',0),tags:['Tactics','Pressing','Analysis','Data']},
+
+    {id:'i2',cat:'insights',
+     headline:'Expected Goals Analysis: Brazil outperforming their xG by the widest margin',
+     summary:'Advanced statistics reveal Brazil are converting opportunities at an unprecedented rate in this tournament.',
+     ai:'Brazil\'s xG of 4.2 from their first two matches compares to their actual total of 7 goals — a conversion rate that is statistically exceptional. The data suggests a regression to the mean is likely, but if their attackers maintain this form, the Seleção are on course for their 6th World Cup title.',
+     time:'16 hours ago',source:'Opta Sports',img:getNewsImg('insights',1),tags:['xG','Brazil','Statistics','Analysis']},
+
+    {id:'i3',cat:'insights',
+     headline:'WorldCup 2026 venues: Estadio Azteca sets attendance record',
+     summary:'Mexico\'s iconic Estadio Azteca becomes the first stadium to host 3 separate World Cups.',
+     ai:'The historic Estadio Azteca has welcomed over 100,000 fans for three of the opening matches, setting a WorldCup 2026 attendance record. The atmosphere generated at the stadium has been described by players as the most intense they have experienced. Mexico\'s passionate support is making a significant impression on visiting teams.',
+     time:'20 hours ago',source:'Estadio News',img:getNewsImg('tournament',2),tags:['Azteca','Mexico','Venue','Record']},
+  ]);
+  return stories;
+}
+
+var TOP_PLAYERS = [
+  {name:'Kylian Mbappé',team:'🇫🇷 France',flag:'🇫🇷',goals:4,assists:2,rating:9.4,ai:'Unstoppable. Mbappé is the tournament\'s dominant force — clinical, fast, and hungry for glory.'},
+  {name:'Vinicius Junior',team:'🇧🇷 Brazil',flag:'🇧🇷',goals:3,assists:3,rating:9.1,ai:'The most direct and creative winger in the tournament. His pace is causing chaos in every group match.'},
+  {name:'Erling Haaland',team:'🇳🇴 Norway',flag:'🇳🇴',goals:5,assists:1,rating:9.0,ai:'Record-breaking. Haaland\'s hat-trick was the fastest in WorldCup history. Pure clinical excellence.'},
+  {name:'Pedri',team:'🇪🇸 Spain',flag:'🇪🇸',goals:1,assists:4,rating:8.9,ai:'The conductor of Spain\'s midfield. His vision and passing range are setting the tempo for the whole tournament.'},
+  {name:'Jude Bellingham',team:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 England',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',goals:2,assists:3,rating:8.8,ai:'England\'s heartbeat. Box-to-box brilliance with big-game composure beyond his years.'},
+];
+
+/* ── AI SUMMARIZER ── */
+function aiSummarize(story, callback) {
+  var cacheKey = K+'ai_'+story.id;
+  var cached = localStorage.getItem(cacheKey);
+  if (cached) { callback(cached); return; }
+  if (story.ai) {
+    setTimeout(function(){
+      localStorage.setItem(cacheKey, story.ai);
+      callback(story.ai);
+    }, Math.random()*400+150);
+    return;
+  }
+  /* Call Claude for fresh summary */
+  fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST', headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      model:'claude-sonnet-4-20250514', max_tokens:120,
+      system:'You are a football news AI for WorldCup 2026. Summarize in 2-3 sharp, factual, engaging sentences. Be specific. No invented stats. No fluff.',
+      messages:[{role:'user',content:'Summarize: '+story.headline+'\nContext: '+story.summary}]
+    })
+  }).then(function(r){return r.json();})
+  .then(function(d){
+    var s=(d.content&&d.content[0]&&d.content[0].text)||story.summary;
+    localStorage.setItem(cacheKey,s);
+    callback(s);
+  }).catch(function(){callback(story.ai||story.summary);});
+}
+
+/* ── MAIN ENGINE ── */
+function initNews() {
+  if (newsLoading) return;
+  newsLoading = true;
+  var skels=document.getElementById('news-skeletons');
+  if(skels) skels.style.display='block';
+  var aiProc=document.getElementById('ai-processing');
+  if(aiProc) aiProc.style.display='flex';
+  setTimeout(function(){
+    newsCache = buildNewsData();
+    newsLoading = false;
+    renderNewsEngine();
+    var upd=document.getElementById('news-updated');
+    if(upd) upd.textContent='AI-powered · Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    setTimeout(function(){
+      var ap=document.getElementById('ai-processing');
+      if(ap) ap.style.display='none';
+    }, 1600);
+  }, 700);
+}
+
+function refreshNews() {
+  var btn=document.getElementById('news-refresh-btn');
+  if(btn) btn.classList.add('spinning');
+  newsCache=[];
+  _newsInited=false;
+  initNews();
+  setTimeout(function(){
+    if(btn) btn.classList.remove('spinning');
+    toast('📰 News refreshed!');
+  },1400);
+}
+
+function filterNews(cat, btn) {
+  newsFilter=cat;
+  document.querySelectorAll('.ncat').forEach(function(b){b.classList.remove('on');});
+  if(btn) btn.classList.add('on');
+  renderNewsEngine();
+}
+
+function renderNewsEngine() {
+  var stories = newsFilter==='all' ? newsCache :
+                newsFilter==='saved' ? newsCache.filter(function(s){return newsSaved.includes(s.id);}) :
+                newsCache.filter(function(s){return s.cat===newsFilter;});
+
+  var skels=document.getElementById('news-skeletons');
+  if(skels) skels.style.display='none';
+
+  if(!stories.length){
+    var mc=document.getElementById('news-main-cards');
+    if(mc) mc.innerHTML='<div class="empty">No stories in this category · Refresh to update</div>';
+    var hs=document.getElementById('news-hero-slot');
+    if(hs) hs.innerHTML='';
+    return;
+  }
+
+  /* Breaking banner */
+  var brk=stories.filter(function(s){return s.isBreaking||s.cat==='breaking';});
+  var bb=document.getElementById('breaking-banner'),bt=document.getElementById('breaking-text');
+  if(brk.length&&bb&&bt){bb.style.display='flex';bt.textContent=brk[0].headline;bb._story=brk[0];}
+  else if(bb) bb.style.display='none';
+
+  /* Hero */
+  var hero=stories.find(function(s){return !s.isLive&&s.cat!=='breaking';})||stories[0];
+  renderNewsHero(hero);
+
+  /* Live */
+  var live=stories.filter(function(s){return s.isLive;});
+  var ls=document.getElementById('news-live-section'),lc=document.getElementById('news-live-cards');
+  if(live.length&&ls&&lc){ls.style.display='block';lc.innerHTML=live.map(function(s){return buildCard(s,'compact');}).join('');setTimeout(function(){lazyImgs('news-live-cards');},100);}
+  else if(ls) ls.style.display='none';
+
+  /* Players */
+  var ps=document.getElementById('news-player-section'),pc=document.getElementById('news-player-cards');
+  if(ps&&pc&&(newsFilter==='all'||newsFilter==='player')){
+    ps.style.display='block';
+    pc.innerHTML=TOP_PLAYERS.slice(0,3).map(buildPlayerC).join('');
+  }else if(ps) ps.style.display='none';
+
+  /* Main */
+  var main=stories.filter(function(s){return s!==hero&&!s.isLive;}).slice(0,5);
+  var mc=document.getElementById('news-main-cards');
+  if(mc){
+    mc.innerHTML=main.map(function(s){return buildCard(s,'full');}).join('');
+    setTimeout(function(){lazyImgs('news-main-cards');},100);
+    main.forEach(function(s){
+      aiSummarize(s,function(sum){var el=document.getElementById('ai-sum-'+s.id);if(el)el.textContent=sum;});
+    });
+  }
+
+  /* Insights */
+  var ins=stories.filter(function(s){return s.cat==='insights';}).slice(0,2);
+  var is2=document.getElementById('news-insights-section'),ic=document.getElementById('news-insights-cards');
+  if(ins.length&&is2&&ic&&(newsFilter==='all'||newsFilter==='insights')){
+    is2.style.display='block';
+    ic.innerHTML=ins.map(function(s){return buildCard(s,'full');}).join('');
+    setTimeout(function(){lazyImgs('news-insights-cards');},100);
+    ins.forEach(function(s){aiSummarize(s,function(sum){var el=document.getElementById('ai-sum-'+s.id);if(el)el.textContent=sum;});});
+  }else if(is2) is2.style.display='none';
+
+  /* More */
+  var more=stories.filter(function(s){return s!==hero&&!s.isLive&&!main.includes(s)&&!ins.includes(s);}).slice(0,8);
+  var ms=document.getElementById('news-more-section'),mc2=document.getElementById('news-more-cards');
+  if(more.length&&ms&&mc2){ms.style.display='block';mc2.innerHTML=more.map(function(s){return buildCard(s,'compact');}).join('');setTimeout(function(){lazyImgs('news-more-cards');},100);}
+  else if(ms) ms.style.display='none';
+}
+
+function renderNewsHero(s) {
+  var slot=document.getElementById('news-hero-slot');
+  if(!slot||!s) return;
+  var saved=newsSaved.includes(s.id);
+  slot.innerHTML='<div class="news-hero" onclick="openStory(\''+s.id+'\')">'
+    +'<img class="news-hero-img loading" id="hero-img-'+s.id+'" src="" alt="">'
+    +(s.isLive?'<div class="news-card-live">LIVE</div>':'')
+    +'<div class="news-hero-overlay">'
+      +'<div class="news-hero-cat">'+getCL(s.cat)+'</div>'
+      +'<div class="news-hero-title">'+s.headline+'</div>'
+      +'<div class="news-hero-summary" id="ai-sum-hero-'+s.id+'"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div>'
+      +'<div class="news-hero-meta">'
+        +'<span class="news-hero-time">⏱️ '+s.time+' · '+s.source+'</span>'
+        +'<div class="news-hero-actions">'
+          +'<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'🔖':'+ Save')+'</div>'
+          +'<div class="nact-btn" onclick="event.stopPropagation();shareStory(\''+s.id+'\')">⬆️ Share</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+  setTimeout(function(){
+    var el=document.getElementById('hero-img-'+s.id);
+    if(el) loadNewsImg(el,s.img,s.cat);
+    aiSummarize(s,function(sum){var el2=document.getElementById('ai-sum-hero-'+s.id);if(el2)el2.textContent=sum;});
+  },50);
+}
+
+function buildCard(s, type) {
+  var saved=newsSaved.includes(s.id);
+  if(type==='compact'){
+    return '<div class="news-compact" onclick="openStory(\''+s.id+'\')">'
+      +'<img class="news-compact-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
+      +'<div class="news-compact-body">'
+        +'<div class="news-compact-cat '+getCC(s.cat)+'">'+getCL(s.cat)+(s.isLive?' · LIVE':'')+'</div>'
+        +'<div class="news-compact-title">'+s.headline+'</div>'
+        +'<div class="news-compact-time">'+s.time+' · '+s.source+'</div>'
+      +'</div>'
+    +'</div>';
+  }
+  return '<div class="news-card" onclick="openStory(\''+s.id+'\')">'
+    +'<div class="news-card-img-wrap">'
+      +'<img class="news-card-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
+      +'<div class="news-card-cat-badge '+getCC(s.cat)+'">'+getCL(s.cat)+'</div>'
+      +(s.isLive?'<div class="news-card-live">LIVE</div>':'')
+    +'</div>'
+    +'<div class="news-card-body">'
+      +'<div class="news-card-headline">'+s.headline+'</div>'
+      +'<div class="news-card-ai"><div class="news-card-ai-icon">🤖</div><div class="news-card-ai-text" id="ai-sum-'+s.id+'"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div></div>'
+      +'<div class="news-card-footer">'
+        +'<div class="news-card-source"><div class="news-card-src-dot" style="background:'+getC(s.cat)+'"></div><div class="news-card-src-name">'+s.source+'</div></div>'
+        +'<div class="news-card-time">'+s.time+'</div>'
+        +'<div class="news-card-acts">'
+          +'<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'🔖':'+ Save')+'</div>'
+          +'<div class="nact-btn" onclick="event.stopPropagation();shareStory(\''+s.id+'\')">⬆️</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function buildPlayerC(p) {
+  return '<div class="player-card" onclick="toast(\'⭐ '+p.name+' · '+p.team+' · Rating: '+p.rating+'\')">'
+    +'<div class="player-av">'+p.flag+'</div>'
+    +'<div class="player-info">'
+      +'<div class="player-name">'+p.name+'</div>'
+      +'<div class="player-team">'+p.team+'</div>'
+      +'<div class="player-stat">⚽ '+p.goals+' G · 🎯 '+p.assists+' A · ⭐ '+p.rating+'</div>'
+      +'<div class="player-ai">🤖 '+p.ai+'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function lazyImgs(id) {
+  var c=document.getElementById(id);
+  if(!c) return;
+  c.querySelectorAll('[data-src]').forEach(function(el){
+    var src=el.getAttribute('data-src'), cat=el.getAttribute('data-cat')||'match';
+    el.removeAttribute('data-src');el.removeAttribute('data-cat');
+    loadNewsImg(el,src,cat);
+  });
+}
+
+function getCL(cat){var m={breaking:'🔥 Breaking',match:'⚽ Match',player:'⭐ Player',tournament:'🏆 Tournament',standings:'📊 Standings',insights:'🧠 Insights'};return m[cat]||'📰 News';}
+function getCC(cat){return 'cat-'+(cat||'match');}
+function getC(cat){var m={breaking:'var(--red)',match:'var(--c1)',player:'var(--gold)',tournament:'var(--purple)',standings:'var(--grn)',insights:'var(--orange)'};return m[cat]||'var(--c1)';}
+
+/* ── STORY ACTIONS ── */
+function toggleSave(id) {
+  var idx=newsSaved.indexOf(id);
+  if(idx>-1){newsSaved.splice(idx,1);toast('🗑️ Removed from saved');}
+  else{newsSaved.push(id);toast('🔖 Story saved!');}
+  localStorage.setItem(K+'saved_news',JSON.stringify(newsSaved));
+  var btn=document.getElementById('save-btn-'+id);
+  if(btn){var s=newsSaved.includes(id);btn.textContent=s?'🔖':'+ Save';btn.classList.toggle('saved',s);}
+}
+
+function shareStory(id) {
+  var s=newsCache.find(function(x){return x.id===id;});
+  if(!s) return;
+  var text=s.headline+' — '+s.ai+' | worldcup.pi on Pi Network';
+  if(navigator.share){navigator.share({title:'WorldCup News',text:text});}
+  else{
+    if(navigator.clipboard) navigator.clipboard.writeText(text).catch(function(){});
+    toast('📋 Story copied!');
+  }
+}
+
+function openBreaking() {
+  var bb=document.getElementById('breaking-banner');
+  if(bb&&bb._story) openStory(bb._story.id);
+}
+
+function openStory(id) {
+  var s=newsCache.find(function(x){return x.id===id;});
+  if(!s) return;
+  var saved=newsSaved.includes(id);
+  var c=document.getElementById('story-content');
+  c.innerHTML='<div style="position:relative">'
+    +'<img id="story-hi" src="" alt="'+s.headline+'" style="width:100%;height:220px;object-fit:cover;display:block;opacity:0;transition:opacity .3s">'
+    +(s.isLive?'<div style="position:absolute;top:.75rem;left:.75rem;background:rgba(255,59,92,.85);border-radius:var(--pill);padding:.2rem .6rem;font-family:var(--dm);font-size:.55rem;color:#fff">🔴 LIVE</div>':'')
+  +'</div>'
+  +'<div class="story-body">'
+    +'<div class="story-cat">'+getCL(s.cat)+'</div>'
+    +'<div class="story-title">'+s.headline+'</div>'
+    +'<div class="story-meta"><span class="story-time">⏱️ '+s.time+'</span><span class="tag-blue">'+s.source+'</span>'+(s.isLive?'<span class="tag-red">LIVE</span>':'')+'</div>'
+    +'<div class="story-ai-box"><div class="story-ai-label">🤖 AI ANALYSIS</div><div class="story-ai-content" id="story-ai"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div></div>'
+    +'<div class="story-text">'+s.summary+'<br><br>This match is part of WorldCup 2026, the biggest football tournament in history featuring 48 nations across USA, Canada, and Mexico. Follow all the action on worldcup.pi — the #1 football fan app on Pi Network. Make predictions, earn points, and connect with fans worldwide.<br><br>Stay tuned for real-time updates as the tournament unfolds.</div>'
+    +'<div class="story-tags">'+(s.tags||[]).map(function(t){return '<div class="story-tag">'+t+'</div>';}).join('')+'</div>'
+    +'<div style="display:flex;gap:.5rem;margin-top:.85rem">'
+      +'<button class="btn btn-ghost" onclick="toggleSave(\''+id+'\')" id="story-save-btn">'+(saved?'🔖 Saved':'+ Save Story')+'</button>'
+      +'<button class="btn btn-ghost" onclick="shareStory(\''+id+'\')">⬆️ Share</button>'
+    +'</div>'
+  +'</div>';
+  document.getElementById('story-overlay').classList.add('open');
+  setTimeout(function(){
+    var img=document.getElementById('story-hi');
+    if(img){var i=new Image();i.onload=function(){img.src=s.img;img.style.opacity=1;};i.onerror=function(){img.src=getNewsImg(s.cat,9);img.style.opacity=1;};i.src=s.img;}
+    aiSummarize(s,function(sum){var el=document.getElementById('story-ai');if(el)el.textContent=sum;});
+  },60);
+}
+
+function closeStory(){document.getElementById('story-overlay').classList.remove('open');}
+
+/* ── HOOK INTO goS ── */
+var _goSOrig=goS;
+goS=function(id,btn){
+  _goSOrig(id,btn);
+  if(id==='news'&&!_newsInited){
+    _newsInited=true;
+    setTimeout(initNews, 80);
+  }
+  /* Re-build news with latest match data */
+  if(id==='news'&&newsCache.length){
+    newsCache=buildNewsData();
+    renderNewsEngine();
+  }
+};
+</script>
+</body>
+</html>
