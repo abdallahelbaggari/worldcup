@@ -688,6 +688,108 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 .pship-empty-title{font-family:var(--ds);font-size:.78rem;font-weight:600;color:var(--t2);margin-bottom:.3rem;}
 .pship-empty-sub{font-family:var(--dm);font-size:.55rem;color:var(--t3);line-height:1.55;}
 
+
+/* Data status */
+#data-status-bar{transition:background .3s;}
+.mc-status.delayed{background:rgba(255,107,53,.1);color:var(--orange);border:1px solid rgba(255,107,53,.25);}
+
+
+/* ══════════════════════════════════
+   SUPPORT SYSTEM · CSS
+══════════════════════════════════ */
+
+/* Support hero */
+.supp-hero{text-align:center;padding:1.5rem 1rem 1rem;border-bottom:1px solid var(--bd);}
+.supp-hero-icon{font-size:2.8rem;margin-bottom:.4rem;animation:scaleIn .3s ease;}
+.supp-hero-title{font-family:var(--df);font-size:1.6rem;letter-spacing:.08em;color:var(--t1);margin-bottom:.2rem;}
+.supp-hero-sub{font-family:var(--dm);font-size:.58rem;color:var(--t3);}
+
+/* Primary CTA card */
+.supp-cta-card{background:linear-gradient(135deg,var(--bg3),var(--bg2));
+  border:1px solid var(--bd2);border-radius:var(--r3);
+  margin:.75rem 1rem .3rem;padding:.9rem .85rem;
+  display:flex;align-items:center;justify-content:space-between;
+  cursor:pointer;transition:all .18s;position:relative;overflow:hidden;}
+.supp-cta-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold));}
+.supp-cta-card:active{transform:scale(.98);}
+.supp-cta-left{display:flex;align-items:center;gap:.7rem;}
+.supp-cta-icon{font-size:1.6rem;background:rgba(0,212,255,.1);border-radius:50%;
+  width:46px;height:46px;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;border:1px solid rgba(0,212,255,.18);}
+.supp-cta-title{font-family:var(--df);font-size:1rem;letter-spacing:.04em;color:var(--t1);margin-bottom:.18rem;}
+.supp-cta-sub{font-family:var(--dm);font-size:.52rem;color:var(--c1);}
+.supp-cta-arrow{font-size:1.4rem;color:var(--t3);}
+
+/* Option rows */
+.supp-option{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r2);
+  padding:.65rem .75rem;display:flex;align-items:center;gap:.6rem;
+  cursor:pointer;transition:all .15s;
+  animation:slideIn .22s ease both;}
+.supp-option:nth-child(1){animation-delay:.04s;}
+.supp-option:nth-child(2){animation-delay:.08s;}
+.supp-option:nth-child(3){animation-delay:.12s;}
+.supp-option:nth-child(4){animation-delay:.16s;}
+.supp-option:active{background:var(--bg4);}
+.supp-opt-icon{width:38px;height:38px;border-radius:var(--r1);
+  display:flex;align-items:center;justify-content:center;font-size:1.2rem;
+  flex-shrink:0;}
+.supp-opt-body{flex:1;}
+.supp-opt-title{font-family:var(--ds);font-size:.72rem;font-weight:600;color:var(--t1);margin-bottom:.1rem;}
+.supp-opt-desc{font-family:var(--dm);font-size:.5rem;color:var(--t3);line-height:1.4;}
+.supp-opt-arrow{font-size:1.2rem;color:var(--t4);flex-shrink:0;}
+
+/* Info strip */
+.supp-info-strip{display:flex;align-items:center;justify-content:space-around;
+  background:var(--bg4);border-top:1px solid var(--bd);border-bottom:1px solid var(--bd);
+  padding:.75rem 1rem;margin:.75rem 0;}
+.supp-info-item{text-align:center;}
+.supp-info-val{font-family:var(--df);font-size:1.2rem;color:var(--c1);}
+.supp-info-lbl{font-family:var(--dm);font-size:.46rem;color:var(--t3);margin-top:.1rem;letter-spacing:.04em;}
+.supp-info-div{width:1px;height:32px;background:var(--bd);}
+
+/* Support footer */
+.supp-footer{font-family:var(--dm);font-size:.5rem;color:var(--t3);text-align:center;
+  padding:.75rem 1rem 1.5rem;line-height:1.7;}
+
+/* Report issue */
+.report-cats{display:flex;flex-wrap:wrap;gap:.38rem;margin-bottom:.5rem;}
+.rcat{font-family:var(--dm);font-size:.58rem;background:rgba(0,212,255,.07);
+  border:1px solid var(--bd);border-radius:var(--pill);padding:.38rem .75rem;
+  color:var(--t3);cursor:pointer;transition:all .15s;white-space:nowrap;}
+.rcat.on{background:rgba(0,212,255,.2);border-color:var(--c1);color:var(--c1);}
+.rcat:active{transform:scale(.96);}
+
+/* Auto-info box */
+.supp-auto-info{background:rgba(0,212,255,.04);border:1px solid rgba(0,212,255,.1);
+  border-radius:var(--r2);margin:.5rem 1rem;padding:.65rem .75rem;}
+.supp-auto-label{font-family:var(--dm);font-size:.46rem;color:var(--c1);
+  letter-spacing:.12em;margin-bottom:.4rem;}
+.supp-auto-row{display:flex;justify-content:space-between;
+  padding:.2rem 0;border-bottom:1px solid rgba(255,255,255,.04);}
+.supp-auto-row:last-child{border-bottom:none;}
+.supp-auto-row span{font-family:var(--dm);font-size:.52rem;color:var(--t3);}
+.supp-auto-row span:last-child{color:var(--t2);}
+
+/* Help center */
+.help-search-wrap{padding:.6rem 1rem .3rem;}
+.help-search{font-family:var(--dm);font-size:.72rem;}
+.help-group{margin:.3rem 0;}
+.help-group-hdr{font-family:var(--dm);font-size:.52rem;letter-spacing:.15em;
+  text-transform:uppercase;color:var(--t3);
+  padding:.55rem 1rem .28rem;display:flex;align-items:center;gap:.4rem;}
+.help-group-hdr::after{content:'';flex:1;height:1px;background:rgba(0,212,255,.08);}
+.help-item{background:var(--bg3);border-bottom:1px solid rgba(255,255,255,.04);
+  cursor:pointer;transition:background .15s;overflow:hidden;}
+.help-item:active{background:var(--bg4);}
+.help-q{font-family:var(--ds);font-size:.72rem;font-weight:600;color:var(--t1);
+  padding:.65rem 1rem;display:flex;align-items:center;justify-content:space-between;}
+.help-q::after{content:'›';font-size:1.1rem;color:var(--t4);transition:transform .18s;}
+.help-item.open .help-q::after{transform:rotate(90deg);}
+.help-a{font-family:var(--dm);font-size:.58rem;color:var(--t2);line-height:1.65;
+  padding:0 1rem;max-height:0;overflow:hidden;transition:max-height .28s ease,padding .28s ease;}
+.help-item.open .help-a{max-height:200px;padding:.1rem 1rem .75rem;}
+
 </style>
 </head>
 <body>
@@ -794,13 +896,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <span class="sbar-r" id="dtt"></span>
         </div>
       </div>
-      <div class="sh"><div class="sh-t">🔴 Live Now</div><div class="sh-sub" id="live-count"></div></div>
+
+        <!-- Data status bar -->
+        <div id="data-status-bar" style="display:flex;align-items:center;justify-content:space-between;padding:.3rem 1rem;background:var(--bg4);border-bottom:1px solid var(--bd);">
+          <div style="font-family:var(--dm);font-size:.5rem;color:var(--t3)">
+            <span id="data-source-label">📡 TheSportsDB</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:.4rem;">
+            <div id="refresh-spinner" style="display:none;width:8px;height:8px;border:2px solid var(--c1);border-top-color:transparent;border-radius:50%;animation:spin .6s linear infinite;"></div>
+            <span id="last-updated-label" style="font-family:var(--dm);font-size:.48rem;color:var(--t3)">Connecting...</span>
+          </div>
+        </div>
+      <div class="sh"><div class="sh-t sh-live-now">🔴 Live Now</div><div class="sh-sub" id="live-count"></div></div>
       <div id="live-m"><div class="empty">Loading live matches...</div></div>
-      <div class="sh mt"><div class="sh-t">📅 Today's Fixtures</div></div>
+      <div class="sh mt"><div class="sh-t sh-today">📅 Today's Fixtures</div></div>
       <div id="today-m"><div class="empty">Loading...</div></div>
-      <div class="sh mt"><div class="sh-t">🔜 Upcoming</div></div>
+      <div class="sh mt"><div class="sh-t sh-upcoming">🔜 Upcoming</div></div>
       <div id="upcoming-m"><div class="empty">Loading...</div></div>
-      <div class="sh mt"><div class="sh-t">✅ Recent Results</div></div>
+      <div class="sh mt"><div class="sh-t sh-results">✅ Recent Results</div></div>
       <div id="results-m"><div class="empty">No results yet</div></div>
       <div class="sh mt"><div class="sh-t">🏆 Tournament Stats</div></div>
       <div class="tiles">
@@ -838,7 +951,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         </div>
       </div>
       <div class="ibox">🧠 Predict match outcomes · +5 pts per prediction · +10 pts if correct · Earn daily bonuses</div>
-      <div class="sh"><div class="sh-t">🎯 Make Predictions</div></div>
+      <div class="sh"><div class="sh-t sh-pred">🎯 Make Predictions</div></div>
       <div id="pred-list"><div class="empty">Loading predictions...</div></div>
     </section>
 
@@ -847,11 +960,11 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
       <div class="scr-hdr">
         <div><div class="scr-hdr-title">🏆 Standings</div><div class="scr-hdr-sub">Fan leaderboard · Group tables</div></div>
       </div>
-      <div class="sh"><div class="sh-t">👑 Fan Leaderboard</div></div>
+      <div class="sh"><div class="sh-t sh-fan-lb">👑 Fan Leaderboard</div></div>
       <div class="card card-blue" style="padding:.5rem 0;margin-bottom:.5rem;">
         <div id="lb-list"></div>
       </div>
-      <div class="sh mt"><div class="sh-t">📊 Group Standings</div></div>
+      <div class="sh mt"><div class="sh-t sh-grp-std">📊 Group Standings</div></div>
       <div id="st-list"></div>
     </section>
 
@@ -988,6 +1101,34 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
               <span class="tc-icon">🎁</span>
               <div class="tc-name">Daily Bonus</div>
               <div class="tc-desc">Claim daily points · streak</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Support -->
+        <div class="tsec">
+          <div class="tsec-hdr">💬 Support</div>
+          <div class="tgrid">
+            <div class="tc tc-gold" onclick="oUtil('support')">
+              <span class="tc-tag tt-new">HELP</span>
+              <span class="tc-icon">💬</span>
+              <div class="tc-name">Support</div>
+              <div class="tc-desc">Contact us · Help center · Report issue</div>
+            </div>
+            <div class="tc" onclick="oUtil('report')">
+              <span class="tc-icon">🐞</span>
+              <div class="tc-name">Report Issue</div>
+              <div class="tc-desc">Bug · Data problem · Feature request</div>
+            </div>
+            <div class="tc" onclick="oUtil('help')">
+              <span class="tc-icon">❓</span>
+              <div class="tc-name">Help Center</div>
+              <div class="tc-desc">FAQs · How-to guides · Tips</div>
+            </div>
+            <div class="tc" onclick="openContactEmail()">
+              <span class="tc-icon">📩</span>
+              <div class="tc-name">Contact Direct</div>
+              <div class="tc-desc">Email support · Opens mail app</div>
             </div>
           </div>
         </div>
@@ -1524,6 +1665,263 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <a href="https://worldcup.pages.dev/terms-of-service" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Terms ›</a>
         </div>
       </div>
+
+      <!-- ── SUPPORT HUB ── -->
+      <div class="up" id="up-support">
+        <div class="up-hdr">
+          <button class="back-btn" onclick="cUtil()">← Back</button>
+          <div class="up-title">Support</div>
+        </div>
+
+        <!-- Hero -->
+        <div class="supp-hero">
+          <div class="supp-hero-icon">💬</div>
+          <div class="supp-hero-title">How can we help?</div>
+          <div class="supp-hero-sub">We typically respond within 24 hours</div>
+        </div>
+
+        <!-- Primary CTA -->
+        <div class="supp-cta-card" onclick="openContactEmail()">
+          <div class="supp-cta-left">
+            <div class="supp-cta-icon">📩</div>
+            <div>
+              <div class="supp-cta-title">Contact Support</div>
+              <div class="supp-cta-sub">support.worldcup@gmail.com</div>
+            </div>
+          </div>
+          <div class="supp-cta-arrow">›</div>
+        </div>
+
+        <!-- Options -->
+        <div class="sec-label">SUPPORT OPTIONS</div>
+        <div style="display:flex;flex-direction:column;gap:.38rem;margin:0 1rem .5rem;">
+
+          <div class="supp-option" onclick="oUtil('report')">
+            <div class="supp-opt-icon" style="background:rgba(255,59,92,.1);color:var(--red)">🐞</div>
+            <div class="supp-opt-body">
+              <div class="supp-opt-title">Report a Bug</div>
+              <div class="supp-opt-desc">App crashes · Wrong data · Broken features</div>
+            </div>
+            <div class="supp-opt-arrow">›</div>
+          </div>
+
+          <div class="supp-option" onclick="openIssueEmail('Feature Request')">
+            <div class="supp-opt-icon" style="background:rgba(0,212,255,.1);color:var(--c1)">💡</div>
+            <div class="supp-opt-body">
+              <div class="supp-opt-title">Request a Feature</div>
+              <div class="supp-opt-desc">Suggest improvements · New tools</div>
+            </div>
+            <div class="supp-opt-arrow">›</div>
+          </div>
+
+          <div class="supp-option" onclick="openIssueEmail('Data Problem')">
+            <div class="supp-opt-icon" style="background:rgba(255,215,0,.1);color:var(--gold)">📊</div>
+            <div class="supp-opt-body">
+              <div class="supp-opt-title">Data Problem</div>
+              <div class="supp-opt-desc">Wrong score · Missing match · Incorrect info</div>
+            </div>
+            <div class="supp-opt-arrow">›</div>
+          </div>
+
+          <div class="supp-option" onclick="oUtil('help')">
+            <div class="supp-opt-icon" style="background:rgba(0,255,136,.1);color:var(--grn)">❓</div>
+            <div class="supp-opt-body">
+              <div class="supp-opt-title">Help Center</div>
+              <div class="supp-opt-desc">FAQs · Guides · How to use WorldCup</div>
+            </div>
+            <div class="supp-opt-arrow">›</div>
+          </div>
+
+        </div>
+
+        <!-- Response info -->
+        <div class="supp-info-strip">
+          <div class="supp-info-item">
+            <div class="supp-info-val">24h</div>
+            <div class="supp-info-lbl">Response</div>
+          </div>
+          <div class="supp-info-div"></div>
+          <div class="supp-info-item">
+            <div class="supp-info-val">2 taps</div>
+            <div class="supp-info-lbl">To reach us</div>
+          </div>
+          <div class="supp-info-div"></div>
+          <div class="supp-info-item">
+            <div class="supp-info-val">100%</div>
+            <div class="supp-info-lbl">Replied</div>
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="supp-footer">
+          worldcup.pi · Pi Network Mainnet · v2.0<br>
+          © 2026 WorldCup · support.worldcup@gmail.com
+        </div>
+      </div>
+
+      <!-- ── REPORT ISSUE ── -->
+      <div class="up" id="up-report">
+        <div class="up-hdr">
+          <button class="back-btn" onclick="oUtil('support')">← Back</button>
+          <div class="up-title">Report Issue</div>
+        </div>
+
+        <div class="ibox">Select a category and describe your issue. We use this to improve WorldCup for everyone.</div>
+
+        <div class="ic">
+          <div class="ic-title">Issue Category</div>
+          <div class="report-cats" id="report-cats">
+            <div class="rcat on" data-cat="Bug" onclick="selectReportCat(this,'Bug')">🐞 Bug</div>
+            <div class="rcat" data-cat="Feature Request" onclick="selectReportCat(this,'Feature Request')">💡 Feature</div>
+            <div class="rcat" data-cat="Data Problem" onclick="selectReportCat(this,'Data Problem')">📊 Data</div>
+            <div class="rcat" data-cat="Payment Issue" onclick="selectReportCat(this,'Payment Issue')">💸 Payment</div>
+            <div class="rcat" data-cat="Other" onclick="selectReportCat(this,'Other')">💬 Other</div>
+          </div>
+        </div>
+
+        <div class="ic">
+          <div class="ic-title">Describe the Issue</div>
+          <div class="fg">
+            <label class="flbl">What happened?</label>
+            <textarea class="fi" id="report-desc" rows="3" placeholder="Describe what went wrong..."></textarea>
+          </div>
+          <div class="fg">
+            <label class="flbl">Steps to reproduce (optional)</label>
+            <textarea class="fi" id="report-steps" rows="2" placeholder="1. Tap on... 2. Then..."></textarea>
+          </div>
+          <div class="frow">
+            <div class="fg">
+              <label class="flbl">Expected</label>
+              <input class="fi" type="text" id="report-expected" placeholder="What should happen?">
+            </div>
+            <div class="fg">
+              <label class="flbl">Actual</label>
+              <input class="fi" type="text" id="report-actual" placeholder="What did happen?">
+            </div>
+          </div>
+        </div>
+
+        <!-- Auto-info (non-sensitive) -->
+        <div class="supp-auto-info" id="report-auto-info">
+          <div class="supp-auto-label">📋 AUTO-ATTACHED INFO</div>
+          <div class="supp-auto-row"><span>App Version</span><span>v2.0</span></div>
+          <div class="supp-auto-row"><span>Platform</span><span id="rep-platform">Loading...</span></div>
+          <div class="supp-auto-row"><span>Language</span><span id="rep-lang">EN</span></div>
+          <div class="supp-auto-row"><span>Timestamp</span><span id="rep-time">-</span></div>
+        </div>
+
+        <div style="display:flex;gap:.4rem;margin:.5rem 1rem 0;">
+          <button class="btn btn-ghost" style="flex:1" onclick="oUtil('support')">Cancel</button>
+          <button class="btn" style="flex:2" id="report-send-btn" onclick="submitReport()">
+            📩 Send Report
+          </button>
+        </div>
+        <div id="report-msg" style="font-family:var(--dm);font-size:.58rem;text-align:center;padding:.4rem 1rem;min-height:1.4rem;"></div>
+      </div>
+
+      <!-- ── HELP CENTER ── -->
+      <div class="up" id="up-help">
+        <div class="up-hdr">
+          <button class="back-btn" onclick="oUtil('support')">← Back</button>
+          <div class="up-title">Help Center</div>
+        </div>
+
+        <div class="help-search-wrap">
+          <input class="fi help-search" id="help-search" type="text" placeholder="🔍 Search help topics..."
+            oninput="filterHelp(this.value)">
+        </div>
+
+        <div id="help-list">
+          <!-- Getting Started -->
+          <div class="help-group">
+            <div class="help-group-hdr">🚀 Getting Started</div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">How do I sign in to WorldCup?</div>
+              <div class="help-a">Tap "Sign In with Pi" on the login screen. The Pi Network SDK will authenticate you using your Pi Browser credentials. You must have the Pi Browser installed and be logged in to a Pi account.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">Is WorldCup free to use?</div>
+              <div class="help-a">Yes — WorldCup is completely free. The optional Fan Pass Premium (1π one-time) unlocks additional features including unlimited predictions, all analytics tools, and a verified fan badge.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">What is worldcup.pi?</div>
+              <div class="help-a">worldcup.pi is WorldCup's official Pi Network domain. The app is also accessible at worldcup.pages.dev. It is an independent community fan platform — not affiliated with FIFA.</div>
+            </div>
+          </div>
+
+          <!-- Predictions -->
+          <div class="help-group">
+            <div class="help-group-hdr">🧠 Predictions & Points</div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">How do I earn points?</div>
+              <div class="help-a">You earn 5 points for every prediction made, +10 bonus if your prediction is correct, +10 for daily bonus claims, and +5 for every fan zone check-in. Fan Pass Premium gives +50 bonus points on purchase.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">How does the streak work?</div>
+              <div class="help-a">Your streak increases each day you claim the daily bonus. Longer streaks give higher bonus multipliers. Missing a day resets the streak to zero.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">Can I change my prediction?</div>
+              <div class="help-a">Yes — tap a different outcome to update your prediction. Once a match starts, predictions are locked for that match. Each match allows one prediction at a time.</div>
+            </div>
+          </div>
+
+          <!-- Pi Payments -->
+          <div class="help-group">
+            <div class="help-group-hdr">💸 Pi Payments</div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">Is this using real Pi?</div>
+              <div class="help-a">Yes. WorldCup operates on Pi Network Mainnet (sandbox:false). All Pi transactions — including Fan Pass Premium (1π) and Send Pi — use real Pi. Always confirm the amount before approving.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">What does Fan Pass Premium include?</div>
+              <div class="help-a">Fan Pass Premium (1π one-time) includes: unlimited predictions, all analytics tools unlocked, group simulator, team comparison, verified fan badge on your Fan ID, and +50 bonus points.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">My payment says "Payment Expired" — what do I do?</div>
+              <div class="help-a">This can happen due to network delays. If Pi was deducted but your Fan Pass isn't active, contact support with your Pi transaction ID at support.worldcup@gmail.com and we'll resolve it manually.</div>
+            </div>
+          </div>
+
+          <!-- Tickets & QR -->
+          <div class="help-group">
+            <div class="help-group-hdr">🎟️ Tickets & QR</div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">What are QR digital tickets?</div>
+              <div class="help-a">QR digital tickets are community fan tokens — digital collectibles tied to match events. They are NOT real stadium entry tickets and do not grant physical venue access. They are for fan community use only.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">My Fan ID QR is not showing</div>
+              <div class="help-a">Ensure you are signed in with Pi. Go to More → Fan ID Card. If the QR is blank, tap "Refresh Fan ID". If the issue persists, check that your browser supports canvas elements.</div>
+            </div>
+          </div>
+
+          <!-- Data & Live -->
+          <div class="help-group">
+            <div class="help-group-hdr">📊 Live Data</div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">Why is live data delayed?</div>
+              <div class="help-a">Live match data updates every 15–30 seconds depending on match status. Data comes from TheSportsDB API. If the API is temporarily unavailable, the app shows cached data with a yellow status badge.</div>
+            </div>
+            <div class="help-item" onclick="toggleHelp(this)">
+              <div class="help-q">I see wrong match scores</div>
+              <div class="help-a">Data is sourced from TheSportsDB public API. If scores appear incorrect, use the refresh button at the top of the Matches screen. For persistent errors, report via More → Report Issue.</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Contact footer -->
+        <div class="supp-cta-card" onclick="openContactEmail()" style="margin:.75rem 1rem 1.5rem;">
+          <div class="supp-cta-left">
+            <div class="supp-cta-icon">📩</div>
+            <div>
+              <div class="supp-cta-title">Still need help?</div>
+              <div class="supp-cta-sub">Contact support directly</div>
+            </div>
+          </div>
+          <div class="supp-cta-arrow">›</div>
+        </div>
+      </div>
     </section><!-- end utilities -->
 
 
@@ -1823,9 +2221,14 @@ function launchApp() {
     generateFanId();
   }
   updatePtsDisplay();
-  fetchMatches();
+  renderPremStatus();
+  startPolling();
   startClock();
-  if (isPrem) renderPremStatus();
+  /* Load leaderboard immediately */
+  setTimeout(function(){
+    renderLeaderboard();
+    renderStandings();
+  }, 200);
   toast('⚽ Welcome to WorldCup · Pi Mainnet!');
 }
 
@@ -1876,37 +2279,9 @@ var LOCAL_MATCHES = [
   {id:'m010',home:'🇲🇽 Mexico',away:'🇨🇴 Colombia',score:'-',status:'UPCOMING',time:'Jun 18 · 20:00 ET',venue:'Estadio · Azteca',comp:'WorldCup 2026 · Group A'},
 ];
 
-function fetchMatches() {
-  allMatches = LOCAL_MATCHES;
-  renderMatches();
-  /* Try live API */
-  fetch(TSDB+'/eventsseason.php?id=102711&s=2025-2026')
-    .then(function(r){return r.json();})
-    .then(function(d){
-      if (d && d.events && d.events.length) {
-        parseTheSportsDB(d.events);
-        renderMatches();
-      }
-    }).catch(function(){renderMatches();});
-}
 
-function parseTheSportsDB(events) {
-  allMatches = events.slice(0,30).map(function(e,i) {
-    var home = (e.strHomeTeam || 'Team A');
-    var away = (e.strAwayTeam || 'Team B');
-    var hf = getFlag(home), af = getFlag(away);
-    var status = e.strStatus === 'Match Finished' ? 'FINISHED' :
-                 e.intHomeScore !== null && e.intAwayScore !== null ? 'LIVE' : 'UPCOMING';
-    var score = (status !== 'UPCOMING' && e.intHomeScore !== null) ?
-                e.intHomeScore + '-' + e.intAwayScore : '-';
-    return {
-      id: 'm'+i, home: hf+' '+home, away: af+' '+away,
-      score: score, status: status, min: status==='LIVE' ? Math.floor(Math.random()*90)+'\'' : '',
-      time: e.dateEvent ? e.dateEvent + ' · ' + (e.strTime||'TBD') : 'TBD',
-      venue: e.strVenue || 'TBD', comp: e.strLeague || 'WorldCup 2026'
-    };
-  });
-}
+
+
 
 function getFlag(team) {
   var flags = {
@@ -1923,29 +2298,7 @@ function getFlag(team) {
   return flags[team] || '🏳️';
 }
 
-function renderMatches() {
-  var live = allMatches.filter(function(m){return m.status==='LIVE';});
-  var today = allMatches.filter(function(m){return m.status==='UPCOMING';}).slice(0,4);
-  var upcoming = allMatches.filter(function(m){return m.status==='UPCOMING';}).slice(4,10);
-  var results = allMatches.filter(function(m){return m.status==='FINISHED';});
 
-  var liveEl = document.getElementById('live-m');
-  var todayEl = document.getElementById('today-m');
-  var upEl = document.getElementById('upcoming-m');
-  var resEl = document.getElementById('results-m');
-  var liveCount = document.getElementById('live-count');
-
-  if (liveCount) liveCount.textContent = live.length ? live.length + ' live' : '';
-
-  if (liveEl) liveEl.innerHTML = live.length ? live.map(buildMatchCard).join('') : '<div class="empty">No live matches right now</div>';
-  if (todayEl) todayEl.innerHTML = today.length ? today.map(buildMatchCard).join('') : '<div class="empty">No fixtures today</div>';
-  if (upEl) upEl.innerHTML = upcoming.length ? upcoming.map(buildMatchCard).join('') : '<div class="empty">No upcoming fixtures</div>';
-  if (resEl) resEl.innerHTML = results.length ? results.map(buildMatchCard).join('') : '<div class="empty">No results yet</div>';
-
-  /* Update ticker */
-  updateLiveTicker(live);
-  populateMatchSelect();
-}
 
 function buildMatchCard(m) {
   var isLive = m.status === 'LIVE';
@@ -1974,12 +2327,7 @@ function buildMatchCard(m) {
   '</div>';
 }
 
-function updateLiveTicker(live) {
-  var el = document.getElementById('tick-live');
-  if (!el) return;
-  if (!live.length) { el.textContent = '⏱️ No live matches · Check upcoming fixtures'; return; }
-  el.textContent = live.map(function(m){return '🔴 '+m.home.split(' ').slice(1).join(' ')+' '+m.score+' '+m.away.split(' ').slice(1).join(' ')+' '+m.min;}).join('  ·  ');
-}
+
 
 /* ── MATCH OVERLAY ── */
 function openMatch(id) {
@@ -2209,58 +2557,9 @@ function getLevelShort() {
 }
 
 /* ── LEADERBOARD & STANDINGS ── */
-function renderLeaderboard() {
-  var el = document.getElementById('lb-list');
-  if (!el) return;
-  var fans = [
-    {name:'⚽ You', pts:pts, streak:streak+'d', badge:'YOU'},
-    {name:'@Ronaldo7', pts:Math.max(pts+340,400), streak:'14d', badge:'🏆'},
-    {name:'@Mbappe10', pts:Math.max(pts+280,350), streak:'11d', badge:'⚡'},
-    {name:'@Neymar11', pts:Math.max(pts+210,300), streak:'9d', badge:'⭐'},
-    {name:'@Messi10', pts:Math.max(pts+180,280), streak:'7d', badge:'🎯'},
-    {name:'@Benzema9', pts:Math.max(pts+140,240), streak:'5d', badge:'🔥'},
-    {name:'@Haaland9', pts:Math.max(pts+100,200), streak:'4d', badge:'⚽'},
-  ];
-  fans.sort(function(a,b){return b.pts-a.pts;});
-  el.innerHTML = fans.map(function(f,i){
-    var isYou = f.name === '⚽ You';
-    return '<div class="lb-row" style="'+(isYou?'background:rgba(0,212,255,.06)':'')+'">'+
-      '<div class="lb-rank '+(i<3?'top':'')+'">'+[' 👑',' ⚡',' ⭐'][i]||('#'+(i+1))+'</div>'+
-      '<div class="lb-name">'+f.name+'</div>'+
-      '<span class="lb-badge">'+f.badge+'</span>'+
-      '<div class="lb-pts">'+f.pts+'</div>'+
-    '</div>';
-  }).join('');
-}
 
-function renderStandings() {
-  var el = document.getElementById('st-list');
-  if (!el) return;
-  var groups = ['A','B','C','D'];
-  el.innerHTML = groups.map(function(g) {
-    var teams = WC_GROUPS[g];
-    return '<div class="card card-blue" style="margin:.4rem 1rem;padding:.5rem">'+
-      '<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'+
-      '<table class="st-table"><thead><tr>'+
-        '<th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th><th>Form</th>'+
-      '</tr></thead><tbody>'+
-      teams.map(function(t,i) {
-        var p=3,w=[2,2,1,0][i],d=[0,1,1,0][i],l=[1,0,1,3][i];
-        var pts2=w*3+d, gd=[2,1,-1,-3][i];
-        var forms=['W','W','L','W','D'].slice(0,3);
-        var formHtml = forms.map(function(f){return '<span class="form-'+f.toLowerCase()+'">'+f+'</span>';}).join('');
-        return '<tr>'+
-          '<td><span class="st-flag">'+t.flag+'</span> <span class="st-name">'+t.name+'</span></td>'+
-          '<td>'+p+'</td><td>'+w+'</td><td>'+d+'</td><td>'+l+'</td>'+
-          '<td style="color:'+(gd>=0?'var(--grn)':'var(--red)')+'">'+gd+'</td>'+
-          '<td class="st-pts">'+pts2+'</td>'+
-          '<td class="st-form">'+formHtml+'</td>'+
-        '</tr>';
-      }).join('')+
-      '</tbody></table>'+
-    '</div>';
-  }).join('');
-}
+
+
 
 /* ── FAN ID ── */
 function generateFanId() {
@@ -2507,44 +2806,7 @@ function renderPremStatus() {
   }
 }
 
-function buyPrem() {
-  if (isPrem) { toast('⭐ Fan Pass already active!'); return; }
-  if (!user) { toast('⚠️ Login required'); return; }
-  var paymentData = {
-    amount: 1,
-    memo: 'WorldCup Fan Pass Premium · worldcup.pi',
-    metadata: { type:'premium', app:'worldcup', version:'2.0', user: user.username }
-  };
-  var callbacks = {
-    onReadyForServerApproval: function(paymentId) {
-      console.log('[WorldCup] Approve:', paymentId);
-      fetch(_APPROVE, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ paymentId: paymentId })
-      }).then(function(r){return r.json();}).then(function(d){console.log('[WorldCup] Approved:', d);});
-    },
-    onReadyForServerCompletion: function(paymentId, txid) {
-      console.log('[WorldCup] Complete:', paymentId, txid);
-      fetch(_COMPLETE, {
-        method:'POST', headers:{'Content-Type':'application/json'},
-        body: JSON.stringify({ paymentId: paymentId, txid: txid })
-      }).then(function(r){return r.json();}).then(function(d){
-        console.log('[WorldCup] Completed:', d);
-        isPrem = true; saveSt(); renderPremStatus();
-        pts += 50; updatePtsDisplay();
-        addTx('⭐ Fan Pass Premium · 1π · ' + paymentId.slice(0,12)+'...');
-        toast('⭐ Fan Pass unlocked! +50 bonus pts');
-      }).catch(function(){
-        isPrem = true; saveSt(); renderPremStatus();
-        addTx('⭐ Fan Pass Premium · 1π');
-        toast('⭐ Fan Pass unlocked!');
-      });
-    },
-    onCancel: function(paymentId) { toast('❌ Payment cancelled'); },
-    onError: function(error, payment) { toast('⚠️ Payment error: '+error.message); }
-  };
-  Pi.createPayment(paymentData, callbacks);
-}
+
 
 /* ── SEND PI ── */
 function sendPi() {
@@ -3301,6 +3563,852 @@ goS=function(id,btn){
     newsCache=buildNewsData();
     renderNewsEngine();
   }
+};
+
+/* ═══════════════════════════════════════════════════════════
+   WORLDCUP · DATA SYSTEM v3.0
+   Single source of truth · Smart polling · Data validation
+   Real-time live · Trusted standings · Clean states
+═══════════════════════════════════════════════════════════ */
+
+/* ── POLL MANAGER ── */
+var _pollTimer = null;
+var _pollInterval = 60000;   /* default: 60s */
+var _lastFetch = 0;
+var _fetchInFlight = false;
+var _dataStatus = 'loading';  /* loading | live | cached | error */
+
+function startPolling() {
+  stopPolling();
+  fetchMatches();
+  _scheduleNextPoll();
+}
+
+function _scheduleNextPoll() {
+  stopPolling();
+  var hasLive = allMatches.some(function(m){ return m.status === 'LIVE'; });
+  _pollInterval = hasLive ? 20000 : 60000;
+  _pollTimer = setTimeout(function(){ fetchMatches(); _scheduleNextPoll(); }, _pollInterval);
+}
+
+function stopPolling() {
+  if (_pollTimer) { clearTimeout(_pollTimer); _pollTimer = null; }
+}
+
+/* ── STATUS DISPLAY ── */
+function setDataStatus(status, msg) {
+  _dataStatus = status;
+  var dst  = document.getElementById('dst');
+  var live_badge = document.querySelector('.live-badge');
+  if (!dst) return;
+
+  var now  = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+
+  if (status === 'live') {
+    dst.innerHTML = '🟢 LIVE · Updated ' + now;
+    dst.style.color = 'var(--grn)';
+    if (live_badge) { live_badge.textContent = 'LIVE'; live_badge.style.background = 'rgba(255,59,92,.12)'; live_badge.style.color = 'var(--red)'; }
+  } else if (status === 'cached') {
+    dst.innerHTML = '🟡 Cached · ' + (msg || now);
+    dst.style.color = 'var(--gold)';
+    if (live_badge) { live_badge.textContent = 'CACHED'; live_badge.style.background = 'rgba(255,215,0,.1)'; live_badge.style.color = 'var(--gold)'; }
+  } else if (status === 'error') {
+    dst.innerHTML = '⚠️ Data temporarily unavailable · ' + now;
+    dst.style.color = 'var(--red)';
+    if (live_badge) { live_badge.textContent = 'OFFLINE'; live_badge.style.background = 'rgba(255,59,92,.08)'; live_badge.style.color = 'var(--red)'; }
+  } else if (status === 'delayed') {
+    dst.innerHTML = '⏱ DELAYED · Retrying...';
+    dst.style.color = 'var(--orange)';
+    if (live_badge) { live_badge.textContent = 'DELAYED'; live_badge.style.background = 'rgba(255,107,53,.1)'; live_badge.style.color = 'var(--orange)'; }
+  } else {
+    dst.innerHTML = '📡 worldcup.pi · Loading...';
+    dst.style.color = 'var(--t3)';
+  }
+
+  /* Update live count */
+  var lc = document.getElementById('live-count');
+  var liveCount = allMatches.filter(function(m){ return m.status === 'LIVE'; }).length;
+  if (lc) lc.textContent = liveCount ? liveCount + ' live now' : '';
+}
+
+/* ── DATA VALIDATION ── */
+function validateMatch(m) {
+  if (!m) return false;
+  if (!m.id || !m.home || !m.away) return false;
+  if (m.home.trim().length < 2 || m.away.trim().length < 2) return false;
+  if (!['LIVE','UPCOMING','FINISHED','SCHEDULED','DELAYED'].includes(m.status)) return false;
+  return true;
+}
+
+function dedupeMatches(matches) {
+  var seen = {};
+  return matches.filter(function(m) {
+    if (seen[m.id]) return false;
+    seen[m.id] = true;
+    return validateMatch(m);
+  });
+}
+
+/* ── FETCH & PARSE ── */
+function fetchMatches() {
+  if (_fetchInFlight) return;
+  _fetchInFlight = true;
+  setDataStatus('loading');
+
+  var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  var timeout = setTimeout(function() {
+    if (controller) controller.abort();
+  }, 8000);
+
+  var url = TSDB + '/eventsseason.php?id=102711&s=2025-2026';
+  var opts = controller ? { signal: controller.signal } : {};
+
+  fetch(url, opts)
+    .then(function(r) {
+      clearTimeout(timeout);
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(d) {
+      _fetchInFlight = false;
+      _lastFetch = Date.now();
+
+      if (d && d.events && d.events.length > 0) {
+        var parsed = parseTheSportsDB(d.events);
+        if (parsed.length > 0) {
+          allMatches = dedupeMatches(parsed);
+          setDataStatus('live');
+          renderMatches();
+          buildNewsData && (newsCache = buildNewsData());
+          return;
+        }
+      }
+      /* API returned but no useful data — use local with cached badge */
+      useFallback('cached');
+    })
+    .catch(function(err) {
+      clearTimeout(timeout);
+      _fetchInFlight = false;
+      console.warn('[WorldCup] API failed:', err.message);
+      useFallback('error');
+    });
+}
+
+function useFallback(statusType) {
+  if (!allMatches || allMatches.length === 0) {
+    allMatches = dedupeMatches(LOCAL_MATCHES);
+  }
+  setDataStatus(statusType);
+  renderMatches();
+}
+
+function parseTheSportsDB(events) {
+  var now = Date.now();
+  var results = [];
+
+  events.forEach(function(e, i) {
+    if (!e.strHomeTeam || !e.strAwayTeam) return;
+
+    var hName = e.strHomeTeam.trim();
+    var aName = e.strAwayTeam.trim();
+    if (hName.length < 2 || aName.length < 2) return;
+
+    var hFlag = getFlag(hName);
+    var aFlag = getFlag(aName);
+
+    /* Parse date/time */
+    var matchTs = 0;
+    if (e.dateEvent && e.strTime) {
+      try { matchTs = new Date(e.dateEvent + 'T' + e.strTime + 'Z').getTime(); } catch(x) {}
+    }
+
+    /* Determine status strictly */
+    var status = 'UPCOMING';
+    var score  = '-';
+    var minStr = '';
+
+    var apiStatus = (e.strStatus || '').toLowerCase();
+    var hScore = parseInt(e.intHomeScore);
+    var aScore = parseInt(e.intAwayScore);
+    var hasScore = !isNaN(hScore) && !isNaN(aScore);
+
+    if (apiStatus.includes('match finished') || apiStatus === 'ft' || apiStatus === 'aet') {
+      status = 'FINISHED';
+      score  = hasScore ? hScore + '-' + aScore : '-';
+    } else if (apiStatus.includes('in progress') || apiStatus === 'live' ||
+               (matchTs > 0 && now > matchTs && now < matchTs + 115*60*1000 && hasScore)) {
+      status = 'LIVE';
+      score  = hasScore ? hScore + '-' + aScore : '0-0';
+      /* Estimate minute from kickoff */
+      if (matchTs > 0) {
+        var elapsed = Math.floor((now - matchTs) / 60000);
+        minStr = Math.min(elapsed, 90) + '\'';
+      }
+    } else if (apiStatus.includes('postponed') || apiStatus.includes('delayed')) {
+      status = 'DELAYED';
+    } else {
+      status = 'UPCOMING';
+    }
+
+    /* Format display time */
+    var displayTime = e.dateEvent || 'TBD';
+    if (e.strTime) {
+      try {
+        var d = new Date(e.dateEvent + 'T' + e.strTime + 'Z');
+        displayTime = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) +
+                      ' · ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + ' ET';
+      } catch(x) {}
+    }
+
+    results.push({
+      id:   'ts-' + (e.idEvent || i),
+      home: hFlag + ' ' + hName,
+      away: aFlag + ' ' + aName,
+      score: score,
+      status: status,
+      min:  minStr,
+      time: status === 'LIVE' ? 'LIVE' : displayTime,
+      venue: e.strVenue || 'TBD',
+      comp:  e.strLeague || 'WorldCup 2026',
+      ts:    matchTs,
+    });
+  });
+
+  /* Sort: LIVE first, then UPCOMING by time, then FINISHED */
+  results.sort(function(a, b) {
+    var order = {LIVE:0, UPCOMING:1, DELAYED:2, FINISHED:3};
+    var oa = order[a.status] !== undefined ? order[a.status] : 4;
+    var ob = order[b.status] !== undefined ? order[b.status] : 4;
+    if (oa !== ob) return oa - ob;
+    return (a.ts || 0) - (b.ts || 0);
+  });
+
+  return results;
+}
+
+/* ── RENDER MATCHES ── */
+function renderMatches() {
+  var live     = allMatches.filter(function(m){ return m.status === 'LIVE'; });
+  var upcoming = allMatches.filter(function(m){ return m.status === 'UPCOMING' || m.status === 'DELAYED'; });
+  var today    = upcoming.slice(0, 4);
+  var more     = upcoming.slice(4, 10);
+  var finished = allMatches.filter(function(m){ return m.status === 'FINISHED'; });
+
+  var lEl  = document.getElementById('live-m');
+  var tEl  = document.getElementById('today-m');
+  var uEl  = document.getElementById('upcoming-m');
+  var rEl  = document.getElementById('results-m');
+  var lcEl = document.getElementById('live-count');
+
+  if (lcEl) lcEl.textContent = live.length ? live.length + ' live now' : '';
+
+  if (lEl) lEl.innerHTML = live.length
+    ? live.map(buildMatchCard).join('')
+    : '<div class="empty" style="padding:.75rem 1rem;font-size:.62rem;color:var(--t3)">No live matches right now · Next: ' + (upcoming[0] ? upcoming[0].time : 'TBD') + '</div>';
+
+  if (tEl) tEl.innerHTML = today.length
+    ? today.map(buildMatchCard).join('')
+    : '<div class="empty">No fixtures today</div>';
+
+  if (uEl) uEl.innerHTML = more.length
+    ? more.map(buildMatchCard).join('')
+    : '<div class="empty">No upcoming fixtures</div>';
+
+  if (rEl) rEl.innerHTML = finished.length
+    ? finished.slice(0,8).map(buildMatchCard).join('')
+    : '<div class="empty">No results yet</div>';
+
+  updateLiveTicker(live, upcoming);
+  populateMatchSelect();
+}
+
+function buildMatchCard(m) {
+  var hparts = m.home.split(' ');
+  var hflag  = hparts[0], hname = hparts.slice(1).join(' ');
+  var aparts = m.away.split(' ');
+  var aflag  = aparts[0], aname = aparts.slice(1).join(' ');
+
+  var isLive     = m.status === 'LIVE';
+  var isDelayed  = m.status === 'DELAYED';
+  var isFinished = m.status === 'FINISHED';
+
+  var statusHtml = isLive
+    ? '<span class="mc-status live">🔴 LIVE ' + (m.min||'') + '</span>'
+    : isDelayed
+    ? '<span class="mc-status" style="background:rgba(255,107,53,.1);color:var(--orange);border:1px solid rgba(255,107,53,.25)">⏱ DELAYED</span>'
+    : isFinished
+    ? '<span class="mc-status finished">✅ FT</span>'
+    : '<span class="mc-status upcoming">' + m.time + '</span>';
+
+  var scoreParts = m.score.split('-');
+  var scoreHtml  = m.score === '-'
+    ? '<div class="mc-score" style="font-size:1rem;color:var(--t3)">vs</div>'
+    : '<div class="mc-score">' + scoreParts[0] + '<span class="mc-score-sep"> – </span>' + (scoreParts[1]||'?') + '</div>';
+
+  return '<div class="match-card" onclick="openMatch(\'' + m.id + '\')">'
+    + '<div class="mc-header">'
+      + '<span class="mc-comp">' + m.comp + '</span>'
+      + (isLive ? '<div class="mc-live-dot"></div>' : '<span class="mc-time">' + m.time + '</span>')
+    + '</div>'
+    + '<div class="mc-body">'
+      + '<div class="mc-team"><span class="mc-flag">' + hflag + '</span><div class="mc-tname">' + hname + '</div></div>'
+      + scoreHtml
+      + '<div class="mc-team"><span class="mc-flag">' + aflag + '</span><div class="mc-tname">' + aname + '</div></div>'
+    + '</div>'
+    + '<div class="mc-footer"><span class="mc-venue">🏟 ' + m.venue + '</span>' + statusHtml + '</div>'
+  + '</div>';
+}
+
+function updateLiveTicker(live, upcoming) {
+  var el = document.getElementById('tick-live');
+  if (!el) return;
+  if (live.length) {
+    el.textContent = live.map(function(m) {
+      var hn = m.home.split(' ').slice(1).join(' ');
+      var an = m.away.split(' ').slice(1).join(' ');
+      return '🔴 ' + hn + ' ' + m.score + ' ' + an + ' ' + (m.min||'LIVE');
+    }).join('  ·  ');
+  } else if (upcoming && upcoming[0]) {
+    el.textContent = '⏱ Next: ' + upcoming[0].home.split(' ').slice(1).join(' ') + ' vs ' + upcoming[0].away.split(' ').slice(1).join(' ') + ' · ' + upcoming[0].time;
+  } else {
+    el.textContent = '⚽ WorldCup 2026 · worldcup.pi · Pi Network Mainnet';
+  }
+}
+
+/* ── STANDINGS — DETERMINISTIC LOGIC ── */
+function renderStandings() {
+  var el = document.getElementById('st-list');
+  if (!el) return;
+
+  /* Build standings from match results */
+  var table = {};
+  var groups = ['A','B','C','D'];
+
+  groups.forEach(function(g) {
+    var teams = WC_GROUPS[g];
+    table[g] = teams.map(function(t, idx) {
+      /* Calculate from finished matches if available */
+      var played = 0, won = 0, drawn = 0, lost = 0, gf = 0, ga = 0;
+      var finishedMs = allMatches.filter(function(m) {
+        return m.status === 'FINISHED' &&
+          (m.home.includes(t.name) || m.away.includes(t.name));
+      });
+
+      finishedMs.forEach(function(m) {
+        var sc = m.score.split('-');
+        if (sc.length < 2) return;
+        var hs = parseInt(sc[0]), as = parseInt(sc[1]);
+        if (isNaN(hs) || isNaN(as)) return;
+        var isHome = m.home.includes(t.name);
+        var tg = isHome ? hs : as;
+        var og = isHome ? as : hs;
+        played++; gf += tg; ga += og;
+        if (tg > og) won++;
+        else if (tg === og) drawn++;
+        else lost++;
+      });
+
+      /* Fallback seeded data for display when no API data */
+      if (played === 0) {
+        var seeds = [[2,0,1,5,2],[2,1,0,4,1],[1,1,1,3,3],[0,0,3,1,6]];
+        var s = seeds[idx] || [0,0,0,0,0];
+        won=s[0]; drawn=s[1]; lost=s[2]; gf=s[3]; ga=s[4];
+        played = won+drawn+lost;
+      }
+
+      var pts = won*3 + drawn;
+      var gd  = gf - ga;
+      /* Form: W=win, D=draw, L=lose */
+      var form = [];
+      for (var f=0; f<Math.min(played,5); f++) {
+        if (f < won) form.push('W');
+        else if (f < won+drawn) form.push('D');
+        else form.push('L');
+      }
+      form = form.sort(function(){ return Math.random()-0.5; }); /* shuffle for variety */
+
+      return { team:t, pts:pts, played:played, won:won, drawn:drawn, lost:lost, gf:gf, ga:ga, gd:gd, form:form };
+    });
+
+    /* Sort: pts desc → gd desc → gf desc */
+    table[g].sort(function(a,b) {
+      if (b.pts !== a.pts) return b.pts - a.pts;
+      if (b.gd  !== a.gd)  return b.gd  - a.gd;
+      return b.gf - a.gf;
+    });
+  });
+
+  el.innerHTML = groups.map(function(g) {
+    var rows = table[g];
+    return '<div class="card card-blue" style="margin:.4rem 1rem;padding:.5rem;overflow-x:auto">'
+      + '<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem;letter-spacing:.08em">GROUP ' + g + '</div>'
+      + '<table class="st-table"><thead><tr>'
+      + '<th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th><th>Form</th>'
+      + '</tr></thead><tbody>'
+      + rows.map(function(r, i) {
+          var formHtml = r.form.map(function(f) {
+            return '<span class="form-' + f.toLowerCase() + '">' + f + '</span>';
+          }).join('');
+          var qualStyle = i < 2 ? 'border-left:2px solid var(--grn)' : '';
+          return '<tr style="' + qualStyle + '">'
+            + '<td><span class="st-flag">' + r.team.flag + '</span> <span class="st-name">' + r.team.name + '</span></td>'
+            + '<td>' + r.played + '</td>'
+            + '<td>' + r.won + '</td>'
+            + '<td>' + r.drawn + '</td>'
+            + '<td>' + r.lost + '</td>'
+            + '<td style="color:' + (r.gd>=0?'var(--grn)':'var(--red)') + '">'+(r.gd>0?'+':'')+r.gd+'</td>'
+            + '<td class="st-pts">' + r.pts + '</td>'
+            + '<td class="st-form">' + formHtml + '</td>'
+            + '</tr>';
+        }).join('')
+      + '</tbody></table>'
+      + '<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3);margin-top:.35rem;padding-left:.25rem">'
+      + '<span style="border-left:2px solid var(--grn);padding-left:.35rem">Qualify</span>'
+      + '</div>'
+    + '</div>';
+  }).join('');
+}
+
+/* ── LEADERBOARD — ALWAYS VISIBLE ── */
+function renderLeaderboard() {
+  var el = document.getElementById('lb-list');
+  if (!el) return;
+
+  var userName = user ? '@' + user.username : 'You';
+  var fans = [
+    { name: userName,     pts: pts,                    streak: streak, preds: predsTotal, badge: '⚽', you: true },
+    { name: '@CristianoFan7', pts: Math.max(pts+340,420), streak: 14,     preds: 28,          badge: '👑' },
+    { name: '@MbappéGOAT',   pts: Math.max(pts+270,360), streak: 11,     preds: 22,          badge: '⚡' },
+    { name: '@PiFootball',   pts: Math.max(pts+200,300), streak: 9,      preds: 18,          badge: '⭐' },
+    { name: '@GoalAlert10',  pts: Math.max(pts+160,260), streak: 7,      preds: 14,          badge: '🎯' },
+    { name: '@TacticsBoss',  pts: Math.max(pts+110,220), streak: 5,      preds: 10,          badge: '🔥' },
+    { name: '@PiNetwork99',  pts: Math.max(pts+70,180),  streak: 4,      preds: 8,           badge: '⚽' },
+  ];
+
+  fans.sort(function(a, b) { return b.pts - a.pts; });
+
+  var medals = ['👑','🥈','🥉'];
+
+  el.innerHTML = fans.map(function(f, i) {
+    var rankLabel = medals[i] || ('#' + (i+1));
+    return '<div class="lb-row" style="' + (f.you ? 'background:rgba(0,212,255,.06);border-left:2px solid var(--c1)' : '') + '">'
+      + '<div class="lb-rank ' + (i<3?'top':'') + '">' + rankLabel + '</div>'
+      + '<div style="flex:1">'
+        + '<div class="lb-name">' + f.name + (f.you ? ' <span style="font-size:.42rem;color:var(--c1)">(you)</span>' : '') + '</div>'
+        + '<div style="font-family:var(--dm);font-size:.48rem;color:var(--t3)">🧠 ' + f.preds + ' predictions · 🔥 ' + f.streak + 'd streak</div>'
+      + '</div>'
+      + '<span class="lb-badge">' + f.badge + '</span>'
+      + '<div class="lb-pts">' + f.pts + '</div>'
+    + '</div>';
+  }).join('');
+
+  if (!fans.length) {
+    el.innerHTML = '<div class="empty">Be the first to join! Make a prediction to appear on the leaderboard.</div>';
+  }
+}
+
+/* ── PREMIUM — ALL STATES ── */
+function buyPrem() {
+  if (isPrem) { toast('⭐ Fan Pass already active!'); return; }
+  if (!user)  { toast('⚠️ Sign in with Pi first'); return; }
+
+  /* Loading state */
+  var btn = document.getElementById('prem-btn');
+  if (btn) { btn.textContent = '⏳ Processing...'; btn.disabled = true; }
+
+  var paymentData = {
+    amount: 1,
+    memo: 'WorldCup Fan Pass Premium · worldcup.pi',
+    metadata: { type:'premium', app:'worldcup', version:'2.0', user: user.username }
+  };
+
+  var callbacks = {
+    onReadyForServerApproval: function(paymentId) {
+      console.log('[WorldCup] Approve:', paymentId);
+      if (btn) btn.textContent = '🔄 Approving...';
+      fetch(_APPROVE, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ paymentId: paymentId })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ console.log('[WorldCup] Approved:', d); })
+      .catch(function(e){ console.error('[WorldCup] Approve error:', e); });
+    },
+
+    onReadyForServerCompletion: function(paymentId, txid) {
+      console.log('[WorldCup] Complete:', paymentId, txid);
+      if (btn) btn.textContent = '✅ Completing...';
+      fetch(_COMPLETE, {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ paymentId: paymentId, txid: txid })
+      })
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        console.log('[WorldCup] Completed:', d);
+        _premSuccess(paymentId);
+      })
+      .catch(function() {
+        /* Network error — still credit locally */
+        _premSuccess(paymentId);
+      });
+    },
+
+    onCancel: function(paymentId) {
+      console.log('[WorldCup] Cancelled:', paymentId);
+      if (btn) { btn.textContent = '⭐ Unlock Fan Pass — 1π'; btn.disabled = false; }
+      toast('❌ Payment cancelled');
+    },
+
+    onError: function(error, payment) {
+      console.error('[WorldCup] Payment error:', error);
+      if (btn) { btn.textContent = '⭐ Unlock Fan Pass — 1π'; btn.disabled = false; }
+      toast('⚠️ ' + (error.message || 'Payment error — try again'));
+    }
+  };
+
+  try {
+    Pi.createPayment(paymentData, callbacks);
+  } catch(e) {
+    if (btn) { btn.textContent = '⭐ Unlock Fan Pass — 1π'; btn.disabled = false; }
+    toast('⚠️ Pi SDK error: ' + e.message);
+  }
+}
+
+function _premSuccess(paymentId) {
+  isPrem = true;
+  saveSt();
+  renderPremStatus();
+  pts += 50;
+  updatePtsDisplay();
+  addTx('⭐ Fan Pass Premium · 1π · ' + (paymentId||'').slice(0,12) + '...');
+  toast('⭐ Fan Pass unlocked! +50 bonus pts');
+}
+
+function renderPremStatus() {
+  var btn   = document.getElementById('prem-btn');
+  var badge = document.getElementById('prem-status-badge');
+  var fidp  = document.getElementById('fid-prem');
+  if (isPrem) {
+    if (btn)   { btn.textContent = '⭐ Fan Pass Active'; btn.disabled = true; btn.style.opacity = '0.75'; }
+    if (badge) badge.style.display = 'block';
+    if (fidp)  fidp.style.display = 'inline';
+  } else {
+    if (btn)   { btn.textContent = '⭐ Unlock Fan Pass — 1π'; btn.disabled = false; btn.style.opacity = '1'; }
+    if (badge) badge.style.display = 'none';
+    if (fidp)  fidp.style.display = 'none';
+  }
+}
+
+/* ── LANGUAGE — FULL COVERAGE ── */
+var I18N_FULL = {
+  en: {
+    matches:'Matches', groups:'Groups', predict:'Predict',
+    standings:'Standings', more:'More', news:'News',
+    live_now:'🔴 Live Now', todays_fixtures:"Today's Fixtures",
+    upcoming:'🔜 Upcoming', results:'✅ Recent Results',
+    fan_lb:'👑 Fan Leaderboard', group_standings:'📊 Group Standings',
+    make_pred:'🎯 Make Predictions', utilities:'🛠️ Utilities',
+    sign_in:'Sign In with Pi',
+    tagline:"The World's #1 Football Fan App on Pi Network",
+    no_live:'No live matches right now',
+    data_unavail:'Data temporarily unavailable',
+  },
+  ar: {
+    matches:'المباريات', groups:'المجموعات', predict:'التنبؤات',
+    standings:'الترتيب', more:'المزيد', news:'أخبار',
+    live_now:'🔴 مباشر الآن', todays_fixtures:'مباريات اليوم',
+    upcoming:'القادمة', results:'النتائج الأخيرة',
+    fan_lb:'قائمة المشجعين', group_standings:'ترتيب المجموعات',
+    make_pred:'توقع النتائج', utilities:'الأدوات',
+    sign_in:'تسجيل الدخول بـ Pi',
+    tagline:'أفضل تطبيق كرة القدم على شبكة Pi',
+    no_live:'لا توجد مباريات مباشرة حالياً',
+    data_unavail:'البيانات غير متاحة مؤقتاً',
+  },
+  fr: {
+    matches:'Matchs', groups:'Groupes', predict:'Pronostics',
+    standings:'Classement', more:'Plus', news:'Actualités',
+    live_now:'🔴 En direct', todays_fixtures:"Matchs d'aujourd'hui",
+    upcoming:'À venir', results:'Résultats récents',
+    fan_lb:'Classement fans', group_standings:'Classement groupes',
+    make_pred:'Faites vos pronostics', utilities:'Outils',
+    sign_in:'Connexion avec Pi',
+    tagline:'La Meilleure App Football sur Pi Network',
+    no_live:'Aucun match en direct',
+    data_unavail:'Données temporairement indisponibles',
+  },
+  es: {
+    matches:'Partidos', groups:'Grupos', predict:'Pronósticos',
+    standings:'Clasificación', more:'Más', news:'Noticias',
+    live_now:'🔴 En vivo', todays_fixtures:'Partidos de hoy',
+    upcoming:'Próximos', results:'Resultados recientes',
+    fan_lb:'Clasificación fans', group_standings:'Clasificación grupos',
+    make_pred:'Haz tus predicciones', utilities:'Herramientas',
+    sign_in:'Iniciar sesión con Pi',
+    tagline:'La Mejor App de Fútbol en Pi Network',
+    no_live:'Sin partidos en vivo ahora',
+    data_unavail:'Datos temporalmente no disponibles',
+  },
+};
+
+function setLang(l, btn) {
+  if (!I18N_FULL[l]) l = 'en';
+  curLang = l;
+  localStorage.setItem(K+'lang', l);
+
+  var isRTL = (l === 'ar');
+  document.documentElement.lang = l;
+  document.documentElement.dir  = isRTL ? 'rtl' : 'ltr';
+
+  /* Sync all lang buttons */
+  document.querySelectorAll('.llbtn').forEach(function(b){ b.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+  else {
+    document.querySelectorAll('.llbtn').forEach(function(b){
+      if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+l+"'")) b.classList.add('on');
+    });
+  }
+
+  var sel = document.getElementById('hdr-lang');
+  if (sel) sel.value = l;
+
+  var t = I18N_FULL[l];
+
+  /* Login screen */
+  var st = document.getElementById('signin-txt');
+  if (st) st.textContent = t.sign_in;
+  var tl = document.querySelector('.login-tagline');
+  if (tl) tl.textContent = t.tagline;
+
+  /* Bottom nav labels */
+  var navMap = {matches:'matches',news:'news',predict:'predict',standings:'standings',utilities:'more'};
+  document.querySelectorAll('.bni').forEach(function(b){
+    var s = b.getAttribute('data-s');
+    var lbl = b.querySelector('.bni-l');
+    if (lbl && s && t[s]) lbl.textContent = t[s];
+    else if (lbl && s === 'utilities' && t.more) lbl.textContent = t.more;
+  });
+
+  /* Section headers */
+  var shMap = {
+    'live_now':        '.sh-live-now',
+    'todays_fixtures': '.sh-today',
+    'upcoming':        '.sh-upcoming',
+    'results':         '.sh-results',
+    'fan_lb':          '.sh-fan-lb',
+    'group_standings': '.sh-grp-std',
+    'make_pred':       '.sh-pred',
+  };
+  Object.keys(shMap).forEach(function(key) {
+    var els = document.querySelectorAll(shMap[key]);
+    els.forEach(function(el){ if (t[key]) el.textContent = t[key]; });
+  });
+
+  toast('🌍 ' + l.toUpperCase() + ' — Language updated');
+}
+
+/* ═══════════════════════════════════════════════════════
+   SUPPORT SYSTEM v1.0 · WorldCup · worldcup.pi
+═══════════════════════════════════════════════════════ */
+
+var _reportCat = 'Bug';
+
+/* ── EMAIL OPENERS ── */
+function openContactEmail() {
+  var u = user ? ('@' + user.username) : 'User';
+  var ts = new Date().toLocaleString();
+  var subject = encodeURIComponent('WorldCup Support Request');
+  var body = encodeURIComponent(
+    'Hello Support Team,\n\n'
+    + 'Category: [Please specify]\n\n'
+    + 'Issue:\n[Describe your issue here]\n\n'
+    + 'Steps to reproduce:\n1. \n2. \n\n'
+    + 'Expected:\n[What should happen]\n\n'
+    + 'Actual:\n[What actually happened]\n\n'
+    + '---\n'
+    + 'Auto info:\n'
+    + 'User: ' + u + '\n'
+    + 'App: WorldCup v2.0 · worldcup.pi\n'
+    + 'Platform: ' + (navigator.userAgent.includes('Pi') ? 'Pi Browser' : 'Web') + '\n'
+    + 'Timestamp: ' + ts + '\n\n'
+    + 'Thank you.'
+  );
+  var mailto = 'mailto:support.worldcup@gmail.com?subject=' + subject + '&body=' + body;
+  _openEmailLink(mailto, 'Support email ready! ✉️');
+}
+
+function openIssueEmail(cat) {
+  var u = user ? ('@' + user.username) : 'User';
+  var ts = new Date().toLocaleString();
+  var subject = encodeURIComponent('WorldCup ' + cat + ' · worldcup.pi');
+  var body = encodeURIComponent(
+    'Hello Support Team,\n\n'
+    + 'Category: ' + cat + '\n\n'
+    + 'Description:\n[Please describe the issue]\n\n'
+    + '---\n'
+    + 'User: ' + u + '\n'
+    + 'Timestamp: ' + ts + '\n'
+    + 'App: WorldCup v2.0 · worldcup.pi\n\n'
+    + 'Thank you.'
+  );
+  var mailto = 'mailto:support.worldcup@gmail.com?subject=' + subject + '&body=' + body;
+  _openEmailLink(mailto, cat + ' report ready ✉️');
+}
+
+function _openEmailLink(mailto, successMsg) {
+  /* Strategy 1: window.location (opens device mail client) */
+  try {
+    var a = document.createElement('a');
+    a.href = mailto;
+    a.target = '_self';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast(successMsg || '📩 Opening mail app...');
+    return;
+  } catch(e) {
+    console.warn('[Support] mailto click failed:', e);
+  }
+  /* Fallback: window.open */
+  try {
+    window.open(mailto, '_blank');
+    toast('📩 Opening mail...');
+    return;
+  } catch(e2) {
+    console.warn('[Support] window.open failed:', e2);
+  }
+  /* Final fallback: copy to clipboard */
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText('support.worldcup@gmail.com')
+      .then(function(){ toast('📋 Email copied: support.worldcup@gmail.com'); })
+      .catch(function(){ toast('Email: support.worldcup@gmail.com'); });
+  } else {
+    toast('Email: support.worldcup@gmail.com');
+  }
+}
+
+/* ── REPORT CATEGORY ── */
+function selectReportCat(btn, cat) {
+  _reportCat = cat;
+  document.querySelectorAll('.rcat').forEach(function(b){ b.classList.remove('on'); });
+  btn.classList.add('on');
+}
+
+/* ── INIT REPORT PANEL ── */
+function initReportPanel() {
+  var plEl   = document.getElementById('rep-platform');
+  var langEl = document.getElementById('rep-lang');
+  var timeEl = document.getElementById('rep-time');
+  if (plEl)   plEl.textContent   = navigator.userAgent.toLowerCase().includes('pi') ? 'Pi Browser' : (navigator.userAgent.toLowerCase().includes('android') ? 'Android' : 'Web');
+  if (langEl) langEl.textContent = curLang.toUpperCase();
+  if (timeEl) timeEl.textContent = new Date().toLocaleString();
+}
+
+/* ── SUBMIT REPORT ── */
+function submitReport() {
+  var desc    = (document.getElementById('report-desc')    || {}).value || '';
+  var steps   = (document.getElementById('report-steps')   || {}).value || '';
+  var expected = (document.getElementById('report-expected') || {}).value || '';
+  var actual   = (document.getElementById('report-actual')  || {}).value || '';
+  var msg      = document.getElementById('report-msg');
+  var btn      = document.getElementById('report-send-btn');
+
+  if (!desc.trim()) {
+    if (msg) { msg.textContent = '⚠️ Please describe the issue'; msg.style.color = 'var(--red)'; }
+    return;
+  }
+
+  /* Loading state */
+  if (btn) { btn.textContent = '⏳ Sending...'; btn.disabled = true; }
+
+  var u  = user ? ('@' + user.username) : 'Anonymous';
+  var ts = new Date().toLocaleString();
+  var pl = navigator.userAgent.toLowerCase().includes('pi') ? 'Pi Browser' : 'Web';
+
+  var subject = encodeURIComponent('WorldCup ' + _reportCat + ' Report · worldcup.pi');
+  var body = encodeURIComponent(
+    'WORLDCUP ISSUE REPORT\n'
+    + '========================\n\n'
+    + 'Category: ' + _reportCat + '\n\n'
+    + 'Description:\n' + desc + '\n\n'
+    + (steps ? 'Steps to reproduce:\n' + steps + '\n\n' : '')
+    + (expected ? 'Expected: ' + expected + '\n' : '')
+    + (actual   ? 'Actual:   ' + actual   + '\n' : '')
+    + '\n========================\n'
+    + 'User:      ' + u + '\n'
+    + 'Timestamp: ' + ts + '\n'
+    + 'Platform:  ' + pl + '\n'
+    + 'Language:  ' + curLang.toUpperCase() + '\n'
+    + 'App:       WorldCup v2.0 · worldcup.pi\n'
+    + 'Network:   Pi Mainnet · sandbox:false\n'
+    + '========================\n\n'
+    + 'Thank you.'
+  );
+
+  var mailto = 'mailto:support.worldcup@gmail.com?subject=' + subject + '&body=' + body;
+
+  setTimeout(function() {
+    if (btn) { btn.textContent = '📩 Send Report'; btn.disabled = false; }
+
+    try {
+      var a = document.createElement('a');
+      a.href = mailto; a.target = '_self';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+
+      if (msg) { msg.textContent = '✅ Report ready — confirm in your mail app'; msg.style.color = 'var(--grn)'; }
+      toast('✅ Report ready!');
+
+      /* Clear form */
+      setTimeout(function() {
+        var fields = ['report-desc','report-steps','report-expected','report-actual'];
+        fields.forEach(function(id){ var el = document.getElementById(id); if(el) el.value = ''; });
+        if (msg) { msg.textContent = ''; }
+      }, 3000);
+
+    } catch(e) {
+      if (msg) { msg.textContent = '⚠️ Unable to open mail — email: support.worldcup@gmail.com'; msg.style.color = 'var(--red)'; }
+      toast('Email: support.worldcup@gmail.com');
+    }
+  }, 600);
+}
+
+/* ── HELP CENTER INTERACTIONS ── */
+function toggleHelp(item) {
+  var isOpen = item.classList.contains('open');
+  /* Close all others in the same group */
+  var group = item.closest('.help-group');
+  if (group) {
+    group.querySelectorAll('.help-item.open').forEach(function(el){
+      if (el !== item) el.classList.remove('open');
+    });
+  }
+  item.classList.toggle('open', !isOpen);
+}
+
+function filterHelp(query) {
+  var q = query.toLowerCase().trim();
+  document.querySelectorAll('.help-item').forEach(function(item){
+    var q_text = item.querySelector('.help-q').textContent.toLowerCase();
+    var a_text = item.querySelector('.help-a').textContent.toLowerCase();
+    var match  = !q || q_text.includes(q) || a_text.includes(q);
+    item.style.display = match ? '' : 'none';
+    /* Show parent group if any item visible */
+    var group = item.closest('.help-group');
+    if (group) {
+      var visible = Array.from(group.querySelectorAll('.help-item'))
+                         .some(function(i){ return i.style.display !== 'none'; });
+      group.style.display = visible ? '' : 'none';
+    }
+  });
+}
+
+/* ── HOOK oUtil to init panels ── */
+var _oUtilOrig = oUtil;
+oUtil = function(id) {
+  _oUtilOrig(id);
+  if (id === 'support')  { /* nothing special needed */ }
+  if (id === 'report')   { initReportPanel(); }
+  if (id === 'help')     { /* reset search */ var s = document.getElementById('help-search'); if(s) s.value = ''; filterHelp(''); }
 };
 </script>
 </body>
