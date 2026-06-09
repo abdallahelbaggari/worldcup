@@ -835,7 +835,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 </div>
 
 <!-- ═══ LOGIN ═══ -->
-<div id="login">
+<div id="login" style="display:flex;flex-direction:column;min-height:100vh;">
   <div class="login-stripe"></div>
   <div class="login-hero">
     <div class="login-eyebrow">⚽ Pi Network · Mainnet · sandbox:false · worldcup.pi</div>
@@ -871,7 +871,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 </div>
 
 <!-- ═══ APP ═══ -->
-<div id="app" style="display:none">
+<div id="app" style="display:none;flex-direction:column;height:100%;">
 
   <!-- TICKER -->
   <div class="ticker">
@@ -2997,49 +2997,10 @@ function clearNotifs() {
 }
 
 /* ── LANGUAGE ── */
-var I18N = {
-  en: { signin:'Sign In with Pi', tagline:"The World's #1 Football Fan App on Pi Network" },
-  ar: { signin:'تسجيل الدخول بـ Pi', tagline:'أفضل تطبيق كرة القدم على شبكة Pi' },
-  fr: { signin:"Connexion avec Pi", tagline:'La Meilleure App Football sur Pi Network' },
-  es: { signin:'Iniciar sesión con Pi', tagline:'La Mejor App de Fútbol en Pi Network' },
-};
 
 
 
 /* ── INIT ── */
-window.onload = function() {
-  var sl = localStorage.getItem(K+'lang');
-  if (sl) setLang(sl, null);
-
-  /* Auto-login if cached */
-  var cached = localStorage.getItem(K+'user');
-  if (cached) {
-    try { user = JSON.parse(cached); } catch(e) {}
-  }
-
-  /* Splash */
-  setTimeout(function() {
-    var splash = document.getElementById('splash');
-    if (!splash) return;
-    splash.style.transition = 'opacity .5s';
-    splash.style.opacity = '0';
-    setTimeout(function(){
-      splash.style.display = 'none';
-      /* Auto-launch if cached user */
-      if (user) {
-        launchApp();
-      }
-    }, 500);
-  }, 2600);
-
-  /* Team list datalist */
-  var dl = document.getElementById('team-list');
-  if (dl) {
-    Object.values(WC_GROUPS).flat().forEach(function(t){
-      var opt = document.createElement('option'); opt.value = t.name; dl.appendChild(opt);
-    });
-  }
-};
 
 /* ═══════════════════════════════════════════════════════
    WORLDCUP NEWS ENGINE v2.0
@@ -4236,14 +4197,6 @@ function filterHelp(query) {
 }
 
 /* ── HOOK oUtil to init panels ── */
-var _oUtilOrig = oUtil;
-oUtil = function(id) {
-  _oUtilOrig(id);
-  if (id === 'support')  { /* nothing special needed */ }
-  if (id === 'report')   { initReportPanel(); }
-  if (id === 'help')     { /* reset search */ var s = document.getElementById('help-search'); if(s) s.value = ''; filterHelp(''); }
-};
-
 /* ═══════════════════════════════════════════════════════════
    WORLDCUP v3.0 — FINAL PRODUCTION PATCH
    Auth · Payments · Language · Logout · Comments · Live data
@@ -4706,36 +4659,7 @@ function renderNotifCount() {
 }
 
 /* ── DOM READY ── */
-document.addEventListener('DOMContentLoaded', function() {
-  var sl = localStorage.getItem(K+'lang');
-  if (sl && I18N[sl]) setLang(sl, null);
 
-  /* Auto-login if cached */
-  var cached = localStorage.getItem(K+'user');
-  if (cached) {
-    try { user = JSON.parse(cached); } catch(e) {}
-  }
-
-  /* Splash then check */
-  setTimeout(function() {
-    var splash = document.getElementById('splash');
-    if (!splash) return;
-    splash.style.transition = 'opacity .5s';
-    splash.style.opacity = '0';
-    setTimeout(function(){
-      splash.style.display = 'none';
-      if (user) launchApp();
-    }, 500);
-  }, 2600);
-
-  /* Team list datalist */
-  var dl = document.getElementById('team-list');
-  if (dl) {
-    Object.values(WC_GROUPS).flat().forEach(function(t){
-      var opt = document.createElement('option'); opt.value = t.name; dl.appendChild(opt);
-    });
-  }
-});
 
 function saveLangPref(l) {
   localStorage.setItem(K+'lang', l);
@@ -4759,94 +4683,12 @@ function initSettingsPanel() {
 }
 
 /* Hook settings init */
-var _oUtilOrig2 = oUtil;
-oUtil = function(id) {
-  _oUtilOrig2(id);
-  if (id === 'settings') initSettingsPanel();
-};
-
 /* ═══ HARAMAIN AUTH + PAYMENT PATTERN — Exact Copy ═══ */
 
-function piLogin() {
-  var btn     = document.getElementById('loginBtn');
-  var btnText = document.getElementById('signin-txt');
-  var status  = document.getElementById('lmsg');
-
-  if (btn) { btn.disabled = true; btn.style.opacity = '0.65'; }
-  if (btnText) btnText.textContent = 'Authenticating...';
-  if (status) status.textContent = 'Connecting to Pi Network...';
-
-  if (typeof Pi !== 'undefined') {
-
-    /* ✅ MAINNET — sandbox:false */
-    Pi.init({ version: "2.0", sandbox: false });
-
-    Pi.authenticate(['username', 'payments'], onIncompletePayment)
-      .then(function(auth) {
-        if (!auth || !auth.user) throw new Error('No user returned');
-        user = auth.user;
-        localStorage.setItem(K + 'user', JSON.stringify(user));
-        console.log('[WorldCup] ✅ Authenticated:', user.username);
-        launchApp();
-      })
-      .catch(function(err) {
-        console.error('[WorldCup] Auth error:', err);
-        if (btn)     { btn.disabled = false; btn.style.opacity = '1'; }
-        if (btnText) btnText.textContent = 'Sign In with Pi';
-        if (status)  status.textContent  = err.message || 'Open in Pi Browser to sign in';
-      });
-
-  } else {
-    /* Demo mode — outside Pi Browser */
-    user = { username: 'Pioneer' };
-    localStorage.setItem(K + 'user', JSON.stringify(user));
-    launchApp();
-    toast('⚽ Demo mode — open in Pi Browser for real Pi!');
-  }
-}
 
 
-function launchApp() {
-  loadSt();
 
-  /* Hide login, show app */
-  var login = document.getElementById('login');
-  var app   = document.getElementById('app');
-  if (login) login.style.display = 'none';
-  if (app)   { app.style.display = 'flex'; }
 
-  /* Sync user display */
-  if (user) {
-    var nm = user.username || 'Pioneer';
-    ['hdr-user','wc-name','fid-name'].forEach(function(id){
-      var el = document.getElementById(id);
-      if (el) el.textContent = '@' + nm;
-    });
-    generateFanId();
-  }
-
-  updatePtsDisplay();
-  renderPremStatus();
-
-  /* Restore language */
-  var sl = localStorage.getItem(K + 'lang');
-  if (sl && I18N[sl]) setLang(sl, null);
-  else setLang('en', null);
-
-  /* Start live data */
-  startPolling();
-  startClock();
-
-  /* Deferred renders */
-  setTimeout(function(){
-    renderLeaderboard();
-    renderStandings();
-    renderNotifCount();
-  }, 250);
-
-  console.log('[WorldCup] ✅ Launched · sandbox:false · user:', user ? user.username : 'Demo');
-  toast('⚽ Welcome' + (user ? ', @'+user.username : '') + '!');
-}
 
 
 function onIncompletePayment(payment) {
@@ -5041,6 +4883,210 @@ function shareReceiptNow() {
   else { if (typeof copyClip==='function') copyClip(t); if (typeof toast==='function') toast('Copied!'); }
 }
 
+
+/* ═══════════════════════════════════════════════════════════
+   WORLDCUP · SINGLE INIT HANDLER
+   One DOMContentLoaded · Clean oUtil · No duplicate calls
+═══════════════════════════════════════════════════════════ */
+
+/* Single oUtil with all panel inits */
+var _oUtilBase = oUtil;
+oUtil = function(id) {
+  _oUtilBase(id);
+  if (id === 'report')       initReportPanel();
+  if (id === 'settings')     initSettingsPanel();
+  if (id === 'help')         { var s = document.getElementById('help-search'); if(s) s.value = ''; filterHelp(''); }
+  if (id === 'fan-id')       renderFanId();
+  if (id === 'analytics')    renderAnalytics();
+  if (id === 'checkin')      renderCheckinLog();
+  if (id === 'pts-tracker')  renderPtsTracker();
+  if (id === 'tx-history')   renderTx();
+  if (id === 'wallet')       { renderWalletStats(); renderTx(); }
+  if (id === 'premium')      renderPremStatus();
+  if (id === 'pi-calc')      updatePiCalc();
+  if (id === 'world-time')   convertTime();
+  if (id === 'ticket')       populateMatchSelect();
+  if (id === 'daily')        updateDailyBtn();
+  if (id === 'pred-qr')      renderPredQr();
+};
+
+/* SINGLE DOMContentLoaded */
+document.addEventListener('DOMContentLoaded', function() {
+
+  /* 1. Restore language */
+  var sl = localStorage.getItem(K + 'lang');
+  if (sl && I18N[sl]) setLang(sl, null);
+
+  /* 2. Try cached user */
+  var cached = localStorage.getItem(K + 'user');
+  if (cached) {
+    try { user = JSON.parse(cached); } catch(e) { user = null; }
+  }
+
+  /* 3. Team datalist */
+  var dl = document.getElementById('team-list');
+  if (dl && typeof WC_GROUPS !== 'undefined') {
+    Object.values(WC_GROUPS).flat().forEach(function(t){
+      var opt = document.createElement('option');
+      opt.value = t.name;
+      dl.appendChild(opt);
+    });
+  }
+
+  /* 4. Splash → launch or show login */
+  setTimeout(function() {
+    var splash = document.getElementById('splash');
+    if (splash) {
+      splash.style.transition = 'opacity .5s';
+      splash.style.opacity = '0';
+      setTimeout(function() {
+        splash.style.display = 'none';
+        if (user) {
+          /* Cached session — go straight in */
+          launchApp();
+        }
+        /* Otherwise show login — user taps button */
+      }, 500);
+    }
+  }, 2600);
+
+});
+
+/* ═══════════════════════════════════════════════════════════════
+   WORLDCUP · AUTH + PAYMENT · HARAMAIN EXACT PATTERN
+   Pi Network Mainnet · sandbox:false
+   worldcup-eij.pages.dev
+═══════════════════════════════════════════════════════════════ */
+
+/* ── Pi SDK Ready Guard ── */
+var _piSDKReady = false;
+var _piReadyCallbacks = [];
+
+function _onPiReady() {
+  _piSDKReady = true;
+  console.log('[WorldCup] ✅ Pi SDK ready');
+  _piReadyCallbacks.forEach(function(cb){ try { cb(); } catch(e){} });
+  _piReadyCallbacks = [];
+}
+
+function _whenPiReady(cb) {
+  if (_piSDKReady || (typeof Pi !== 'undefined' && Pi.init)) {
+    cb();
+  } else {
+    _piReadyCallbacks.push(cb);
+    /* Timeout fallback — attempt anyway after 3s */
+    setTimeout(function() {
+      if (!_piSDKReady) { _piSDKReady = true; cb(); }
+    }, 3000);
+  }
+}
+
+/* ── MAIN ENTRY: piLogin ── */
+function piLogin() {
+  var btn    = document.getElementById('loginBtn');
+  var btnTxt = document.getElementById('signin-txt');
+  var msg    = document.getElementById('lmsg');
+
+  if (btn)    { btn.disabled = true; btn.style.opacity = '0.65'; }
+  if (btnTxt) btnTxt.textContent = 'Connecting...';
+  if (msg)    msg.textContent = 'Connecting to Pi Network...';
+
+  /* Guard: Pi undefined → demo mode */
+  if (typeof Pi === 'undefined') {
+    console.warn('[WorldCup] Pi SDK not loaded — demo mode');
+    user = { username: 'Pioneer' };
+    localStorage.setItem(K + 'user', JSON.stringify(user));
+    if (btn)    { btn.disabled = false; btn.style.opacity = '1'; }
+    launchApp();
+    toast('⚽ Demo mode — open in Pi Browser for real Pi!');
+    return;
+  }
+
+  _whenPiReady(function() {
+    try {
+      /* HARAMAIN exact: init then authenticate */
+      Pi.init({ version: "2.0", sandbox: false });
+      console.log('[WorldCup] Pi.init done · sandbox:false');
+
+      Pi.authenticate(['username', 'payments'], onIncompletePayment)
+        .then(function(auth) {
+          if (!auth || !auth.user) throw new Error('No user returned from Pi');
+          user = auth.user;
+          localStorage.setItem(K + 'user', JSON.stringify(user));
+          console.log('[WorldCup] ✅ Authenticated:', user.username);
+          if (btn)    { btn.disabled = false; btn.style.opacity = '1'; }
+          launchApp();
+        })
+        .catch(function(err) {
+          console.error('[WorldCup] Auth error:', err);
+          if (btn)    { btn.disabled = false; btn.style.opacity = '1'; }
+          if (btnTxt) btnTxt.textContent = 'Sign In with Pi';
+          if (msg)    msg.textContent = (err.message || 'Open in Pi Browser to sign in');
+        });
+
+    } catch(e) {
+      console.error('[WorldCup] Pi.init error:', e);
+      if (btn)    { btn.disabled = false; btn.style.opacity = '1'; }
+      if (btnTxt) btnTxt.textContent = 'Sign In with Pi';
+      if (msg)    msg.textContent = 'Pi SDK error — try reloading';
+    }
+  });
+}
+
+/* ── LAUNCH APP ── */
+function launchApp() {
+  loadSt();
+
+  var loginEl = document.getElementById('login');
+  var appEl   = document.getElementById('app');
+  if (loginEl) loginEl.style.display = 'none';
+  if (appEl)   appEl.style.display = 'flex';
+
+  if (user) {
+    var nm = user.username || 'Pioneer';
+    ['hdr-user','wc-name','fid-name'].forEach(function(id){
+      var el = document.getElementById(id);
+      if (el) el.textContent = '@' + nm;
+    });
+    generateFanId();
+  }
+
+  /* Language */
+  var sl = localStorage.getItem(K + 'lang');
+  setLang(sl && I18N[sl] ? sl : 'en', null);
+
+  /* State */
+  updatePtsDisplay();
+  renderPremStatus();
+
+  /* Data */
+  startPolling();
+  startClock();
+
+  /* Deferred */
+  setTimeout(function(){
+    renderLeaderboard();
+    renderStandings();
+    renderNotifCount();
+  }, 300);
+
+  console.log('[WorldCup] ✅ App launched · sandbox:false · user:', user ? user.username : 'Demo');
+  toast('⚽ Welcome' + (user ? ', @' + user.username : '') + '!');
+}
+
+/* ── Pi SDK Window Hook ── */
+/* Called by Pi Browser when SDK is fully ready */
+if (typeof window !== 'undefined') {
+  window.onPiReady = _onPiReady;
+}
+/* Also poll — Pi SDK may already be loaded */
+(function _pollPiSdk() {
+  if (typeof Pi !== 'undefined' && typeof Pi.init === 'function') {
+    _onPiReady();
+  } else {
+    setTimeout(_pollPiSdk, 200);
+  }
+})();
 </script>
 </body>
 </html>
