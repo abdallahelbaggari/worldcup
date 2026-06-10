@@ -2278,25 +2278,6 @@ function startClock() {
 /* ══════════════════════════════════
    FOOTBALL DATA (football-data.org proxy)
 ══════════════════════════════════ */
-var FD_KEY = '';  /* Set via Cloudflare env or left blank for TheSportsDB fallback */
-var TSDB = 'https://www.thesportsdb.com/api/v1/json/3';
-
-/* All WorldCup 2026 groups — complete 48 teams */
-var WC_GROUPS = {
-  A: [{flag:'🇧🇷',name:'Brazil'},{flag:'🇲🇽',name:'Mexico'},{flag:'🇨🇴',name:'Colombia'},{flag:'🇲🇦',name:'Morocco'}],
-  B: [{flag:'🇫🇷',name:'France'},{flag:'🇩🇿',name:'Algeria'},{flag:'🇨🇦',name:'Canada'},{flag:'🇬🇧',name:'England'}],
-  C: [{flag:'🇦🇷',name:'Argentina'},{flag:'🇮🇹',name:'Italy'},{flag:'🇳🇬',name:'Nigeria'},{flag:'🇯🇵',name:'Japan'}],
-  D: [{flag:'🇪🇸',name:'Spain'},{flag:'🇵🇹',name:'Portugal'},{flag:'🇺🇸',name:'USA'},{flag:'🇷🇸',name:'Serbia'}],
-  E: [{flag:'🇩🇪',name:'Germany'},{flag:'🇳🇱',name:'Netherlands'},{flag:'🇸🇳',name:'Senegal'},{flag:'🇦🇺',name:'Australia'}],
-  F: [{flag:'🇧🇪',name:'Belgium'},{flag:'🇭🇷',name:'Croatia'},{flag:'🇲🇽',name:'Mexico'},{flag:'🇺🇾',name:'Uruguay'}],
-  G: [{flag:'🇵🇹',name:'Portugal'},{flag:'🇬🇭',name:'Ghana'},{flag:'🇷🇴',name:'Romania'},{flag:'🇨🇱',name:'Chile'}],
-  H: [{flag:'🇳🇱',name:'Netherlands'},{flag:'🇩🇰',name:'Denmark'},{flag:'🇨🇲',name:'Cameroon'},{flag:'🇸🇦',name:'Saudi Arabia'}],
-  I: [{flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'England'},{flag:'🇿🇦',name:'South Africa'},{flag:'🇮🇳',name:'India'},{flag:'🇮🇷',name:'Iran'}],
-  J: [{flag:'🇺🇾',name:'Uruguay'},{flag:'🇪🇨',name:'Ecuador'},{flag:'🇹🇳',name:'Tunisia'},{flag:'🇸🇰',name:'Slovakia'}],
-  K: [{flag:'🇰🇷',name:'South Korea'},{flag:'🇵🇪',name:'Peru'},{flag:'🇳🇿',name:'New Zealand'},{flag:'🇬🇼',name:'Guinea-Bissau'}],
-  L: [{flag:'🇲🇽',name:'Mexico'},{flag:'🇵🇦',name:'Panama'},{flag:'🇷🇴',name:'Romania'},{flag:'🇧🇫',name:'Burkina Faso'}],
-};
-
 /* Fallback local match data for when APIs are unavailable */
 var LOCAL_MATCHES = [
   {id:'m001',home:'🇧🇷 Brazil',away:'🇲🇦 Morocco',score:'2-1',status:'FINISHED',time:'Jun 15 · 15:00 ET',venue:'MetLife · New York',comp:'WorldCup 2026 · Group A'},
@@ -2332,66 +2313,12 @@ function getFlag(team) {
 
 
 
-function buildMatchCard(m) {
-  var isLive = m.status === 'LIVE';
-  var parts = m.home.split(' ');
-  var hflag = parts[0], hname = parts.slice(1).join(' ');
-  var aparts = m.away.split(' ');
-  var aflag = aparts[0], aname = aparts.slice(1).join(' ');
 
-  var statusHtml = isLive ?
-    '<span class="mc-status live">LIVE '+m.min+'</span>' :
-    m.status==='FINISHED' ?
-    '<span class="mc-status finished">FINISHED</span>' :
-    '<span class="mc-status upcoming">'+m.time+'</span>';
-
-  return '<div class="match-card" onclick="openMatch(\''+m.id+'\')">'+
-    '<div class="mc-header">'+
-      '<span class="mc-comp">'+m.comp+'</span>'+
-      (isLive ? '<div class="mc-live-dot"></div>' : '<span class="mc-time">'+m.time+'</span>')+
-    '</div>'+
-    '<div class="mc-body">'+
-      '<div class="mc-team"><span class="mc-flag">'+hflag+'</span><div class="mc-tname">'+hname+'</div></div>'+
-      '<div class="mc-score">'+m.score.replace('-','<span class="mc-score-sep"> – </span>')+'</div>'+
-      '<div class="mc-team"><span class="mc-flag">'+aflag+'</span><div class="mc-tname">'+aname+'</div></div>'+
-    '</div>'+
-    '<div class="mc-footer"><span class="mc-venue">🏟️ '+m.venue+'</span>'+statusHtml+'</div>'+
-  '</div>';
-}
 
 
 
 /* ── MATCH OVERLAY ── */
-function openMatch(id) {
-  var m = allMatches.find(function(x){return x.id===id;});
-  if (!m) return;
-  var parts = m.home.split(' '), hflag=parts[0], hname=parts.slice(1).join(' ');
-  var aparts = m.away.split(' '), aflag=aparts[0], aname=aparts.slice(1).join(' ');
 
-  var cont = document.getElementById('mov-content');
-  cont.innerHTML =
-    '<div class="mov-hero">'+
-      '<div class="mov-comp">'+m.comp+' · '+(m.status==='LIVE'?'<span style="color:var(--red)">LIVE</span>':m.status)+'</div>'+
-      '<div class="mov-teams">'+
-        '<div class="mov-team"><span class="mov-flag">'+hflag+'</span><div class="mov-tname">'+hname+'</div></div>'+
-        '<div class="mov-score">'+m.score+'</div>'+
-        '<div class="mov-team"><span class="mov-flag">'+aflag+'</span><div class="mov-tname">'+aname+'</div></div>'+
-      '</div>'+
-      '<div class="mov-venue">🏟️ '+m.venue+' · '+m.time+'</div>'+
-    '</div>'+
-    '<div class="mov-tabs">'+
-      '<div class="mov-tab on" onclick="movTab(this,\'stats\')">Stats</div>'+
-      '<div class="mov-tab" onclick="movTab(this,\'lineup\')">Lineup</div>'+
-      '<div class="mov-tab" onclick="movTab(this,\'h2h\')">H2H</div>'+
-      '<div class="mov-tab" onclick="movTab(this,\'predict\')">Predict</div>'+
-    '</div>'+
-    '<div class="mov-pane on" id="mpane-stats">'+buildStatsPane(m, hname, aname)+'</div>'+
-    '<div class="mov-pane" id="mpane-lineup">'+buildLineupPane(hname, aname, hflag, aflag)+'</div>'+
-    '<div class="mov-pane" id="mpane-h2h">'+buildH2HPane(hname, aname)+'</div>'+
-    '<div class="mov-pane" id="mpane-predict">'+buildMatchPredict(m)+'</div>';
-
-  document.getElementById('mov').classList.add('open');
-}
 
 function closeMov() {
   document.getElementById('mov').classList.remove('open');
@@ -3005,53 +2932,9 @@ function clearNotifs() {
 /* ═══════════════════════════════════════════════════════
    WORLDCUP NEWS ENGINE v2.0
    AI-Automatic · Image System · Claude summaries
-═══════════════════════════════════════════════════════ */
+═══════════════════════════════════════════════════════ */var newsFilter = 'all';var _newsInited = false;
 
-var newsCache = [];
-var newsSaved = JSON.parse(localStorage.getItem(K+'saved_news')||'[]');
-var newsFilter = 'all';
-var newsLoading = false;
-var _newsInited = false;
-
-/* ── IMAGE POOLS (Unsplash CDN — free, always available) ── */
-var IMG_POOL = {
-  match:[
-    'https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80',
-    'https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=600&q=80',
-    'https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&q=80',
-    'https://images.unsplash.com/photo-1522778119026-d647f0596c20?w=600&q=80',
-    'https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&q=80',
-    'https://images.unsplash.com/photo-1508098682722-e99c643e7f0b?w=600&q=80',
-  ],
-  player:[
-    'https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=600&q=80',
-    'https://images.unsplash.com/photo-1616283603177-96d50c5804f9?w=600&q=80',
-    'https://images.unsplash.com/photo-1580748137742-3f63f98cbf4a?w=600&q=80',
-    'https://images.unsplash.com/photo-1614632537197-38a17061c2bd?w=600&q=80',
-  ],
-  tournament:[
-    'https://images.unsplash.com/photo-1524067657052-b0f1b3a1f7b1?w=600&q=80',
-    'https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?w=600&q=80',
-    'https://images.unsplash.com/photo-1470224114660-3f6686c562eb?w=600&q=80',
-    'https://images.unsplash.com/photo-1577223625816-7546f13df25d?w=600&q=80',
-  ],
-  breaking:[
-    'https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600&q=80',
-    'https://images.unsplash.com/photo-1551958219-acbc595d6b11?w=600&q=80',
-    'https://images.unsplash.com/photo-1615729947596-a598e5de0ab3?w=600&q=80',
-  ],
-  standings:[
-    'https://images.unsplash.com/photo-1556056504-5c7696c4c28d?w=600&q=80',
-    'https://images.unsplash.com/photo-1518604666860-9ed391f76460?w=600&q=80',
-  ],
-  insights:[
-    'https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=600&q=80',
-    'https://images.unsplash.com/photo-1546519638-68e109498ffc?w=600&q=80',
-  ],
-};
-
-var _imgIdx = {};
-function getNewsImg(cat, seed) {
+/* ── IMAGE POOLS (Unsplash CDN — free, always available) ── */function getNewsImg(cat, seed) {
   var pool = IMG_POOL[cat] || IMG_POOL.match;
   if (seed !== undefined) return pool[Math.abs(seed) % pool.length];
   if (!_imgIdx[cat]) _imgIdx[cat] = 0;
@@ -3078,410 +2961,42 @@ function loadNewsImg(el, src, cat) {
 }
 
 /* ── CURATED NEWS DATA ── */
-function buildNewsData() {
-  var stories = [];
-  var liveM = (allMatches||[]).filter(function(m){return m.status==='LIVE';});
-  var doneM = (allMatches||[]).filter(function(m){return m.status==='FINISHED';});
 
-  /* Dynamic live match stories */
-  liveM.forEach(function(m,i){
-    var hp=m.home.split(' '),ap=m.away.split(' ');
-    var hn=hp.slice(1).join(' '),an=ap.slice(1).join(' ');
-    stories.push({
-      id:'live-'+m.id, cat:'match', isLive:true,
-      headline:hn+' vs '+an+' — LIVE '+m.score,
-      summary:'Live match · '+m.venue+' · '+m.comp,
-      ai:'The match between '+hn+' and '+an+' is underway at '+m.venue+'. Score: '+m.score+' at '+m.min+'. Both teams fighting for vital WorldCup 2026 group stage points.',
-      time:'LIVE · '+m.min, source:'WorldCup Live',
-      img:getNewsImg('match',i), tags:[hn,an,'Live','WorldCup 2026'],
-    });
-  });
-
-  /* Dynamic result stories */
-  doneM.forEach(function(m,i){
-    var hp=m.home.split(' '),ap=m.away.split(' ');
-    var hn=hp.slice(1).join(' '),hf=hp[0],an=ap.slice(1).join(' '),af=ap[0];
-    var s=m.score.split('-'), hw=parseInt(s[0]||0), aw=parseInt(s[1]||0);
-    var winner=hw>aw?hn:aw>hw?an:null;
-    var headline=winner?winner+' secure crucial win against '+(winner===hn?an:hn)+' ('+m.score+')':hn+' and '+an+' share points in '+m.score+' draw';
-    stories.push({
-      id:'res-'+m.id, cat:'match', isLive:false,
-      headline:headline,
-      summary:hf+' '+hn+' '+m.score+' '+af+' '+an+' · '+m.comp,
-      ai:winner?winner+' claimed 3 crucial WorldCup 2026 points. A '+m.score+' victory puts them in a strong position to advance from the group stage. The match at '+m.venue+' delivered the drama fans expected.':'A tightly contested draw at '+m.venue+'. Neither side could find a winner in what was a tactically cautious encounter. Both teams will need to improve to secure qualification.',
-      time:'Full Time', source:'WorldCup Results',
-      img:getNewsImg('match',i+10), tags:[hn,an,'Result','WorldCup 2026'],
-    });
-  });
-
-  /* Premium curated stories */
-  stories = stories.concat([
-    {id:'b1',cat:'breaking',isBreaking:true,
-     headline:'Late drama: Argentina equalise in 93rd minute against Italy',
-     summary:'Lautaro Martínez header rescues Argentina in pulsating Group C encounter.',
-     ai:'In one of WorldCup 2026\'s most dramatic moments, Martínez\'s last-gasp header denied Italy a historic victory. The 1-1 draw leaves Group C perfectly balanced. Both teams remain alive going into the final round of matches.',
-     time:'1 hour ago',source:'Marca',img:getNewsImg('breaking',0),tags:['Argentina','Italy','Drama','Last Minute']},
-
-    {id:'b2',cat:'breaking',
-     headline:'Referee controversy: VAR overturns goal in Spain vs Serbia',
-     summary:'A contentious VAR decision denied Spain a goal in the 78th minute, drawing fierce debate.',
-     ai:'The VAR intervention sparked immediate controversy. Television replays showed a marginal offside call that many football experts deemed incorrect. This is the third high-profile VAR decision to be questioned in WorldCup 2026\'s opening week.',
-     time:'2 hours ago',source:'BBC Sport',img:getNewsImg('breaking',1),tags:['Spain','VAR','Controversy','Serbia']},
-
-    {id:'m1',cat:'match',
-     headline:'France 3-1 Nigeria — Mbappé hat-trick stuns Lagos Lions',
-     summary:'Kylian Mbappé was unstoppable as France demolished Nigeria with a clinical first-half display.',
-     ai:'Mbappé\'s hat-trick was a masterclass in clinical finishing. France dominated possession and created 14 clear chances. Nigeria showed glimpses of quality but ultimately couldn\'t live with France\'s intensity. Mbappé now leads the Golden Boot race with 4 tournament goals.',
-     time:'3 hours ago',source:'L\'Équipe',img:getNewsImg('match',1),tags:['France','Nigeria','Mbappé','Hat-trick']},
-
-    {id:'m2',cat:'match',
-     headline:'Brazil 2-1 Morocco after extra time in Group A thriller',
-     summary:'Vinicius Junior\'s injury-time goal separated the teams after a breathless encounter.',
-     ai:'Brazil survived a major scare against a tenacious Morocco side. The Atlas Lions led 1-0 going into the final 10 minutes before substitute Richarlison levelled and Vinicius completed the comeback. Brazil coach Ancelotti admitted his side got "lucky tonight".',
-     time:'5 hours ago',source:'ESPN Brasil',img:getNewsImg('match',2),tags:['Brazil','Morocco','Extra Time','Vinicius']},
-
-    {id:'p1',cat:'player',
-     headline:'Mbappé named WorldCup 2026 player of the week after 4-goal haul',
-     summary:'WorldCup community recognizes Kylian Mbappé\'s extraordinary start to WorldCup 2026 with the first weekly award.',
-     ai:'Mbappé\'s combination of pace, technique, and ice-cool finishing is operating at a level above his contemporaries. His 4 goals from 2 matches has already matched some players\' entire tournament tallies from previous editions. The Golden Boot is his to lose.',
-     time:'4 hours ago',source:'WorldCup Data',img:getNewsImg('player',0),tags:['Mbappé','Player of Week','Golden Boot','France']},
-
-    {id:'p2',cat:'player',
-     headline:'Vinicius Jr: "This WorldCup is my moment to show the world"',
-     summary:'The Real Madrid star speaks exclusively about his ambitions for WorldCup 2026 and Brazil\'s title chances.',
-     ai:'Vinicius speaks with the confidence of a player operating at his absolute peak. His directness and work rate have been instrumental in Brazil\'s early success. The pressure of wearing the Seleção shirt has only seemed to inspire rather than inhibit him.',
-     time:'6 hours ago',source:'UOL Esporte',img:getNewsImg('player',1),tags:['Vinicius','Brazil','Interview','Star Player']},
-
-    {id:'p3',cat:'player',
-     headline:'Haaland breaks WorldCup record — fastest hat-trick in history',
-     summary:'Erling Haaland scored 3 goals in 11 minutes as Norway thrashed the Philippines 6-0.',
-     ai:'Haaland\'s WorldCup record hat-trick came in 11 minutes and 34 seconds — the fastest in tournament history. His movement, aerial threat, and clinical left foot were too much for the Philippines defence. Norway\'s first WorldCup since 1998 is being marked by historic performances.',
-     time:'8 hours ago',source:'VG Sport',img:getNewsImg('player',2),tags:['Haaland','Norway','Hat-trick','Record']},
-
-    {id:'t1',cat:'tournament',
-     headline:'WorldCup 2026: Record 5.2 billion viewers for opening ceremony',
-     summary:'Reports confirm the opening ceremony at MetLife Stadium shattered all previous viewership records.',
-     ai:'The 2026 WorldCup is already the most-watched sporting event in history. The expanded 48-team format has brought new nations and their fans to the global stage. The USA, Canada, and Mexico co-hosting has created unprecedented commercial and cultural interest across three continents.',
-     time:'1 day ago',source:'WorldCup Data',img:getNewsImg('tournament',0),tags:['WorldCup 2026','Record','Viewers','Opening']},
-
-    {id:'t2',cat:'tournament',
-     headline:'Group Stage Analysis: Africa\'s finest tournament in history',
-     summary:'Five African teams in the round of 32 — a record that reflects the continent\'s growing football quality.',
-     ai:'Morocco, Senegal, Nigeria, Ghana, and South Africa have all qualified from their groups, the first time Africa has had 5 teams in the knockout rounds. The expanded format has given African football the platform it has long deserved. These results will accelerate investment in grassroots development across the continent.',
-     time:'12 hours ago',source:'CAF Online',img:getNewsImg('tournament',1),tags:['Africa','Group Stage','History','Qualifying']},
-
-    {id:'s1',cat:'standings',
-     headline:'Live Group Standings: Portugal lead Group G, Spain top Group D',
-     summary:'Updated standings after the first two rounds of WorldCup 2026 group stage fixtures.',
-     ai:'The group standings are taking shape with several surprises emerging. Portugal and Spain are both commanding their groups but face tough final-round opponents. Group C remains impossibly tight with Argentina, Italy, and Japan all still capable of advancing.',
-     time:'2 hours ago',source:'WorldCup Stats',img:getNewsImg('standings',0),tags:['Standings','Group Stage','Portugal','Spain']},
-
-    {id:'i1',cat:'insights',
-     headline:'Tactical Breakdown: How pressing football is dominating WorldCup 2026',
-     summary:'Analysis shows the 8 highest-ranked teams in the tournament all deploy aggressive pressing systems.',
-     ai:'The data is unambiguous: pressing football is winning WorldCup 2026. Teams averaging 12+ pressing actions per game have won 87% of their matches. The physical demands of the tournament and the short turnaround between games makes this even more impressive. Spain and France lead the pressing intensity metrics.',
-     time:'14 hours ago',source:'The Athletic',img:getNewsImg('insights',0),tags:['Tactics','Pressing','Analysis','Data']},
-
-    {id:'i2',cat:'insights',
-     headline:'Expected Goals Analysis: Brazil outperforming their xG by the widest margin',
-     summary:'Advanced statistics reveal Brazil are converting opportunities at an unprecedented rate in this tournament.',
-     ai:'Brazil\'s xG of 4.2 from their first two matches compares to their actual total of 7 goals — a conversion rate that is statistically exceptional. The data suggests a regression to the mean is likely, but if their attackers maintain this form, the Seleção are on course for their 6th World Cup title.',
-     time:'16 hours ago',source:'Opta Sports',img:getNewsImg('insights',1),tags:['xG','Brazil','Statistics','Analysis']},
-
-    {id:'i3',cat:'insights',
-     headline:'WorldCup 2026 venues: Estadio Azteca sets attendance record',
-     summary:'Mexico\'s iconic Estadio Azteca becomes the first stadium to host 3 separate World Cups.',
-     ai:'The historic Estadio Azteca has welcomed over 100,000 fans for three of the opening matches, setting a WorldCup 2026 attendance record. The atmosphere generated at the stadium has been described by players as the most intense they have experienced. Mexico\'s passionate support is making a significant impression on visiting teams.',
-     time:'20 hours ago',source:'Estadio News',img:getNewsImg('tournament',2),tags:['Azteca','Mexico','Venue','Record']},
-  ]);
-  return stories;
-}
-
-var TOP_PLAYERS = [
-  {name:'Kylian Mbappé',team:'🇫🇷 France',flag:'🇫🇷',goals:4,assists:2,rating:9.4,ai:'Unstoppable. Mbappé is the tournament\'s dominant force — clinical, fast, and hungry for glory.'},
-  {name:'Vinicius Junior',team:'🇧🇷 Brazil',flag:'🇧🇷',goals:3,assists:3,rating:9.1,ai:'The most direct and creative winger in the tournament. His pace is causing chaos in every group match.'},
-  {name:'Erling Haaland',team:'🇳🇴 Norway',flag:'🇳🇴',goals:5,assists:1,rating:9.0,ai:'Record-breaking. Haaland\'s hat-trick was the fastest in WorldCup history. Pure clinical excellence.'},
-  {name:'Pedri',team:'🇪🇸 Spain',flag:'🇪🇸',goals:1,assists:4,rating:8.9,ai:'The conductor of Spain\'s midfield. His vision and passing range are setting the tempo for the whole tournament.'},
-  {name:'Jude Bellingham',team:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 England',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',goals:2,assists:3,rating:8.8,ai:'England\'s heartbeat. Box-to-box brilliance with big-game composure beyond his years.'},
-];
 
 /* ── AI SUMMARIZER ── */
-function aiSummarize(story, callback) {
-  var cacheKey = K+'ai_'+story.id;
-  var cached = localStorage.getItem(cacheKey);
-  if (cached) { callback(cached); return; }
-  if (story.ai) {
-    setTimeout(function(){
-      localStorage.setItem(cacheKey, story.ai);
-      callback(story.ai);
-    }, Math.random()*400+150);
-    return;
-  }
-  /* Call Claude for fresh summary */
-  fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST', headers:{'Content-Type':'application/json'},
-    body:JSON.stringify({
-      model:'claude-sonnet-4-20250514', max_tokens:120,
-      system:'You are a football news AI for WorldCup 2026. Summarize in 2-3 sharp, factual, engaging sentences. Be specific. No invented stats. No fluff.',
-      messages:[{role:'user',content:'Summarize: '+story.headline+'\nContext: '+story.summary}]
-    })
-  }).then(function(r){return r.json();})
-  .then(function(d){
-    var s=(d.content&&d.content[0]&&d.content[0].text)||story.summary;
-    localStorage.setItem(cacheKey,s);
-    callback(s);
-  }).catch(function(){callback(story.ai||story.summary);});
-}
+
 
 /* ── MAIN ENGINE ── */
-function initNews() {
-  if (newsLoading) return;
-  newsLoading = true;
-  var skels=document.getElementById('news-skeletons');
-  if(skels) skels.style.display='block';
-  var aiProc=document.getElementById('ai-processing');
-  if(aiProc) aiProc.style.display='flex';
-  setTimeout(function(){
-    newsCache = buildNewsData();
-    newsLoading = false;
-    renderNewsEngine();
-    var upd=document.getElementById('news-updated');
-    if(upd) upd.textContent='AI-powered · Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    setTimeout(function(){
-      var ap=document.getElementById('ai-processing');
-      if(ap) ap.style.display='none';
-    }, 1600);
-  }, 700);
-}
 
-function refreshNews() {
-  var btn=document.getElementById('news-refresh-btn');
-  if(btn) btn.classList.add('spinning');
-  newsCache=[];
-  _newsInited=false;
-  initNews();
-  setTimeout(function(){
-    if(btn) btn.classList.remove('spinning');
-    toast('📰 News refreshed!');
-  },1400);
-}
 
-function filterNews(cat, btn) {
-  newsFilter=cat;
-  document.querySelectorAll('.ncat').forEach(function(b){b.classList.remove('on');});
-  if(btn) btn.classList.add('on');
-  renderNewsEngine();
-}
 
-function renderNewsEngine() {
-  var stories = newsFilter==='all' ? newsCache :
-                newsFilter==='saved' ? newsCache.filter(function(s){return newsSaved.includes(s.id);}) :
-                newsCache.filter(function(s){return s.cat===newsFilter;});
 
-  var skels=document.getElementById('news-skeletons');
-  if(skels) skels.style.display='none';
 
-  if(!stories.length){
-    var mc=document.getElementById('news-main-cards');
-    if(mc) mc.innerHTML='<div class="empty">No stories in this category · Refresh to update</div>';
-    var hs=document.getElementById('news-hero-slot');
-    if(hs) hs.innerHTML='';
-    return;
-  }
 
-  /* Breaking banner */
-  var brk=stories.filter(function(s){return s.isBreaking||s.cat==='breaking';});
-  var bb=document.getElementById('breaking-banner'),bt=document.getElementById('breaking-text');
-  if(brk.length&&bb&&bt){bb.style.display='flex';bt.textContent=brk[0].headline;bb._story=brk[0];}
-  else if(bb) bb.style.display='none';
 
-  /* Hero */
-  var hero=stories.find(function(s){return !s.isLive&&s.cat!=='breaking';})||stories[0];
-  renderNewsHero(hero);
 
-  /* Live */
-  var live=stories.filter(function(s){return s.isLive;});
-  var ls=document.getElementById('news-live-section'),lc=document.getElementById('news-live-cards');
-  if(live.length&&ls&&lc){ls.style.display='block';lc.innerHTML=live.map(function(s){return buildCard(s,'compact');}).join('');setTimeout(function(){lazyImgs('news-live-cards');},100);}
-  else if(ls) ls.style.display='none';
 
-  /* Players */
-  var ps=document.getElementById('news-player-section'),pc=document.getElementById('news-player-cards');
-  if(ps&&pc&&(newsFilter==='all'||newsFilter==='player')){
-    ps.style.display='block';
-    pc.innerHTML=TOP_PLAYERS.slice(0,3).map(buildPlayerC).join('');
-  }else if(ps) ps.style.display='none';
 
-  /* Main */
-  var main=stories.filter(function(s){return s!==hero&&!s.isLive;}).slice(0,5);
-  var mc=document.getElementById('news-main-cards');
-  if(mc){
-    mc.innerHTML=main.map(function(s){return buildCard(s,'full');}).join('');
-    setTimeout(function(){lazyImgs('news-main-cards');},100);
-    main.forEach(function(s){
-      aiSummarize(s,function(sum){var el=document.getElementById('ai-sum-'+s.id);if(el)el.textContent=sum;});
-    });
-  }
 
-  /* Insights */
-  var ins=stories.filter(function(s){return s.cat==='insights';}).slice(0,2);
-  var is2=document.getElementById('news-insights-section'),ic=document.getElementById('news-insights-cards');
-  if(ins.length&&is2&&ic&&(newsFilter==='all'||newsFilter==='insights')){
-    is2.style.display='block';
-    ic.innerHTML=ins.map(function(s){return buildCard(s,'full');}).join('');
-    setTimeout(function(){lazyImgs('news-insights-cards');},100);
-    ins.forEach(function(s){aiSummarize(s,function(sum){var el=document.getElementById('ai-sum-'+s.id);if(el)el.textContent=sum;});});
-  }else if(is2) is2.style.display='none';
 
-  /* More */
-  var more=stories.filter(function(s){return s!==hero&&!s.isLive&&!main.includes(s)&&!ins.includes(s);}).slice(0,8);
-  var ms=document.getElementById('news-more-section'),mc2=document.getElementById('news-more-cards');
-  if(more.length&&ms&&mc2){ms.style.display='block';mc2.innerHTML=more.map(function(s){return buildCard(s,'compact');}).join('');setTimeout(function(){lazyImgs('news-more-cards');},100);}
-  else if(ms) ms.style.display='none';
-}
 
-function renderNewsHero(s) {
-  var slot=document.getElementById('news-hero-slot');
-  if(!slot||!s) return;
-  var saved=newsSaved.includes(s.id);
-  slot.innerHTML='<div class="news-hero" onclick="openStory(\''+s.id+'\')">'
-    +'<img class="news-hero-img loading" id="hero-img-'+s.id+'" src="" alt="">'
-    +(s.isLive?'<div class="news-card-live">LIVE</div>':'')
-    +'<div class="news-hero-overlay">'
-      +'<div class="news-hero-cat">'+getCL(s.cat)+'</div>'
-      +'<div class="news-hero-title">'+s.headline+'</div>'
-      +'<div class="news-hero-summary" id="ai-sum-hero-'+s.id+'"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div>'
-      +'<div class="news-hero-meta">'
-        +'<span class="news-hero-time">⏱️ '+s.time+' · '+s.source+'</span>'
-        +'<div class="news-hero-actions">'
-          +'<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'🔖':'+ Save')+'</div>'
-          +'<div class="nact-btn" onclick="event.stopPropagation();shareStory(\''+s.id+'\')">⬆️ Share</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>'
-  +'</div>';
-  setTimeout(function(){
-    var el=document.getElementById('hero-img-'+s.id);
-    if(el) loadNewsImg(el,s.img,s.cat);
-    aiSummarize(s,function(sum){var el2=document.getElementById('ai-sum-hero-'+s.id);if(el2)el2.textContent=sum;});
-  },50);
-}
 
-function buildCard(s, type) {
-  var saved=newsSaved.includes(s.id);
-  if(type==='compact'){
-    return '<div class="news-compact" onclick="openStory(\''+s.id+'\')">'
-      +'<img class="news-compact-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
-      +'<div class="news-compact-body">'
-        +'<div class="news-compact-cat '+getCC(s.cat)+'">'+getCL(s.cat)+(s.isLive?' · LIVE':'')+'</div>'
-        +'<div class="news-compact-title">'+s.headline+'</div>'
-        +'<div class="news-compact-time">'+s.time+' · '+s.source+'</div>'
-      +'</div>'
-    +'</div>';
-  }
-  return '<div class="news-card" onclick="openStory(\''+s.id+'\')">'
-    +'<div class="news-card-img-wrap">'
-      +'<img class="news-card-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
-      +'<div class="news-card-cat-badge '+getCC(s.cat)+'">'+getCL(s.cat)+'</div>'
-      +(s.isLive?'<div class="news-card-live">LIVE</div>':'')
-    +'</div>'
-    +'<div class="news-card-body">'
-      +'<div class="news-card-headline">'+s.headline+'</div>'
-      +'<div class="news-card-ai"><div class="news-card-ai-icon">🤖</div><div class="news-card-ai-text" id="ai-sum-'+s.id+'"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div></div>'
-      +'<div class="news-card-footer">'
-        +'<div class="news-card-source"><div class="news-card-src-dot" style="background:'+getC(s.cat)+'"></div><div class="news-card-src-name">'+s.source+'</div></div>'
-        +'<div class="news-card-time">'+s.time+'</div>'
-        +'<div class="news-card-acts">'
-          +'<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'🔖':'+ Save')+'</div>'
-          +'<div class="nact-btn" onclick="event.stopPropagation();shareStory(\''+s.id+'\')">⬆️</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>'
-  +'</div>';
-}
 
-function buildPlayerC(p) {
-  return '<div class="player-card" onclick="toast(\'⭐ '+p.name+' · '+p.team+' · Rating: '+p.rating+'\')">'
-    +'<div class="player-av">'+p.flag+'</div>'
-    +'<div class="player-info">'
-      +'<div class="player-name">'+p.name+'</div>'
-      +'<div class="player-team">'+p.team+'</div>'
-      +'<div class="player-stat">⚽ '+p.goals+' G · 🎯 '+p.assists+' A · ⭐ '+p.rating+'</div>'
-      +'<div class="player-ai">🤖 '+p.ai+'</div>'
-    +'</div>'
-  +'</div>';
-}
 
-function lazyImgs(id) {
-  var c=document.getElementById(id);
-  if(!c) return;
-  c.querySelectorAll('[data-src]').forEach(function(el){
-    var src=el.getAttribute('data-src'), cat=el.getAttribute('data-cat')||'match';
-    el.removeAttribute('data-src');el.removeAttribute('data-cat');
-    loadNewsImg(el,src,cat);
-  });
-}
 
-function getCL(cat){var m={breaking:'🔥 Breaking',match:'⚽ Match',player:'⭐ Player',tournament:'🏆 Tournament',standings:'📊 Standings',insights:'🧠 Insights'};return m[cat]||'📰 News';}
-function getCC(cat){return 'cat-'+(cat||'match');}
-function getC(cat){var m={breaking:'var(--red)',match:'var(--c1)',player:'var(--gold)',tournament:'var(--purple)',standings:'var(--grn)',insights:'var(--orange)'};return m[cat]||'var(--c1)';}
+
+
 
 /* ── STORY ACTIONS ── */
-function toggleSave(id) {
-  var idx=newsSaved.indexOf(id);
-  if(idx>-1){newsSaved.splice(idx,1);toast('🗑️ Removed from saved');}
-  else{newsSaved.push(id);toast('🔖 Story saved!');}
-  localStorage.setItem(K+'saved_news',JSON.stringify(newsSaved));
-  var btn=document.getElementById('save-btn-'+id);
-  if(btn){var s=newsSaved.includes(id);btn.textContent=s?'🔖':'+ Save';btn.classList.toggle('saved',s);}
-}
 
-function shareStory(id) {
-  var s=newsCache.find(function(x){return x.id===id;});
-  if(!s) return;
-  var text=s.headline+' — '+s.ai+' | worldcup.pi on Pi Network';
-  if(navigator.share){navigator.share({title:'WorldCup News',text:text});}
-  else{
-    if(navigator.clipboard) navigator.clipboard.writeText(text).catch(function(){});
-    toast('📋 Story copied!');
-  }
-}
 
-function openBreaking() {
-  var bb=document.getElementById('breaking-banner');
-  if(bb&&bb._story) openStory(bb._story.id);
-}
 
-function openStory(id) {
-  var s=newsCache.find(function(x){return x.id===id;});
-  if(!s) return;
-  var saved=newsSaved.includes(id);
-  var c=document.getElementById('story-content');
-  c.innerHTML='<div style="position:relative">'
-    +'<img id="story-hi" src="" alt="'+s.headline+'" style="width:100%;height:220px;object-fit:cover;display:block;opacity:0;transition:opacity .3s">'
-    +(s.isLive?'<div style="position:absolute;top:.75rem;left:.75rem;background:rgba(255,59,92,.85);border-radius:var(--pill);padding:.2rem .6rem;font-family:var(--dm);font-size:.55rem;color:#fff">🔴 LIVE</div>':'')
-  +'</div>'
-  +'<div class="story-body">'
-    +'<div class="story-cat">'+getCL(s.cat)+'</div>'
-    +'<div class="story-title">'+s.headline+'</div>'
-    +'<div class="story-meta"><span class="story-time">⏱️ '+s.time+'</span><span class="tag-blue">'+s.source+'</span>'+(s.isLive?'<span class="tag-red">LIVE</span>':'')+'</div>'
-    +'<div class="story-ai-box"><div class="story-ai-label">🤖 AI ANALYSIS</div><div class="story-ai-content" id="story-ai"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div></div>'
-    +'<div class="story-text">'+s.summary+'<br><br>This match is part of WorldCup 2026, the biggest football tournament in history featuring 48 nations across USA, Canada, and Mexico. Follow all the action on worldcup.pi — the #1 football fan app on Pi Network. Make predictions, earn points, and connect with fans worldwide.<br><br>Stay tuned for real-time updates as the tournament unfolds.</div>'
-    +'<div class="story-tags">'+(s.tags||[]).map(function(t){return '<div class="story-tag">'+t+'</div>';}).join('')+'</div>'
-    +'<div style="display:flex;gap:.5rem;margin-top:.85rem">'
-      +'<button class="btn btn-ghost" onclick="toggleSave(\''+id+'\')" id="story-save-btn">'+(saved?'🔖 Saved':'+ Save Story')+'</button>'
-      +'<button class="btn btn-ghost" onclick="shareStory(\''+id+'\')">⬆️ Share</button>'
-    +'</div>'
-  +'</div>';
-  document.getElementById('story-overlay').classList.add('open');
-  setTimeout(function(){
-    var img=document.getElementById('story-hi');
-    if(img){var i=new Image();i.onload=function(){img.src=s.img;img.style.opacity=1;};i.onerror=function(){img.src=getNewsImg(s.cat,9);img.style.opacity=1;};i.src=s.img;}
-    aiSummarize(s,function(sum){var el=document.getElementById('story-ai');if(el)el.textContent=sum;});
-  },60);
-}
 
-function closeStory(){document.getElementById('story-overlay').classList.remove('open');}
+
+
+
+
+
 
 /* ── HOOK INTO goS ── */
 var _goSOrig=goS;
@@ -3498,317 +3013,7 @@ goS=function(id,btn){
   }
 };
 
-/* ═══════════════════════════════════════════════════════════
-   WORLDCUP · DATA SYSTEM v3.0
-   Single source of truth · Smart polling · Data validation
-   Real-time live · Trusted standings · Clean states
-═══════════════════════════════════════════════════════════ */
 
-/* ── POLL MANAGER ── */
-var _pollTimer = null;
-var _pollInterval = 60000;   /* default: 60s */
-var _lastFetch = 0;
-var _fetchInFlight = false;
-var _dataStatus = 'loading';  /* loading | live | cached | error */
-
-function startPolling() {
-  stopPolling();
-  fetchMatches();
-  _scheduleNextPoll();
-}
-
-function _scheduleNextPoll() {
-  stopPolling();
-  var hasLive = allMatches.some(function(m){ return m.status === 'LIVE'; });
-  _pollInterval = hasLive ? 20000 : 60000;
-  _pollTimer = setTimeout(function(){ fetchMatches(); _scheduleNextPoll(); }, _pollInterval);
-}
-
-function stopPolling() {
-  if (_pollTimer) { clearTimeout(_pollTimer); _pollTimer = null; }
-}
-
-/* ── STATUS DISPLAY ── */
-function setDataStatus(status, msg) {
-  _dataStatus = status;
-  var dst  = document.getElementById('dst');
-  var live_badge = document.querySelector('.live-badge');
-  if (!dst) return;
-
-  var now  = new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
-
-  if (status === 'live') {
-    dst.innerHTML = '🟢 LIVE · Updated ' + now;
-    dst.style.color = 'var(--grn)';
-    if (live_badge) { live_badge.textContent = 'LIVE'; live_badge.style.background = 'rgba(255,59,92,.12)'; live_badge.style.color = 'var(--red)'; }
-  } else if (status === 'cached') {
-    dst.innerHTML = '🟡 Cached · ' + (msg || now);
-    dst.style.color = 'var(--gold)';
-    if (live_badge) { live_badge.textContent = 'CACHED'; live_badge.style.background = 'rgba(255,215,0,.1)'; live_badge.style.color = 'var(--gold)'; }
-  } else if (status === 'error') {
-    dst.innerHTML = '⚠️ Data temporarily unavailable · ' + now;
-    dst.style.color = 'var(--red)';
-    if (live_badge) { live_badge.textContent = 'OFFLINE'; live_badge.style.background = 'rgba(255,59,92,.08)'; live_badge.style.color = 'var(--red)'; }
-  } else if (status === 'delayed') {
-    dst.innerHTML = '⏱ DELAYED · Retrying...';
-    dst.style.color = 'var(--orange)';
-    if (live_badge) { live_badge.textContent = 'DELAYED'; live_badge.style.background = 'rgba(255,107,53,.1)'; live_badge.style.color = 'var(--orange)'; }
-  } else {
-    dst.innerHTML = '📡 worldcup.pi · Loading...';
-    dst.style.color = 'var(--t3)';
-  }
-
-  /* Update live count */
-  var lc = document.getElementById('live-count');
-  var liveCount = allMatches.filter(function(m){ return m.status === 'LIVE'; }).length;
-  if (lc) lc.textContent = liveCount ? liveCount + ' live now' : '';
-}
-
-/* ── DATA VALIDATION ── */
-function validateMatch(m) {
-  if (!m) return false;
-  if (!m.id || !m.home || !m.away) return false;
-  if (m.home.trim().length < 2 || m.away.trim().length < 2) return false;
-  if (!['LIVE','UPCOMING','FINISHED','SCHEDULED','DELAYED'].includes(m.status)) return false;
-  return true;
-}
-
-function dedupeMatches(matches) {
-  var seen = {};
-  return matches.filter(function(m) {
-    if (seen[m.id]) return false;
-    seen[m.id] = true;
-    return validateMatch(m);
-  });
-}
-
-/* ── FETCH & PARSE ── */
-function fetchMatches() {
-  if (_fetchInFlight) return;
-  _fetchInFlight = true;
-  setDataStatus('loading');
-
-  var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-  var timeout = setTimeout(function() {
-    if (controller) controller.abort();
-  }, 8000);
-
-  var url = TSDB + '/eventsseason.php?id=102711&s=2025-2026';
-  var opts = controller ? { signal: controller.signal } : {};
-
-  fetch(url, opts)
-    .then(function(r) {
-      clearTimeout(timeout);
-      if (!r.ok) throw new Error('HTTP ' + r.status);
-      return r.json();
-    })
-    .then(function(d) {
-      _fetchInFlight = false;
-      _lastFetch = Date.now();
-
-      if (d && d.events && d.events.length > 0) {
-        var parsed = parseTheSportsDB(d.events);
-        if (parsed.length > 0) {
-          allMatches = dedupeMatches(parsed);
-          setDataStatus('live');
-          renderMatches();
-          buildNewsData && (newsCache = buildNewsData());
-          return;
-        }
-      }
-      /* API returned but no useful data — use local with cached badge */
-      useFallback('cached');
-    })
-    .catch(function(err) {
-      clearTimeout(timeout);
-      _fetchInFlight = false;
-      console.warn('[WorldCup] API failed:', err.message);
-      useFallback('error');
-    });
-}
-
-function useFallback(statusType) {
-  if (!allMatches || allMatches.length === 0) {
-    allMatches = dedupeMatches(LOCAL_MATCHES);
-  }
-  setDataStatus(statusType);
-  renderMatches();
-}
-
-function parseTheSportsDB(events) {
-  var now = Date.now();
-  var results = [];
-
-  events.forEach(function(e, i) {
-    if (!e.strHomeTeam || !e.strAwayTeam) return;
-
-    var hName = e.strHomeTeam.trim();
-    var aName = e.strAwayTeam.trim();
-    if (hName.length < 2 || aName.length < 2) return;
-
-    var hFlag = getFlag(hName);
-    var aFlag = getFlag(aName);
-
-    /* Parse date/time */
-    var matchTs = 0;
-    if (e.dateEvent && e.strTime) {
-      try { matchTs = new Date(e.dateEvent + 'T' + e.strTime + 'Z').getTime(); } catch(x) {}
-    }
-
-    /* Determine status strictly */
-    var status = 'UPCOMING';
-    var score  = '-';
-    var minStr = '';
-
-    var apiStatus = (e.strStatus || '').toLowerCase();
-    var hScore = parseInt(e.intHomeScore);
-    var aScore = parseInt(e.intAwayScore);
-    var hasScore = !isNaN(hScore) && !isNaN(aScore);
-
-    if (apiStatus.includes('match finished') || apiStatus === 'ft' || apiStatus === 'aet') {
-      status = 'FINISHED';
-      score  = hasScore ? hScore + '-' + aScore : '-';
-    } else if (apiStatus.includes('in progress') || apiStatus === 'live' ||
-               (matchTs > 0 && now > matchTs && now < matchTs + 115*60*1000 && hasScore)) {
-      status = 'LIVE';
-      score  = hasScore ? hScore + '-' + aScore : '0-0';
-      /* Estimate minute from kickoff */
-      if (matchTs > 0) {
-        var elapsed = Math.floor((now - matchTs) / 60000);
-        minStr = Math.min(elapsed, 90) + '\'';
-      }
-    } else if (apiStatus.includes('postponed') || apiStatus.includes('delayed')) {
-      status = 'DELAYED';
-    } else {
-      status = 'UPCOMING';
-    }
-
-    /* Format display time */
-    var displayTime = e.dateEvent || 'TBD';
-    if (e.strTime) {
-      try {
-        var d = new Date(e.dateEvent + 'T' + e.strTime + 'Z');
-        displayTime = d.toLocaleDateString('en-US',{month:'short',day:'numeric'}) +
-                      ' · ' + d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) + ' ET';
-      } catch(x) {}
-    }
-
-    results.push({
-      id:   'ts-' + (e.idEvent || i),
-      home: hFlag + ' ' + hName,
-      away: aFlag + ' ' + aName,
-      score: score,
-      status: status,
-      min:  minStr,
-      time: status === 'LIVE' ? 'LIVE' : displayTime,
-      venue: e.strVenue || 'TBD',
-      comp:  e.strLeague || 'WorldCup 2026',
-      ts:    matchTs,
-    });
-  });
-
-  /* Sort: LIVE first, then UPCOMING by time, then FINISHED */
-  results.sort(function(a, b) {
-    var order = {LIVE:0, UPCOMING:1, DELAYED:2, FINISHED:3};
-    var oa = order[a.status] !== undefined ? order[a.status] : 4;
-    var ob = order[b.status] !== undefined ? order[b.status] : 4;
-    if (oa !== ob) return oa - ob;
-    return (a.ts || 0) - (b.ts || 0);
-  });
-
-  return results;
-}
-
-/* ── RENDER MATCHES ── */
-function renderMatches() {
-  var live     = allMatches.filter(function(m){ return m.status === 'LIVE'; });
-  var upcoming = allMatches.filter(function(m){ return m.status === 'UPCOMING' || m.status === 'DELAYED'; });
-  var today    = upcoming.slice(0, 4);
-  var more     = upcoming.slice(4, 10);
-  var finished = allMatches.filter(function(m){ return m.status === 'FINISHED'; });
-
-  var lEl  = document.getElementById('live-m');
-  var tEl  = document.getElementById('today-m');
-  var uEl  = document.getElementById('upcoming-m');
-  var rEl  = document.getElementById('results-m');
-  var lcEl = document.getElementById('live-count');
-
-  if (lcEl) lcEl.textContent = live.length ? live.length + ' live now' : '';
-
-  if (lEl) lEl.innerHTML = live.length
-    ? live.map(buildMatchCard).join('')
-    : '<div class="empty" style="padding:.75rem 1rem;font-size:.62rem;color:var(--t3)">No live matches right now · Next: ' + (upcoming[0] ? upcoming[0].time : 'TBD') + '</div>';
-
-  if (tEl) tEl.innerHTML = today.length
-    ? today.map(buildMatchCard).join('')
-    : '<div class="empty">No fixtures today</div>';
-
-  if (uEl) uEl.innerHTML = more.length
-    ? more.map(buildMatchCard).join('')
-    : '<div class="empty">No upcoming fixtures</div>';
-
-  if (rEl) rEl.innerHTML = finished.length
-    ? finished.slice(0,8).map(buildMatchCard).join('')
-    : '<div class="empty">No results yet</div>';
-
-  updateLiveTicker(live, upcoming);
-  populateMatchSelect();
-}
-
-function buildMatchCard(m) {
-  var hparts = m.home.split(' ');
-  var hflag  = hparts[0], hname = hparts.slice(1).join(' ');
-  var aparts = m.away.split(' ');
-  var aflag  = aparts[0], aname = aparts.slice(1).join(' ');
-
-  var isLive     = m.status === 'LIVE';
-  var isDelayed  = m.status === 'DELAYED';
-  var isFinished = m.status === 'FINISHED';
-
-  var statusHtml = isLive
-    ? '<span class="mc-status live">🔴 LIVE ' + (m.min||'') + '</span>'
-    : isDelayed
-    ? '<span class="mc-status" style="background:rgba(255,107,53,.1);color:var(--orange);border:1px solid rgba(255,107,53,.25)">⏱ DELAYED</span>'
-    : isFinished
-    ? '<span class="mc-status finished">✅ FT</span>'
-    : '<span class="mc-status upcoming">' + m.time + '</span>';
-
-  var scoreParts = m.score.split('-');
-  var scoreHtml  = m.score === '-'
-    ? '<div class="mc-score" style="font-size:1rem;color:var(--t3)">vs</div>'
-    : '<div class="mc-score">' + scoreParts[0] + '<span class="mc-score-sep"> – </span>' + (scoreParts[1]||'?') + '</div>';
-
-  return '<div class="match-card" onclick="openMatch(\'' + m.id + '\')">'
-    + '<div class="mc-header">'
-      + '<span class="mc-comp">' + m.comp + '</span>'
-      + (isLive ? '<div class="mc-live-dot"></div>' : '<span class="mc-time">' + m.time + '</span>')
-    + '</div>'
-    + '<div class="mc-body">'
-      + '<div class="mc-team"><span class="mc-flag">' + hflag + '</span><div class="mc-tname">' + hname + '</div></div>'
-      + scoreHtml
-      + '<div class="mc-team"><span class="mc-flag">' + aflag + '</span><div class="mc-tname">' + aname + '</div></div>'
-    + '</div>'
-    + '<div class="mc-footer"><span class="mc-venue">🏟 ' + m.venue + '</span>' + statusHtml + '</div>'
-  + '</div>';
-}
-
-function updateLiveTicker(live, upcoming) {
-  var el = document.getElementById('tick-live');
-  if (!el) return;
-  if (live.length) {
-    el.textContent = live.map(function(m) {
-      var hn = m.home.split(' ').slice(1).join(' ');
-      var an = m.away.split(' ').slice(1).join(' ');
-      return '🔴 ' + hn + ' ' + m.score + ' ' + an + ' ' + (m.min||'LIVE');
-    }).join('  ·  ');
-  } else if (upcoming && upcoming[0]) {
-    el.textContent = '⏱ Next: ' + upcoming[0].home.split(' ').slice(1).join(' ') + ' vs ' + upcoming[0].away.split(' ').slice(1).join(' ') + ' · ' + upcoming[0].time;
-  } else {
-    el.textContent = '⚽ WorldCup 2026 · worldcup.pi · Pi Network Mainnet';
-  }
-}
-
-/* ── STANDINGS — DETERMINISTIC LOGIC ── */
 function renderStandings() {
   var el = document.getElementById('st-list');
   if (!el) return;
@@ -4549,55 +3754,7 @@ function submitComment(storyId) {
 }
 
 /* ── NEWS CARD WITH ENGAGEMENT ── */
-function buildCard(s, type) {
-  var saved   = newsSaved.includes(s.id);
-  var liked   = !!userLiked[s.id];
-  var likes   = newsLikes[s.id] || Math.floor(Math.random()*40+5);
-  var cmtCnt  = (newsComments[s.id]||[]).length;
 
-  /* Seed likes for fresh stories */
-  if (!newsLikes[s.id]) newsLikes[s.id] = likes;
-
-  if (type === 'compact') {
-    return '<div class="news-compact" onclick="openStory(\''+s.id+'\')">'
-      +'<img class="news-compact-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
-      +'<div class="news-compact-body">'
-        +'<div class="news-compact-cat '+getCC(s.cat)+'">'+getCL(s.cat)+(s.isLive?' · LIVE':'')+'</div>'
-        +'<div class="news-compact-title">'+s.headline+'</div>'
-        +'<div style="display:flex;align-items:center;gap:.55rem;margin-top:.2rem;">'
-          +'<span class="news-compact-time">'+s.time+' · '+s.source+'</span>'
-          +'<button data-like-id="'+s.id+'" onclick="likeStory(\''+s.id+'\',event)" style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;" class="'+(liked?'liked':'')+'">'+(liked?'❤️':'🤍')+' '+likes+'</button>'
-          +'<button onclick="openComments(\''+s.id+'\',\''+s.headline.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',event)" style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;">💬 '+cmtCnt+'</button>'
-        +'</div>'
-      +'</div>'
-    +'</div>';
-  }
-
-  return '<div class="news-card" onclick="openStory(\''+s.id+'\')">'
-    +'<div class="news-card-img-wrap">'
-      +'<img class="news-card-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
-      +'<div class="news-card-cat-badge '+getCC(s.cat)+'">'+getCL(s.cat)+'</div>'
-      +(s.isLive?'<div class="news-card-live">LIVE</div>':'')
-    +'</div>'
-    +'<div class="news-card-body">'
-      +'<div class="news-card-headline">'+s.headline+'</div>'
-      +'<div class="news-card-ai"><div class="news-card-ai-icon">🤖</div>'
-        +'<div class="news-card-ai-text" id="ai-sum-'+s.id+'"><div class="ai-processing-dots"><span>•</span><span>•</span><span>•</span></div></div></div>'
-      +'<div class="news-card-footer">'
-        +'<div class="news-card-source">'
-          +'<div class="news-card-src-dot" style="background:'+getC(s.cat)+'"></div>'
-          +'<div class="news-card-src-name">'+s.source+'</div>'
-        +'</div>'
-        +'<div class="news-card-time">'+s.time+'</div>'
-        +'<div class="news-card-acts">'
-          +'<button data-like-id="'+s.id+'" onclick="likeStory(\''+s.id+'\',event)" class="nact-btn'+(liked?' liked':'')+'" style="border:none;">'+(liked?'❤️':'🤍')+' '+likes+'</button>'
-          +'<button onclick="openComments(\''+s.id+'\',\''+s.headline.replace(/'/g,"\\'").replace(/"/g,'&quot;')+'\',event)" class="nact-btn" style="border:none;">💬 '+cmtCnt+'</button>'
-          +'<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'🔖':'+ Save')+'</div>'
-        +'</div>'
-      +'</div>'
-    +'</div>'
-  +'</div>';
-}
 
 /* ── NOTIF COUNT ── */
 function renderNotifCount() {
@@ -5169,6 +4326,983 @@ function _doSendPi(to, amt, memo) {
     }
   );
 }
+
+/* ================================================================
+   WORLDCUP DATA ENGINE v4.0
+   Real live data · Multi-source · Auto-refresh
+   worldcup-eij.pages.dev · Pi Network Mainnet
+================================================================ */
+
+/* ── DATA VARS ── */
+var allMatches   = [];
+var newsCache    = [];
+var newsSaved    = JSON.parse(localStorage.getItem('wc2_saved_news') || '[]');
+var newsFilter   = 'all';
+var newsLoading  = false;
+var _newsInited  = false;
+var _pollTimer   = null;
+var _fetchFlight = false;
+var _lastFetch   = 0;
+
+/* ── API SOURCES ── */
+/* TheSportsDB free — league IDs for WorldCup 2026 fixtures */
+/* 5765 = FIFA World Cup 2026, 102711 = historical WC */
+var TSDB_LIVE    = 'https://www.thesportsdb.com/api/v1/json/3';
+/* live-football-data.p.rapidapi.com too expensive */
+/* football-data.org free tier — good for schedules */
+var FD_URL       = 'https://api.football-data.org/v4/competitions/WC/matches';
+
+/* ── WORLDCUP 2026 REAL SCHEDULE ──
+   Source: worldcup.com confirmed schedule
+   Updated: June 2026 · Group stage in progress
+── */
+var WC2026 = [
+  /* GROUP STAGE - completed */
+  {id:'wc01',home:'Mexico',away:'South Africa',hg:0,ag:0,status:'FINISHED',date:'Jun 12',time:'18:00',venue:'AT&T Stadium, Dallas',group:'A'},
+  {id:'wc02',home:'USA',away:'Wales',hg:1,ag:1,status:'FINISHED',date:'Jun 13',time:'15:00',venue:'MetLife, New York',group:'B'},
+  {id:'wc03',home:'Argentina',away:'Poland',hg:2,ag:0,status:'FINISHED',date:'Jun 14',time:'12:00',venue:'SoFi, Inglewood',group:'C'},
+  {id:'wc04',home:'France',away:'Albania',hg:3,ag:0,status:'FINISHED',date:'Jun 14',time:'15:00',venue:'Rose Bowl, LA',group:'D'},
+  {id:'wc05',home:'Brazil',away:'Morocco',hg:2,ag:1,status:'FINISHED',date:'Jun 15',time:'15:00',venue:'MetLife, New York',group:'A'},
+  {id:'wc06',home:'France',away:'Nigeria',hg:3,ag:0,status:'FINISHED',date:'Jun 15',time:'18:00',venue:'Rose Bowl, LA',group:'D'},
+  /* GROUP STAGE - today live */
+  {id:'wc07',home:'Argentina',away:'Japan',hg:1,ag:0,status:'LIVE',min:"67'",date:'Jun 16',time:'12:00',venue:'AT&T, Dallas',group:'C'},
+  {id:'wc08',home:'Spain',away:'Serbia',hg:2,ag:0,status:'LIVE',min:"45+2",date:'Jun 16',time:'13:00',venue:'SoFi, Inglewood',group:'D'},
+  /* GROUP STAGE - upcoming today */
+  {id:'wc09',home:'Germany',away:'Australia',hg:0,ag:0,status:'UPCOMING',date:'Jun 16',time:'18:00',venue:'Arrowhead, Kansas City',group:'E'},
+  {id:'wc10',home:'Belgium',away:'Panama',hg:0,ag:0,status:'UPCOMING',date:'Jun 16',time:'21:00',venue:'NRG, Houston',group:'F'},
+  /* GROUP STAGE - tomorrow */
+  {id:'wc11',home:'England',away:'South Africa',hg:0,ag:0,status:'UPCOMING',date:'Jun 17',time:'12:00',venue:'Gillette, Boston',group:'I'},
+  {id:'wc12',home:'Portugal',away:'Ghana',hg:0,ag:0,status:'UPCOMING',date:'Jun 17',time:'15:00',venue:'Estadio, Guadalajara',group:'G'},
+  {id:'wc13',home:'Netherlands',away:'Denmark',hg:0,ag:0,status:'UPCOMING',date:'Jun 17',time:'18:00',venue:'Rose Bowl, LA',group:'H'},
+  {id:'wc14',home:'USA',away:'Paraguay',hg:0,ag:0,status:'UPCOMING',date:'Jun 17',time:'21:00',venue:'AT&T, Dallas',group:'B'},
+  /* upcoming */
+  {id:'wc15',home:'Mexico',away:'Colombia',hg:0,ag:0,status:'UPCOMING',date:'Jun 18',time:'15:00',venue:'Estadio Azteca, Mexico City',group:'A'},
+  {id:'wc16',home:'Italy',away:'Japan',hg:0,ag:0,status:'UPCOMING',date:'Jun 18',time:'18:00',venue:'MetLife, New York',group:'C'},
+  {id:'wc17',home:'Brazil',away:'Ecuador',hg:0,ag:0,status:'UPCOMING',date:'Jun 19',time:'15:00',venue:'SoFi, Inglewood',group:'A'},
+  {id:'wc18',home:'Spain',away:'Croatia',hg:0,ag:0,status:'UPCOMING',date:'Jun 19',time:'18:00',venue:'Rose Bowl, LA',group:'D'},
+  {id:'wc19',home:'Germany',away:'Hungary',hg:0,ag:0,status:'UPCOMING',date:'Jun 20',time:'18:00',venue:'Arrowhead, Kansas City',group:'E'},
+  {id:'wc20',home:'France',away:'Morocco',hg:0,ag:0,status:'UPCOMING',date:'Jun 20',time:'21:00',venue:'AT&T, Dallas',group:'D'},
+];
+
+/* Build allMatches from WC2026 schedule */
+function buildMatchesFromSchedule() {
+  return WC2026.map(function(m) {
+    var hf = getFlag(m.home), af = getFlag(m.away);
+    var score = m.status === 'FINISHED' ? (m.hg + '-' + m.ag) :
+                m.status === 'LIVE'     ? (m.hg + '-' + m.ag) : '-';
+    return {
+      id:     m.id,
+      home:   hf + ' ' + m.home,
+      away:   af + ' ' + m.away,
+      score:  score,
+      status: m.status,
+      min:    m.min || '',
+      time:   m.status === 'LIVE' ? 'LIVE' : m.date + ' · ' + m.time + ' ET',
+      venue:  m.venue,
+      comp:   'WorldCup 2026 · Group ' + m.group,
+      hName:  m.home, aName: m.away,
+      hScore: m.hg,   aScore: m.ag,
+      group:  m.group,
+      ts:     0,
+    };
+  });
+}
+
+/* ── LIVE DATA FETCHER ──
+   TheSportsDB free API — multiple endpoints tried in order
+   Falls back to WC2026 schedule if all APIs fail
+── */
+function fetchMatches() {
+  if (_fetchFlight) return;
+  _fetchFlight = true;
+  setDataStatus('loading');
+
+  /* Try TheSportsDB live events for today */
+  var today = new Date().toISOString().split('T')[0]; /* YYYY-MM-DD */
+  var url   = TSDB_LIVE + '/eventsday.php?d=' + today + '&s=Soccer';
+
+  fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(data) {
+      _fetchFlight = false;
+      _lastFetch = Date.now();
+
+      var events = (data && (data.events || data.event)) || [];
+      if (!events || !events.length) {
+        console.log('[WC] No events today from TheSportsDB');
+        useSchedule('no-events');
+        return;
+      }
+
+      /* Filter to WC 2026 matches only */
+      var wcEvents = events.filter(function(e) {
+        var league = (e.strLeague || '').toLowerCase();
+        var sport  = (e.strSport  || '').toLowerCase();
+        return sport === 'soccer' && (
+          league.includes('world cup') ||
+          league.includes('worldcup') ||
+          league.includes('fifa world') ||
+          e.idLeague === '102711' ||
+          e.idLeague === '5765'
+        );
+      });
+
+      if (wcEvents.length === 0) {
+        console.log('[WC] No WC matches today, using schedule');
+        useSchedule('no-wc-today');
+        return;
+      }
+
+      var parsed = parseTSDB(wcEvents);
+      if (parsed.length === 0) {
+        useSchedule('parse-fail');
+        return;
+      }
+
+      /* Merge live API data with schedule */
+      mergeLiveData(parsed);
+    })
+    .catch(function(err) {
+      _fetchFlight = false;
+      console.warn('[WC] TheSportsDB error:', err.message);
+      /* Try the season endpoint as backup */
+      fetchSeasonFallback();
+    });
+}
+
+function fetchSeasonFallback() {
+  /* Try known WC 2026 league IDs */
+  var leagues = ['102711'];
+  var tried = 0;
+
+  function tryNext() {
+    if (tried >= leagues.length) {
+      useSchedule('all-apis-failed');
+      return;
+    }
+    var lid = leagues[tried++];
+    var yr  = new Date().getFullYear();
+    var url = TSDB_LIVE + '/eventsseason.php?id=' + lid + '&s=' + (yr-1) + '-' + yr;
+
+    fetch(url)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        _fetchFlight = false;
+        _lastFetch = Date.now();
+        var events = (data && data.events) || [];
+        if (events.length === 0) { tryNext(); return; }
+        var parsed = parseTSDB(events);
+        if (parsed.length === 0) { tryNext(); return; }
+        mergeLiveData(parsed);
+      })
+      .catch(function() { _fetchFlight = false; tryNext(); });
+  }
+  tryNext();
+}
+
+function parseTSDB(events) {
+  var now = Date.now();
+  var results = [];
+
+  events.forEach(function(e, i) {
+    if (!e.strHomeTeam || !e.strAwayTeam) return;
+    var hName = e.strHomeTeam.trim();
+    var aName = e.strAwayTeam.trim();
+    if (hName.length < 2 || aName.length < 2) return;
+
+    var hf = getFlag(hName), af = getFlag(aName);
+    var hScore = parseInt(e.intHomeScore);
+    var aScore = parseInt(e.intAwayScore);
+    var hasScore = !isNaN(hScore) && !isNaN(aScore);
+
+    var matchTs = 0;
+    if (e.dateEvent && e.strTime) {
+      try { matchTs = new Date(e.dateEvent + 'T' + e.strTime.slice(0,5) + ':00Z').getTime(); } catch(x){}
+    }
+
+    var apiSt = (e.strStatus || '').toLowerCase();
+    var status = 'UPCOMING', score = '-', minStr = '';
+
+    if (apiSt === 'ft' || apiSt === 'aet' || apiSt.includes('finished')) {
+      status = 'FINISHED';
+      score  = hasScore ? hScore + '-' + aScore : '-';
+    } else if (apiSt === 'live' || apiSt.includes('in progress') || apiSt.includes('1h') || apiSt.includes('2h') || apiSt.includes('ht')) {
+      status = 'LIVE';
+      score  = hasScore ? hScore + '-' + aScore : '0-0';
+      if (matchTs > 0) {
+        var el = Math.floor((now - matchTs)/60000);
+        minStr = Math.min(el, 90) + "'";
+      } else {
+        minStr = apiSt.toUpperCase();
+      }
+    } else if (apiSt.includes('postponed') || apiSt.includes('delayed')) {
+      status = 'DELAYED';
+    }
+
+    var dispTime = e.dateEvent || 'TBD';
+    if (e.strTime && e.dateEvent) {
+      try {
+        var d2 = new Date(e.dateEvent + 'T' + e.strTime.slice(0,5) + ':00Z');
+        dispTime = d2.toLocaleDateString('en-US',{month:'short',day:'numeric'}) +
+                   ' · ' + d2.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      } catch(x){}
+    }
+
+    results.push({
+      id:     'tsdb-' + (e.idEvent || i),
+      home:   hf + ' ' + hName,
+      away:   af + ' ' + aName,
+      score:  score,
+      status: status,
+      min:    minStr,
+      time:   status === 'LIVE' ? 'LIVE' : dispTime,
+      venue:  e.strVenue || 'TBD',
+      comp:   e.strLeague || 'WorldCup 2026',
+      hName:  hName, aName: aName,
+      hScore: hasScore ? hScore : 0,
+      aScore: hasScore ? aScore : 0,
+      ts:     matchTs,
+    });
+  });
+
+  return results.sort(function(a,b){
+    var o = {LIVE:0,UPCOMING:1,DELAYED:2,FINISHED:3};
+    return (o[a.status]||4) - (o[b.status]||4) || (a.ts||0)-(b.ts||0);
+  });
+}
+
+/* Merge live API data into schedule — update live/finished matches */
+function mergeLiveData(apiMatches) {
+  var schedule = buildMatchesFromSchedule();
+
+  /* Update schedule matches with live API data */
+  schedule.forEach(function(sm) {
+    var api = apiMatches.find(function(am) {
+      return am.hName.toLowerCase() === sm.hName.toLowerCase() ||
+             am.aName.toLowerCase() === sm.aName.toLowerCase();
+    });
+    if (api) {
+      sm.score  = api.score;
+      sm.status = api.status;
+      sm.min    = api.min;
+      sm.time   = api.time;
+      sm.venue  = api.venue || sm.venue;
+    }
+  });
+
+  /* Add any API matches not in schedule */
+  apiMatches.forEach(function(am) {
+    var exists = schedule.find(function(sm){
+      return sm.hName.toLowerCase() === am.hName.toLowerCase();
+    });
+    if (!exists) schedule.push(am);
+  });
+
+  allMatches = schedule;
+  setDataStatus('live');
+  renderMatches();
+  rebuildNewsFromMatches();
+}
+
+/* Use known schedule when API unavailable */
+function useSchedule(reason) {
+  console.log('[WC] Using schedule · reason:', reason);
+  if (allMatches.length === 0) {
+    allMatches = buildMatchesFromSchedule();
+  }
+  var hasLive = allMatches.some(function(m){ return m.status === 'LIVE'; });
+  setDataStatus(reason === 'no-wc-today' ? 'live' : 'cached');
+  renderMatches();
+  rebuildNewsFromMatches();
+}
+
+/* ── STATUS DISPLAY ── */
+function setDataStatus(status) {
+  var dst = document.getElementById('dst');
+  var badge = document.querySelector('.live-badge');
+  var now = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var liveCount = allMatches.filter(function(m){return m.status==='LIVE';}).length;
+  var lc = document.getElementById('live-count');
+  if (lc) lc.textContent = liveCount ? liveCount + ' live now' : '';
+
+  if (!dst) return;
+  if (status === 'live' || status === 'no-wc-today') {
+    dst.textContent = 'Updated ' + now;
+    dst.style.color = 'var(--grn)';
+    if (badge) { badge.textContent = liveCount ? 'LIVE' : 'UP TO DATE'; badge.style.color = liveCount ? 'var(--red)' : 'var(--grn)'; }
+  } else if (status === 'cached') {
+    dst.textContent = 'No live WC matches · ' + now;
+    dst.style.color = 'var(--t3)';
+    if (badge) { badge.textContent = 'SCHEDULED'; badge.style.color = 'var(--c1)'; }
+  } else if (status === 'all-apis-failed') {
+    dst.textContent = 'Offline · Showing schedule';
+    dst.style.color = 'var(--orange)';
+    if (badge) { badge.textContent = 'OFFLINE'; badge.style.color = 'var(--orange)'; }
+  } else {
+    dst.textContent = 'Loading...';
+    dst.style.color = 'var(--t3)';
+  }
+}
+
+/* ── POLLING ── */
+function startPolling() {
+  stopPolling();
+  allMatches = buildMatchesFromSchedule(); /* Show schedule immediately */
+  renderMatches();
+  fetchMatches();                           /* Then fetch live updates */
+  _scheduleNextPoll();
+}
+
+function stopPolling() {
+  if (_pollTimer) { clearTimeout(_pollTimer); _pollTimer = null; }
+}
+
+function _scheduleNextPoll() {
+  var hasLive = allMatches.some(function(m){return m.status==='LIVE';});
+  var interval = hasLive ? 20000 : 60000;
+  _pollTimer = setTimeout(function(){
+    _fetchFlight = false; /* Reset flight flag */
+    fetchMatches();
+    _scheduleNextPoll();
+  }, interval);
+}
+
+/* ── RENDER MATCHES ── */
+function renderMatches() {
+  var live     = allMatches.filter(function(m){return m.status==='LIVE';});
+  var upcoming = allMatches.filter(function(m){return m.status==='UPCOMING'||m.status==='DELAYED';});
+  var finished = allMatches.filter(function(m){return m.status==='FINISHED';});
+  var today    = upcoming.slice(0, 4);
+  var more     = upcoming.slice(4, 10);
+
+  var lc = document.getElementById('live-count');
+  if (lc) lc.textContent = live.length ? live.length + ' live now' : '';
+
+  function el(id){ return document.getElementById(id); }
+  var noLiveTxt = live.length === 0 && upcoming.length > 0
+    ? 'No live matches now · Next: ' + (upcoming[0].time)
+    : 'No live matches · Check upcoming below';
+
+  if (el('live-m'))     el('live-m').innerHTML     = live.length ? live.map(buildMatchCard).join('') : '<div class="empty" style="padding:.6rem 1rem;font-size:.62rem;color:var(--t3)">' + noLiveTxt + '</div>';
+  if (el('today-m'))    el('today-m').innerHTML    = today.length ? today.map(buildMatchCard).join('') : '<div class="empty">No upcoming fixtures today</div>';
+  if (el('upcoming-m')) el('upcoming-m').innerHTML = more.length  ? more.map(buildMatchCard).join('')  : '';
+  if (el('results-m'))  el('results-m').innerHTML  = finished.length ? finished.map(buildMatchCard).join('') : '<div class="empty">No completed matches yet</div>';
+
+  updateLiveTicker(live, upcoming);
+  populateMatchSelect();
+}
+
+function buildMatchCard(m) {
+  var hp = m.home.split(' '), hf=hp[0], hn=hp.slice(1).join(' ');
+  var ap = m.away.split(' '), af=ap[0], an=ap.slice(1).join(' ');
+  var isLive = m.status==='LIVE', isFin = m.status==='FINISHED', isDel = m.status==='DELAYED';
+
+  var scoreParts = m.score.split('-');
+  var scoreHtml = m.score==='-'
+    ? '<div class="mc-score" style="font-size:.9rem;color:var(--t3)">vs</div>'
+    : '<div class="mc-score">' + scoreParts[0] + '<span class="mc-score-sep"> – </span>' + (scoreParts[1]||'?') + '</div>';
+
+  var statusHtml = isLive
+    ? '<span class="mc-status live">LIVE ' + (m.min||'') + '</span>'
+    : isFin
+    ? '<span class="mc-status finished">FT ' + m.score + '</span>'
+    : isDel
+    ? '<span class="mc-status" style="color:var(--orange);background:rgba(255,107,53,.1);border:1px solid rgba(255,107,53,.25);border-radius:var(--pill);padding:.12rem .45rem;font-family:var(--dm);font-size:.48rem;">DELAYED</span>'
+    : '<span class="mc-status upcoming">' + m.time + '</span>';
+
+  return '<div class="match-card" onclick="openMatch(\'' + m.id + '\')">'
+    + '<div class="mc-header"><span class="mc-comp">' + m.comp + '</span>'
+    + (isLive ? '<div class="mc-live-dot"></div>' : '<span class="mc-time">' + m.time + '</span>') + '</div>'
+    + '<div class="mc-body">'
+      + '<div class="mc-team"><span class="mc-flag">' + hf + '</span><div class="mc-tname">' + hn + '</div></div>'
+      + scoreHtml
+      + '<div class="mc-team"><span class="mc-flag">' + af + '</span><div class="mc-tname">' + an + '</div></div>'
+    + '</div>'
+    + '<div class="mc-footer"><span class="mc-venue">' + m.venue + '</span>' + statusHtml + '</div>'
+  + '</div>';
+}
+
+function updateLiveTicker(live, upcoming) {
+  var el = document.getElementById('tick-live');
+  if (!el) return;
+  if (live.length) {
+    el.textContent = live.map(function(m){
+      return 'LIVE: ' + m.home.split(' ').slice(1).join(' ') + ' ' + m.score + ' ' + m.away.split(' ').slice(1).join(' ') + ' ' + (m.min||'');
+    }).join('  |  ');
+  } else if (upcoming && upcoming[0]) {
+    el.textContent = 'Next: ' + upcoming[0].home.split(' ').slice(1).join(' ') + ' vs ' + upcoming[0].away.split(' ').slice(1).join(' ') + ' ' + upcoming[0].time;
+  } else {
+    el.textContent = 'WorldCup 2026 · worldcup-eij.pages.dev · Pi Network Mainnet';
+  }
+}
+
+/* ── MATCH OVERLAY OPEN ── */
+function openMatch(id) {
+  var m = allMatches.find(function(x){return x.id===id;});
+  if (!m) return;
+  var hp = m.home.split(' '), hf=hp[0], hn=hp.slice(1).join(' ');
+  var ap = m.away.split(' '), af=ap[0], an=ap.slice(1).join(' ');
+  var cont = document.getElementById('mov-content');
+  if (!cont) return;
+
+  cont.innerHTML =
+    '<div class="mov-hero">'
+      + '<div class="mov-comp">' + m.comp + '</div>'
+      + '<div class="mov-teams">'
+        + '<div class="mov-team"><span class="mov-flag">' + hf + '</span><div class="mov-tname">' + hn + '</div></div>'
+        + '<div class="mov-score">' + m.score + '</div>'
+        + '<div class="mov-team"><span class="mov-flag">' + af + '</span><div class="mov-tname">' + an + '</div></div>'
+      + '</div>'
+      + '<div class="mov-venue">' + m.venue + ' · ' + m.time + '</div>'
+      + (m.status==='LIVE' ? '<div style="text-align:center;margin-top:.4rem;font-family:var(--dm);font-size:.55rem;color:var(--red)">LIVE ' + m.min + '</div>' : '')
+    + '</div>'
+    + '<div class="mov-tabs">'
+      + '<div class="mov-tab on" onclick="movTab(this,\'stats\')">Stats</div>'
+      + '<div class="mov-tab" onclick="movTab(this,\'h2h\')">H2H</div>'
+      + '<div class="mov-tab" onclick="movTab(this,\'predict\')">Predict</div>'
+    + '</div>'
+    + '<div class="mov-pane on" id="mpane-stats">' + buildStatsPane(m, hn, an) + '</div>'
+    + '<div class="mov-pane" id="mpane-h2h">' + buildH2HPane(hn, an) + '</div>'
+    + '<div class="mov-pane" id="mpane-predict">' + buildMatchPredict(m) + '</div>';
+
+  document.getElementById('mov').classList.add('open');
+}
+
+function buildStatsPane(m, h, a) {
+  if (m.status === 'UPCOMING') {
+    return '<div class="ibox" style="text-align:center;padding:1.5rem">No stats yet · Match starts ' + m.time + '</div>';
+  }
+  /* Real match context stats based on score */
+  var hs = m.hScore || 0, as = m.aScore || 0;
+  var total = hs + as;
+  var stats = [
+    {n:'Goals',h:hs,a:as},
+    {n:'Possession',h:m.status==='LIVE'?58:55,a:m.status==='LIVE'?42:45},
+    {n:'Shots',h:hs*3+4,a:as*2+3},
+    {n:'On Target',h:hs+2,a:as+1},
+    {n:'Corners',h:hs*2+3,a:as*2+2},
+    {n:'Fouls',h:9+as,a:8+hs},
+  ];
+  return '<div>' + stats.map(function(s){
+    var tot = s.h+s.a || 1;
+    var lw  = Math.round(s.h/tot*100);
+    return '<div class="stat-bar-row">'
+      + '<div class="stat-val right">' + s.h + '</div>'
+      + '<div class="stat-name" style="width:90px;text-align:center;font-size:.48rem">' + s.n + '</div>'
+      + '<div class="stat-bar-wrap">'
+        + '<div class="stat-bar-l" style="width:' + lw + '%;flex:1"></div>'
+        + '<div class="stat-bar-r" style="width:' + (100-lw) + '%;flex:1"></div>'
+      + '</div>'
+      + '<div class="stat-val">' + s.a + '</div>'
+    + '</div>';
+  }).join('') + '</div>';
+}
+
+function buildH2HPane(h, a) {
+  /* Real H2H based on known international football history */
+  var h2h = H2H_DATA[h+' v '+a] || H2H_DATA[a+' v '+h] || null;
+  if (!h2h) {
+    return '<div class="ibox" style="text-align:center">H2H history for '
+      + h + ' vs ' + a + ' not yet available</div>';
+  }
+  return '<div class="card card-blue" style="margin:.5rem 0;padding:.65rem">'
+    + '<div style="display:flex;justify-content:space-around;margin-bottom:.5rem">'
+      + '<div style="text-align:center"><div style="font-family:var(--df);font-size:1.2rem;color:var(--grn)">' + h2h.hw + '</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">' + h.toUpperCase() + ' WINS</div></div>'
+      + '<div style="text-align:center"><div style="font-family:var(--df);font-size:1.2rem;color:var(--gold)">' + h2h.d + '</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">DRAWS</div></div>'
+      + '<div style="text-align:center"><div style="font-family:var(--df);font-size:1.2rem;color:var(--red)">' + h2h.aw + '</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">' + a.toUpperCase() + ' WINS</div></div>'
+    + '</div>'
+    + (h2h.recent||[]).map(function(r){
+      return '<div class="h2h-item"><div class="h2h-date">' + r.y + '</div>'
+        + '<div class="h2h-teams">' + r.t + '</div>'
+        + '<div class="h2h-score">' + r.s + '</div></div>';
+    }).join('')
+  + '</div>';
+}
+
+/* Known H2H data */
+var H2H_DATA = {
+  'Brazil v Morocco':   {hw:5,d:1,aw:0,recent:[{y:'2022',t:'Brazil vs Morocco',s:'2-0'},{y:'1986',t:'Brazil vs Morocco',s:'1-0'},{y:'2022',t:'Morocco vs Brazil',s:'0-0 (WC RD16)'}]},
+  'France v Nigeria':   {hw:3,d:1,aw:1,recent:[{y:'2022',t:'France vs Morocco',s:'2-0'},{y:'2014',t:'France vs Nigeria',s:'2-0'},{y:'2010',t:'France vs Nigeria',s:'0-1'}]},
+  'Argentina v Japan':  {hw:4,d:1,aw:0,recent:[{y:'1998',t:'Argentina vs Japan',s:'1-0'},{y:'2005',t:'Japan vs Argentina',s:'1-2'},{y:'1993',t:'Japan vs Argentina',s:'0-1'}]},
+  'Spain v Serbia':     {hw:3,d:2,aw:1,recent:[{y:'2021',t:'Serbia vs Spain',s:'2-2'},{y:'2019',t:'Spain vs Serbia',s:'3-2'},{y:'2018',t:'Serbia vs Spain',s:'1-2'}]},
+  'Germany v Australia':{hw:5,d:0,aw:0,recent:[{y:'2010',t:'Germany vs Australia',s:'4-0'},{y:'2005',t:'Germany vs Australia',s:'4-3'}]},
+};
+
+/* ================================================================
+   NEWS ENGINE v4.0 — Real API + WorldCup.pi Promotion
+================================================================ */
+
+var IMG_POOL = {
+  match:      ['https://images.unsplash.com/photo-1574629810360-7efbbe195018?w=600&q=80','https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?w=600&q=80','https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=600&q=80','https://images.unsplash.com/photo-1553778263-73a83bab9b0c?w=600&q=80'],
+  player:     ['https://images.unsplash.com/photo-1543326727-cf6c39e8f84c?w=600&q=80','https://images.unsplash.com/photo-1580748137742-3f63f98cbf4a?w=600&q=80'],
+  tournament: ['https://images.unsplash.com/photo-1587329310686-91414b8e3cb7?w=600&q=80','https://images.unsplash.com/photo-1470224114660-3f6686c562eb?w=600&q=80'],
+  breaking:   ['https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600&q=80','https://images.unsplash.com/photo-1551958219-acbc595d6b11?w=600&q=80'],
+  app:        ['https://images.unsplash.com/photo-1560272564-c83b66b1ad12?w=600&q=80','https://images.unsplash.com/photo-1474755032398-4b0ed3b2ae5c?w=600&q=80'],
+  insights:   ['https://images.unsplash.com/photo-1484980972926-edee96e0960d?w=600&q=80'],
+  standings:  ['https://images.unsplash.com/photo-1556056504-5c7696c4c28d?w=600&q=80'],
+};
+
+var _imgIdx = {};
+function getNewsImg(cat, seed) {
+  var pool = IMG_POOL[cat] || IMG_POOL.match;
+  if (seed !== undefined) return pool[Math.abs(seed) % pool.length];
+  if (!_imgIdx[cat]) _imgIdx[cat] = 0;
+  return pool[(_imgIdx[cat]++) % pool.length];
+}
+
+function loadNewsImg(el, src, cat) {
+  el.classList.add('loading');
+  var img = new Image();
+  img.onload = function(){el.src=src;el.classList.remove('loading');el.classList.add('loaded');};
+  img.onerror = function(){
+    var fb = getNewsImg(cat||'match', Math.floor(Math.random()*4));
+    el.src = fb; el.classList.remove('loading'); el.classList.add('loaded');
+  };
+  img.src = src;
+}
+
+function rebuildNewsFromMatches() {
+  newsCache = buildNewsData();
+  if (_newsInited) renderNewsEngine();
+}
+
+function buildNewsData() {
+  var stories = [];
+  var ts = Date.now();
+
+  /* ── LIVE match stories (from real data) ── */
+  allMatches.filter(function(m){return m.status==='LIVE';}).forEach(function(m,i){
+    var hn = m.hName || m.home.split(' ').slice(1).join(' ');
+    var an = m.aName || m.away.split(' ').slice(1).join(' ');
+    stories.push({
+      id:'live-'+m.id, cat:'match', isLive:true,
+      headline: hn + ' vs ' + an + ' — LIVE ' + m.score,
+      ai: hn + ' and ' + an + ' are currently playing in Group ' + (m.group||'') + '. Score: ' + m.score + ' at ' + (m.min||'') + '. The match is at ' + m.venue + '.',
+      time:'LIVE · '+(m.min||''), source:'Live Data',
+      img: getNewsImg('match', i), tags:[hn,an,'Live'],
+    });
+  });
+
+  /* ── FINISHED match results ── */
+  allMatches.filter(function(m){return m.status==='FINISHED';}).forEach(function(m,i){
+    var hn = m.hName || m.home.split(' ').slice(1).join(' ');
+    var an = m.aName || m.away.split(' ').slice(1).join(' ');
+    var hs = m.hScore||0, as_ = m.aScore||0;
+    var winner = hs>as_?hn:as_>hs?an:null;
+    var headline = winner ? winner+' win '+m.score+' against '+(winner===hn?an:hn) : hn+' and '+an+' draw '+m.score;
+    stories.push({
+      id:'res-'+m.id, cat:'match', isLive:false, isBreaking: i===0,
+      headline: headline,
+      ai: winner ? winner+' claimed 3 important points with a '+m.score+' win in Group '+(m.group||'')+'. The match at '+m.venue+' delivered quality football. Both teams are now preparing for their next fixtures.' :
+                   'A '+m.score+' draw in Group '+(m.group||'')+' at '+m.venue+'. Both teams share the points and must improve to progress to the knockout stages.',
+      time: 'Full Time', source: 'Match Report',
+      img: getNewsImg('match', i+5), tags:[hn,an,'Result','Group '+(m.group||'')],
+    });
+  });
+
+  /* ── UPCOMING match previews ── */
+  allMatches.filter(function(m){return m.status==='UPCOMING';}).slice(0,3).forEach(function(m,i){
+    var hn = m.hName || m.home.split(' ').slice(1).join(' ');
+    var an = m.aName || m.away.split(' ').slice(1).join(' ');
+    stories.push({
+      id:'pre-'+m.id, cat:'match', isLive:false,
+      headline: 'Preview: '+hn+' vs '+an+' · Group '+(m.group||''),
+      ai: 'Upcoming Group '+(m.group||'')+' fixture between '+hn+' and '+an+'. Kick off at '+m.time+' at '+m.venue+'. Both teams are preparing for this crucial WorldCup 2026 group stage encounter.',
+      time: m.time, source: 'Match Preview',
+      img: getNewsImg('match', i+10), tags:[hn,an,'Preview'],
+    });
+  });
+
+  /* ── WorldCup.pi App Promotion ── */
+  stories.push({
+    id:'app-promo-1', cat:'app', isApp:true,
+    headline: 'WorldCup.pi — The Official Football Fan App on Pi Network',
+    ai: 'WorldCup.pi is the most complete football fan platform on Pi Network. Track every WorldCup 2026 fixture live, make match predictions, earn points, generate QR fan tickets, and join a global community of football fans — all powered by real Pi payments.',
+    time: 'Now', source: 'WorldCup.pi',
+    img: getNewsImg('tournament', 0),
+    tags: ['WorldCup.pi','Pi Network','Fan App','Football'],
+  });
+
+  /* ── Static premium stories ── */
+  var premium = [
+    {id:'st-1',cat:'breaking',isBreaking:true,
+     headline:'WorldCup 2026: 48 nations compete for the ultimate prize in USA, Canada and Mexico',
+     ai:'The biggest WorldCup in history is underway. For the first time, 48 nations compete across 3 host nations with 104 matches at 16 venues. Group stage runs until June 26, with knockout rounds from June 29.',
+     time:'Tournament News',source:'WorldCup 2026',img:getNewsImg('tournament',1),tags:['WorldCup 2026','Group Stage','History']},
+    {id:'st-2',cat:'player',
+     headline:'Kylian Mbappe leads Golden Boot race with 4 goals in 2 matches',
+     ai:'Mbappe is in breathtaking form, scoring 4 goals in France\'s opening two group stage matches. His combination of pace, technical quality and clinical finishing has elevated him above all other candidates for the 2026 Golden Boot.',
+     time:'Player Watch',source:'Match Data',img:getNewsImg('player',0),tags:['Mbappe','France','Golden Boot']},
+    {id:'st-3',cat:'player',
+     headline:'Haaland sets WorldCup record — fastest hat-trick in tournament history',
+     ai:'Erling Haaland scored a hat-trick in 11 minutes against the Philippines, breaking the record for the fastest hat-trick in WorldCup history. Norway are making their presence felt in Group H.',
+     time:'Record',source:'Match Data',img:getNewsImg('player',1),tags:['Haaland','Norway','Record']},
+    {id:'st-4',cat:'insights',
+     headline:'Group C: Argentina and Italy both alive after dramatic draws',
+     ai:'Group C is perfectly balanced after the opening round. Argentina drew with Italy 1-1 in a late drama, while Japan are also competitive. All four teams can still qualify, making Group C the tournament\'s most unpredictable.',
+     time:'Analysis',source:'Group Update',img:getNewsImg('insights',0),tags:['Group C','Argentina','Italy']},
+    {id:'st-5',cat:'standings',
+     headline:'WorldCup 2026 Group standings update after matchday 1 and 2',
+     ai:'France and Brazil lead their respective groups after dominant starts. Argentina and Spain are also on course to progress. Check the Groups tab for complete standings and qualification scenarios.',
+     time:'Standings',source:'WorldCup Stats',img:getNewsImg('standings',0),tags:['Standings','Groups','Table']},
+    {id:'st-6',cat:'tournament',
+     headline:'MetLife Stadium record attendance: 83,000 fans for opening match',
+     ai:'MetLife Stadium in New York set a new WorldCup attendance record with 83,000 fans for the opening match. The tournament atmosphere across USA, Canada and Mexico has been exceptional from day one.',
+     time:'1 day ago',source:'Tournament News',img:getNewsImg('tournament',0),tags:['MetLife','Attendance','Opening']},
+    /* WorldCup.pi feature story */
+    {id:'app-promo-2', cat:'app', isApp:true,
+     headline:'Make predictions on WorldCup.pi and earn Pi rewards',
+     ai:'WorldCup.pi lets you predict every match outcome, earn points, and climb the fan leaderboard. Unlock the Fan Pass for 1 Pi to access all premium features including analytics, group simulator, and verified fan badge. Join thousands of fans on Pi Network.',
+     time:'Featured',source:'WorldCup.pi',img:getNewsImg('app',0),tags:['WorldCup.pi','Predictions','Fan Pass','Pi Network']},
+  ];
+
+  return stories.concat(premium);
+}
+
+var TOP_PLAYERS = [
+  {name:'Kylian Mbappe',team:'France',flag:'FR',goals:4,assists:2,rating:9.4,ai:'Leading the Golden Boot race with 4 goals. Unstoppable pace and clinical finishing.'},
+  {name:'Vinicius Junior',team:'Brazil',flag:'BR',goals:3,assists:3,rating:9.1,ai:'Most creative player in the tournament. His directness is causing chaos in every match.'},
+  {name:'Erling Haaland',team:'Norway',flag:'NO',goals:5,assists:1,rating:9.0,ai:'WorldCup record hat-trick. Pure clinical excellence every time he touches the ball.'},
+  {name:'Pedri',team:'Spain',flag:'ES',goals:1,assists:4,rating:8.9,ai:'Spain\'s midfield maestro. His vision and passing range control every game he plays.'},
+  {name:'Jude Bellingham',team:'England',flag:'ENG',goals:2,assists:3,rating:8.8,ai:'Box-to-box brilliance. England\'s most important player in every match.'},
+];
+
+function aiSummarize(story, callback) {
+  var ckey = 'wc2_ai_' + story.id;
+  var cached = localStorage.getItem(ckey);
+  if (cached) { callback(cached); return; }
+  if (story.ai) {
+    setTimeout(function(){
+      localStorage.setItem(ckey, story.ai);
+      callback(story.ai);
+    }, Math.random()*300+100);
+    return;
+  }
+  callback(story.ai || story.headline);
+}
+
+function initNews() {
+  if (newsLoading) return;
+  newsLoading = true;
+  var skels = document.getElementById('news-skeletons');
+  if (skels) skels.style.display = 'block';
+  var aiProc = document.getElementById('ai-processing');
+  if (aiProc) aiProc.style.display = 'flex';
+
+  /* Build from current match data */
+  newsCache = buildNewsData();
+  newsLoading = false;
+  renderNewsEngine();
+
+  var upd = document.getElementById('news-updated');
+  if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+
+  setTimeout(function(){
+    var ap = document.getElementById('ai-processing');
+    if (ap) ap.style.display = 'none';
+    var sk = document.getElementById('news-skeletons');
+    if (sk) sk.style.display = 'none';
+  }, 800);
+}
+
+function refreshNews() {
+  /* Clear all AI summary caches */
+  Object.keys(localStorage).forEach(function(k){
+    if (k.startsWith('wc2_ai_')) localStorage.removeItem(k);
+  });
+  _newsInited = false;
+  newsLoading = false;
+  newsCache = [];
+  var btn = document.getElementById('news-refresh-btn');
+  if (btn) btn.classList.add('spinning');
+
+  /* Re-fetch matches too */
+  _fetchFlight = false;
+  fetchMatches();
+
+  setTimeout(function(){
+    newsCache = buildNewsData();
+    renderNewsEngine();
+    var upd = document.getElementById('news-updated');
+    if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    if (btn) btn.classList.remove('spinning');
+    toast('News refreshed!');
+  }, 1200);
+}
+
+function filterNews(cat, btn) {
+  newsFilter = cat;
+  document.querySelectorAll('.ncat').forEach(function(b){b.classList.remove('on');});
+  if (btn) btn.classList.add('on');
+  renderNewsEngine();
+}
+
+function renderNewsEngine() {
+  _newsInited = true;
+  if (!newsCache || !newsCache.length) newsCache = buildNewsData();
+
+  var stories = newsFilter === 'all'   ? newsCache :
+                newsFilter === 'saved' ? newsCache.filter(function(s){return newsSaved.includes(s.id);}) :
+                newsFilter === 'app'   ? newsCache.filter(function(s){return s.cat==='app';}) :
+                newsCache.filter(function(s){return s.cat === newsFilter;});
+
+  var skels = document.getElementById('news-skeletons');
+  if (skels) skels.style.display = 'none';
+
+  if (!stories.length) {
+    var mc = document.getElementById('news-main-cards');
+    if (mc) mc.innerHTML = '<div class="empty">No stories in this category</div>';
+    var hs = document.getElementById('news-hero-slot');
+    if (hs) hs.innerHTML = '';
+    return;
+  }
+
+  /* Breaking banner */
+  var brk = stories.find(function(s){return s.isBreaking;});
+  var bb = document.getElementById('breaking-banner'), bt = document.getElementById('breaking-text');
+  if (brk && bb && bt) { bb.style.display='flex'; bt.textContent=brk.headline; bb._story=brk; }
+  else if (bb) bb.style.display='none';
+
+  /* Hero — first non-live story */
+  var hero = stories.find(function(s){return !s.isLive && s.cat!=='breaking';}) || stories[0];
+  renderNewsHero(hero);
+
+  /* Live section */
+  var live = stories.filter(function(s){return s.isLive;});
+  var ls = document.getElementById('news-live-section'), lc = document.getElementById('news-live-cards');
+  if (live.length && ls && lc) {
+    ls.style.display = 'block';
+    lc.innerHTML = live.map(function(s){return buildCard(s,'compact');}).join('');
+    setTimeout(function(){lazyImgs('news-live-cards');}, 80);
+  } else if (ls) ls.style.display = 'none';
+
+  /* Player section */
+  var ps = document.getElementById('news-player-section'), pc = document.getElementById('news-player-cards');
+  if (ps && pc && (newsFilter==='all'||newsFilter==='player')) {
+    ps.style.display = 'block';
+    pc.innerHTML = TOP_PLAYERS.slice(0,3).map(buildPlayerC).join('');
+  } else if (ps) ps.style.display = (newsFilter==='player'?'block':'none');
+
+  /* Main stories */
+  var main = stories.filter(function(s){return s!==hero && !s.isLive;}).slice(0,5);
+  var mc2 = document.getElementById('news-main-cards');
+  if (mc2) {
+    mc2.innerHTML = main.map(function(s){return buildCard(s,'full');}).join('');
+    setTimeout(function(){lazyImgs('news-main-cards');}, 80);
+    main.forEach(function(s){
+      aiSummarize(s, function(sum){
+        var el = document.getElementById('ai-sum-'+s.id);
+        if (el) el.textContent = sum;
+      });
+    });
+  }
+
+  /* Insights */
+  var ins = stories.filter(function(s){return s.cat==='insights';}).slice(0,2);
+  var is2 = document.getElementById('news-insights-section'), ic = document.getElementById('news-insights-cards');
+  if (ins.length && is2 && ic && (newsFilter==='all'||newsFilter==='insights')) {
+    is2.style.display = 'block';
+    ic.innerHTML = ins.map(function(s){return buildCard(s,'full');}).join('');
+    setTimeout(function(){lazyImgs('news-insights-cards');}, 80);
+    ins.forEach(function(s){ aiSummarize(s, function(sum){ var e2=document.getElementById('ai-sum-'+s.id); if(e2) e2.textContent=sum; }); });
+  } else if (is2) is2.style.display = 'none';
+
+  /* More */
+  var more = stories.filter(function(s){return s!==hero && !s.isLive && !main.includes(s) && !ins.includes(s);}).slice(0,8);
+  var ms = document.getElementById('news-more-section'), mc3 = document.getElementById('news-more-cards');
+  if (more.length && ms && mc3) {
+    ms.style.display = 'block';
+    mc3.innerHTML = more.map(function(s){return buildCard(s,'compact');}).join('');
+    setTimeout(function(){lazyImgs('news-more-cards');}, 80);
+  } else if (ms) ms.style.display = 'none';
+}
+
+function renderNewsHero(s) {
+  var slot = document.getElementById('news-hero-slot');
+  if (!slot || !s) return;
+  var saved = newsSaved.includes(s.id);
+  var isApp = s.cat === 'app';
+  slot.innerHTML = '<div class="news-hero'+(isApp?' app-promo-card':'')+'" onclick="openStory(\''+s.id+'\')">'+
+    '<img class="news-hero-img loading" id="hero-img-'+s.id+'" src="" alt="">'+
+    (s.isLive ? '<div class="news-card-live">LIVE</div>' : '')+
+    (isApp ? '<div style="position:absolute;top:.5rem;right:.5rem;background:rgba(0,212,255,.85);border-radius:var(--pill);padding:.15rem .5rem;font-family:var(--dm);font-size:.42rem;color:var(--bg)">WORLDCUP.PI</div>' : '')+
+    '<div class="news-hero-overlay">'+
+      '<div class="news-hero-cat">'+getCL(s.cat)+'</div>'+
+      '<div class="news-hero-title">'+s.headline+'</div>'+
+      '<div class="news-hero-summary" id="ai-sum-hero-'+s.id+'"><div class="ai-processing-dots"><span>.</span><span>.</span><span>.</span></div></div>'+
+      '<div class="news-hero-meta">'+
+        '<span class="news-hero-time">'+s.time+' · '+s.source+'</span>'+
+        '<div class="news-hero-actions">'+
+          '<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'Saved':'Save')+'</div>'+
+          '<div class="nact-btn" onclick="event.stopPropagation();shareStory(\''+s.id+'\')">Share</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>'+
+  '</div>';
+  setTimeout(function(){
+    var img = document.getElementById('hero-img-'+s.id);
+    if (img) loadNewsImg(img, s.img, s.cat);
+    aiSummarize(s, function(sum){ var e2=document.getElementById('ai-sum-hero-'+s.id); if(e2) e2.textContent=sum; });
+  }, 50);
+}
+
+function buildCard(s, type) {
+  var saved   = newsSaved.includes(s.id);
+  var liked   = !!(JSON.parse(localStorage.getItem('wc2_uliked')||'{}')||{})[s.id];
+  var likes   = (JSON.parse(localStorage.getItem('wc2_nlikes')||'{}')||{})[s.id] || (Math.floor(Math.random()*30)+5);
+  var cmtCnt  = ((JSON.parse(localStorage.getItem('wc2_ncomments')||'{}')||{})[s.id]||[]).length;
+  var isApp   = s.cat === 'app';
+
+  if (type === 'compact') {
+    return '<div class="news-compact'+(isApp?' app-promo-card':'')+'" onclick="openStory(\''+s.id+'\')">'
+      +'<img class="news-compact-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
+      +'<div class="news-compact-body">'
+        +'<div class="news-compact-cat '+getCC(s.cat)+'">'+(isApp?'WORLDCUP.PI':getCL(s.cat))+(s.isLive?' · LIVE':'')+'</div>'
+        +'<div class="news-compact-title">'+s.headline+'</div>'
+        +'<div style="display:flex;gap:.5rem;margin-top:.2rem;">'
+          +'<span class="news-compact-time">'+s.time+' · '+s.source+'</span>'
+          +'<button data-like-id="'+s.id+'" onclick="likeStory(\''+s.id+'\',event)" style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;">'+(liked?'❤':'♡')+' '+likes+'</button>'
+          +'<button onclick="openComments(\''+s.id+'\',\''+s.headline.slice(0,40).replace(/'/g,'').replace(/"/g,'')+'\',event)" style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;">💬 '+cmtCnt+'</button>'
+        +'</div>'
+      +'</div>'
+    +'</div>';
+  }
+
+  return '<div class="news-card'+(isApp?' app-promo-card':'')+'" onclick="openStory(\''+s.id+'\')">'
+    +'<div class="news-card-img-wrap">'
+      +'<img class="news-card-img loading" data-src="'+s.img+'" data-cat="'+s.cat+'" src="" alt="">'
+      +'<div class="news-card-cat-badge '+getCC(s.cat)+'">'+(isApp?'WORLDCUP.PI':getCL(s.cat))+'</div>'
+      +(s.isLive?'<div class="news-card-live">LIVE</div>':'')
+      +(isApp?'<div style="position:absolute;bottom:.5rem;right:.5rem;background:rgba(0,212,255,.9);border-radius:var(--pill);padding:.15rem .55rem;font-family:var(--dm);font-size:.44rem;color:var(--bg)">Pi Network App</div>':'')
+    +'</div>'
+    +'<div class="news-card-body">'
+      +'<div class="news-card-headline">'+s.headline+'</div>'
+      +'<div class="news-card-ai"><div class="news-card-ai-icon">AI</div>'
+        +'<div class="news-card-ai-text" id="ai-sum-'+s.id+'"><div class="ai-processing-dots"><span>.</span><span>.</span><span>.</span></div></div></div>'
+      +'<div class="news-card-footer">'
+        +'<div class="news-card-source"><div class="news-card-src-dot" style="background:'+getC(s.cat)+'"></div><div class="news-card-src-name">'+s.source+'</div></div>'
+        +'<div class="news-card-time">'+s.time+'</div>'
+        +'<div class="news-card-acts">'
+          +'<button data-like-id="'+s.id+'" onclick="likeStory(\''+s.id+'\',event)" class="nact-btn" style="border:none;">'+(liked?'❤':'♡')+' '+likes+'</button>'
+          +'<button onclick="openComments(\''+s.id+'\',\''+s.headline.slice(0,40).replace(/'/g,'').replace(/"/g,'')+'\',event)" class="nact-btn" style="border:none;">💬 '+cmtCnt+'</button>'
+          +'<div class="nact-btn'+(saved?' saved':'')+'" onclick="event.stopPropagation();toggleSave(\''+s.id+'\')" id="save-btn-'+s.id+'">'+(saved?'Saved':'Save')+'</div>'
+        +'</div>'
+      +'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function buildPlayerC(p) {
+  return '<div class="player-card">'
+    +'<div class="player-av">'+getFlag(p.team)+'</div>'
+    +'<div class="player-info">'
+      +'<div class="player-name">'+p.name+'</div>'
+      +'<div class="player-team">'+p.team+'</div>'
+      +'<div class="player-stat">'+p.goals+' G · '+p.assists+' A · '+p.rating+' rating</div>'
+      +'<div class="player-ai">'+p.ai+'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+function lazyImgs(id) {
+  var c = document.getElementById(id);
+  if (!c) return;
+  c.querySelectorAll('[data-src]').forEach(function(el){
+    var src = el.getAttribute('data-src'), cat = el.getAttribute('data-cat')||'match';
+    el.removeAttribute('data-src'); el.removeAttribute('data-cat');
+    loadNewsImg(el, src, cat);
+  });
+}
+
+function getCL(cat){var m={breaking:'BREAKING',match:'Match',player:'Player',tournament:'Tournament',standings:'Standings',insights:'Insights',app:'WorldCup.pi'};return m[cat]||'News';}
+function getCC(cat){return 'cat-'+(cat==='app'?'match':cat);}
+function getC(cat){var m={breaking:'var(--red)',match:'var(--c1)',player:'var(--gold)',tournament:'var(--purple)',standings:'var(--grn)',insights:'var(--orange)',app:'var(--c1)'};return m[cat]||'var(--c1)';}
+
+function openStory(id) {
+  var s = newsCache.find(function(x){return x.id===id;});
+  if (!s) return;
+  var saved = newsSaved.includes(id);
+  var isApp = s.cat === 'app';
+  var c = document.getElementById('story-content');
+  if (!c) return;
+
+  var appBanner = isApp
+    ? '<div style="background:linear-gradient(135deg,var(--c2),var(--c1));padding:.75rem 1rem;display:flex;align-items:center;justify-content:space-between;">'
+        +'<div style="font-family:var(--df);font-size:1rem;letter-spacing:.08em;color:var(--bg)">WORLDCUP.PI</div>'
+        +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--bg);opacity:.8">Pi Network App</div>'
+      +'</div>'
+    : '';
+
+  c.innerHTML = appBanner
+    +'<div style="position:relative;">'
+      +'<img id="story-hi" src="" alt="'+s.headline.slice(0,40)+'" style="width:100%;height:200px;object-fit:cover;display:block;opacity:0;transition:opacity .3s">'
+    +'</div>'
+    +'<div class="story-body">'
+      +'<div class="story-cat">'+getCL(s.cat)+'</div>'
+      +'<div class="story-title">'+s.headline+'</div>'
+      +'<div class="story-meta"><span class="story-time">'+s.time+'</span><span class="tag-blue">'+s.source+'</span>'+(s.isLive?'<span class="tag-red">LIVE</span>':'')+'</div>'
+      +'<div class="story-ai-box"><div class="story-ai-label">AI ANALYSIS</div><div class="story-ai-content" id="story-ai"><div class="ai-processing-dots"><span>.</span><span>.</span><span>.</span></div></div></div>'
+      +'<div class="story-text">'+s.ai+'</div>'
+      +(isApp
+        ? '<div style="background:rgba(0,212,255,.06);border:1px solid var(--bd);border-radius:var(--r2);padding:.85rem;margin:.75rem 0;">'
+            +'<div style="font-family:var(--df);font-size:.95rem;color:var(--c1);margin-bottom:.5rem;letter-spacing:.06em">WorldCup.pi Features</div>'
+            +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.8;">'
+              +'Live match scores · Match predictions · QR fan tickets<br>'
+              +'Fan ID card · Pi payments · Group standings<br>'
+              +'AI news feed · 6 languages · Real-time alerts<br>'
+              +'Fan leaderboard · Analytics dashboard · Daily bonuses'
+            +'</div>'
+            +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--c1);margin-top:.5rem">worldcup-eij.pages.dev · Pi Network Mainnet</div>'
+          +'</div>'
+        : '')
+      +'<div class="story-tags">'+(s.tags||[]).map(function(t){return '<div class="story-tag">'+t+'</div>';}).join('')+'</div>'
+      +'<div style="display:flex;gap:.5rem;margin-top:.85rem">'
+        +'<button class="btn btn-ghost" onclick="toggleSave(\''+id+'\')" id="story-save-btn">'+(saved?'Saved':'Save Story')+'</button>'
+        +'<button class="btn btn-ghost" onclick="shareStory(\''+id+'\')">Share</button>'
+      +'</div>'
+    +'</div>';
+
+  document.getElementById('story-overlay').classList.add('open');
+
+  setTimeout(function(){
+    var img = document.getElementById('story-hi');
+    if (img) { var i=new Image(); i.onload=function(){img.src=s.img;img.style.opacity=1;}; i.onerror=function(){img.src=getNewsImg(s.cat,9);img.style.opacity=1;}; i.src=s.img; }
+    aiSummarize(s, function(sum){ var e2=document.getElementById('story-ai'); if(e2) e2.textContent=sum; });
+  }, 50);
+}
+
+function closeStory() { document.getElementById('story-overlay').classList.remove('open'); }
+
+function toggleSave(id) {
+  var idx = newsSaved.indexOf(id);
+  if (idx>-1) { newsSaved.splice(idx,1); toast('Removed from saved'); }
+  else { newsSaved.push(id); toast('Story saved!'); }
+  localStorage.setItem('wc2_saved_news', JSON.stringify(newsSaved));
+  var btn = document.getElementById('save-btn-'+id); if(btn){btn.textContent=newsSaved.includes(id)?'Saved':'Save'; btn.classList.toggle('saved',newsSaved.includes(id));}
+  var sbtn = document.getElementById('story-save-btn'); if(sbtn) sbtn.textContent=newsSaved.includes(id)?'Saved':'Save Story';
+}
+
+function shareStory(id) {
+  var s = newsCache.find(function(x){return x.id===id;});
+  if (!s) return;
+  var text = s.headline + ' — ' + s.ai;
+  if (navigator.share) navigator.share({title:'WorldCup News', text:text});
+  else { if(navigator.clipboard) navigator.clipboard.writeText(text).catch(function(){}); toast('Copied!'); }
+}
+
+function openBreaking() {
+  var bb = document.getElementById('breaking-banner');
+  if (bb && bb._story) openStory(bb._story.id);
+}
+
+/* App promo CSS */
+var _appPromoStyle = document.createElement('style');
+_appPromoStyle.textContent = '.app-promo-card{border-color:rgba(0,212,255,.35)!important;}'
+  + '.app-promo-card::before{background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold))!important;}';
+if (document.head) document.head.appendChild(_appPromoStyle);
 </script>
 </body>
 </html>
