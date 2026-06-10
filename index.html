@@ -4165,167 +4165,13 @@ if (typeof window !== 'undefined') {
    - Always check typeof Pi before Pi.createPayment
 ================================================================ */
 
-function buyPrem() {
-  if (isPrem) {
-    toast('Fan Pass already active!');
-    return;
-  }
 
-  if (typeof Pi === 'undefined') {
-    toast('Open in Pi Browser to pay');
-    return;
-  }
 
-  var btn = document.getElementById('prem-btn');
-  if (btn) {
-    btn.textContent = 'Processing...';
-    btn.disabled = true;
-  }
 
-  Pi.createPayment(
-    {
-      amount:   1,
-      memo:     'WorldCup Fan Pass',
-      metadata: {
-        type: 'fan_pass',
-        app:  'worldcup'
-      }
-    },
-    {
-      onReadyForServerApproval: function(paymentId) {
-        console.log('[WorldCup] onReadyForServerApproval', paymentId);
-        return fetch(_APPROVE, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ paymentId: paymentId })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          console.log('[WorldCup] approve response', JSON.stringify(d));
-        });
-      },
 
-      onReadyForServerCompletion: function(paymentId, txid) {
-        console.log('[WorldCup] onReadyForServerCompletion', paymentId, txid);
-        return fetch(_COMPLETE, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ paymentId: paymentId, txid: txid })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          console.log('[WorldCup] complete response', JSON.stringify(d));
-          isPrem = true;
-          saveSt();
-          renderPremStatus();
-          pts += 50;
-          updatePtsDisplay();
-          addTx('Fan Pass 1 Pi - ' + paymentId.slice(0,8));
-          toast('Fan Pass unlocked! +50 pts');
-        })
-        .catch(function(err) {
-          console.error('[WorldCup] complete error', err);
-          isPrem = true;
-          saveSt();
-          renderPremStatus();
-          toast('Fan Pass unlocked!');
-        });
-      },
 
-      onCancel: function(paymentId) {
-        console.log('[WorldCup] payment cancelled', paymentId);
-        if (btn) {
-          btn.textContent = 'Unlock Fan Pass - 1 Pi';
-          btn.disabled = false;
-        }
-        toast('Payment cancelled');
-      },
 
-      onError: function(error, payment) {
-        console.error('[WorldCup] payment error', error, payment);
-        if (btn) {
-          btn.textContent = 'Unlock Fan Pass - 1 Pi';
-          btn.disabled = false;
-        }
-        toast('Payment error - try again');
-      }
-    }
-  );
-}
 
-function sendPi() {
-  var to   = (document.getElementById('send-to')  || {}).value || '';
-  var amt  = parseFloat((document.getElementById('send-amt')  || {}).value) || 0;
-  var memo = (document.getElementById('send-memo') || {}).value || 'Fan tip';
-  _doSendPi(to, amt, memo);
-}
-
-function sendPiFull() {
-  var to   = (document.getElementById('sp-to')   || {}).value || '';
-  var amt  = parseFloat((document.getElementById('sp-amt')  || {}).value) || 0;
-  var memo = (document.getElementById('sp-memo') || {}).value || 'Fan tip';
-  _doSendPi(to, amt, memo);
-}
-
-function _doSendPi(to, amt, memo) {
-  if (!to.trim())       { toast('Enter recipient username'); return; }
-  if (!amt || amt <= 0) { toast('Enter valid amount'); return; }
-  if (typeof Pi === 'undefined') { toast('Open in Pi Browser'); return; }
-
-  var cleanMemo = 'WorldCup tip to ' + to.slice(0,10);
-
-  Pi.createPayment(
-    {
-      amount:   amt,
-      memo:     cleanMemo,
-      metadata: { type: 'send', recipient: to }
-    },
-    {
-      onReadyForServerApproval: function(paymentId) {
-        console.log('[WorldCup] send approve', paymentId);
-        return fetch(_APPROVE, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ paymentId: paymentId })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          console.log('[WorldCup] send approve response', JSON.stringify(d));
-        });
-      },
-
-      onReadyForServerCompletion: function(paymentId, txid) {
-        console.log('[WorldCup] send complete', paymentId, txid);
-        return fetch(_COMPLETE, {
-          method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ paymentId: paymentId, txid: txid })
-        })
-        .then(function(r) { return r.json(); })
-        .then(function(d) {
-          console.log('[WorldCup] send complete response', JSON.stringify(d));
-          addTx(amt + ' Pi sent to @' + to);
-          toast(amt + ' Pi sent to @' + to + '!');
-        })
-        .catch(function(err) {
-          console.error('[WorldCup] send complete error', err);
-          addTx(amt + ' Pi sent to @' + to);
-          toast('Sent!');
-        });
-      },
-
-      onCancel: function(paymentId) {
-        console.log('[WorldCup] send cancelled', paymentId);
-        toast('Cancelled');
-      },
-
-      onError: function(error, payment) {
-        console.error('[WorldCup] send error', error, payment);
-        toast('Error - try again');
-      }
-    }
-  );
-}
 
 /* ================================================================
    WORLDCUP DATA ENGINE v4.0
@@ -5303,6 +5149,167 @@ var _appPromoStyle = document.createElement('style');
 _appPromoStyle.textContent = '.app-promo-card{border-color:rgba(0,212,255,.35)!important;}'
   + '.app-promo-card::before{background:linear-gradient(90deg,var(--c2),var(--c1),var(--gold))!important;}';
 if (document.head) document.head.appendChild(_appPromoStyle);
+
+/* ================================================================
+   WORLDCUP PAYMENTS · Pi Network Mainnet · sandbox:false
+   Endpoints: /approve · /complete
+   Rule: memo = ASCII only · metadata = simple keys only
+================================================================ */
+
+function buyPrem() {
+  /* Guard: already premium */
+  if (isPrem) { toast('Fan Pass already active'); return; }
+
+  /* Guard: Pi SDK not loaded */
+  if (typeof Pi === 'undefined') {
+    toast('Open in Pi Browser to pay');
+    return;
+  }
+
+  var btn = document.getElementById('prem-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Processing...'; }
+
+  /* Timeout guard — restore button if SDK never calls back */
+  var _guard = setTimeout(function() {
+    console.warn('[WorldCup] Payment guard timeout — restoring button');
+    if (btn) { btn.disabled = false; btn.textContent = 'Unlock Fan Pass - 1 Pi'; }
+    toast('Payment timed out — please try again');
+  }, 60000);
+
+  Pi.createPayment(
+    {
+      amount:   1,
+      memo:     'WorldCup Fan Pass',
+      metadata: { type: 'fan_pass', app: 'worldcup' }
+    },
+    {
+      onReadyForServerApproval: function(paymentId) {
+        console.log('[WorldCup] onReadyForServerApproval', paymentId);
+        clearTimeout(_guard);
+        return fetch(_APPROVE, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ paymentId: paymentId })
+        })
+        .then(function(r) {
+          console.log('[WorldCup] /approve HTTP status:', r.status);
+          return r.json();
+        })
+        .then(function(d) {
+          console.log('[WorldCup] /approve body:', JSON.stringify(d));
+        });
+      },
+
+      onReadyForServerCompletion: function(paymentId, txid) {
+        console.log('[WorldCup] onReadyForServerCompletion', paymentId, txid);
+        clearTimeout(_guard);
+        return fetch(_COMPLETE, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ paymentId: paymentId, txid: txid })
+        })
+        .then(function(r) {
+          console.log('[WorldCup] /complete HTTP status:', r.status);
+          return r.json();
+        })
+        .then(function(d) {
+          console.log('[WorldCup] /complete body:', JSON.stringify(d));
+          _grantFanPass(paymentId);
+        })
+        .catch(function(err) {
+          console.error('[WorldCup] /complete network error:', err);
+          _grantFanPass(paymentId); /* Grant locally if network fails */
+        });
+      },
+
+      onCancel: function(paymentId) {
+        console.log('[WorldCup] Payment cancelled', paymentId);
+        clearTimeout(_guard);
+        if (btn) { btn.disabled = false; btn.textContent = 'Unlock Fan Pass - 1 Pi'; }
+        toast('Payment cancelled');
+      },
+
+      onError: function(error, payment) {
+        console.error('[WorldCup] Payment error', error, payment);
+        clearTimeout(_guard);
+        if (btn) { btn.disabled = false; btn.textContent = 'Unlock Fan Pass - 1 Pi'; }
+        toast('Payment error — try again');
+      }
+    }
+  );
+}
+
+function _grantFanPass(paymentId) {
+  isPrem = true;
+  saveSt();
+  renderPremStatus();
+  pts += 50;
+  updatePtsDisplay();
+  addTx('Fan Pass 1 Pi ' + (paymentId||'').slice(0,8));
+  toast('Fan Pass unlocked! +50 pts');
+}
+
+/* ── Send Pi ── */
+function sendPi() {
+  var to   = (document.getElementById('send-to')  || {}).value || '';
+  var amt  = parseFloat((document.getElementById('send-amt')  || {}).value) || 0;
+  var memo = (document.getElementById('send-memo') || {}).value || '';
+  _doSendPi(to, amt, memo);
+}
+
+function sendPiFull() {
+  var to   = (document.getElementById('sp-to')   || {}).value || '';
+  var amt  = parseFloat((document.getElementById('sp-amt')  || {}).value) || 0;
+  var memo = (document.getElementById('sp-memo') || {}).value || '';
+  _doSendPi(to, amt, memo);
+}
+
+function _doSendPi(to, amt, memo) {
+  if (!to.trim())       { toast('Enter recipient'); return; }
+  if (!amt || amt <= 0) { toast('Enter valid amount'); return; }
+  if (typeof Pi === 'undefined') { toast('Open in Pi Browser'); return; }
+
+  var safeMemo = 'WorldCup tip';
+
+  Pi.createPayment(
+    {
+      amount:   amt,
+      memo:     safeMemo,
+      metadata: { type: 'send', to: to.slice(0,20) }
+    },
+    {
+      onReadyForServerApproval: function(paymentId) {
+        console.log('[WorldCup] Send approve', paymentId);
+        return fetch(_APPROVE, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ paymentId: paymentId })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) { console.log('[WorldCup] Send approve:', JSON.stringify(d)); });
+      },
+      onReadyForServerCompletion: function(paymentId, txid) {
+        console.log('[WorldCup] Send complete', paymentId, txid);
+        return fetch(_COMPLETE, {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify({ paymentId: paymentId, txid: txid })
+        })
+        .then(function(r) { return r.json(); })
+        .then(function(d) {
+          addTx(amt + ' Pi sent to @' + to);
+          toast(amt + ' Pi sent to @' + to + '!');
+        })
+        .catch(function() {
+          addTx(amt + ' Pi sent to @' + to);
+          toast('Sent!');
+        });
+      },
+      onCancel:  function() { toast('Cancelled'); },
+      onError:   function(e) { toast('Error: ' + (e.message||'')); }
+    }
+  );
+}
 </script>
 </body>
 </html>
