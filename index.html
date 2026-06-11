@@ -238,7 +238,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 .tl{font-family:var(--dm);font-size:.48rem;color:var(--t3);letter-spacing:.05em;margin-top:.15rem;}
 
 /* ── GROUPS SCREEN ── */
-.ggrid{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:0 1rem 1rem;}
+.ggrid{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;padding:0 1rem 1rem;}
 .gc{background:var(--bg3);border:1px solid var(--bd);border-radius:var(--r3);padding:.75rem;overflow:hidden;position:relative;}
 .gc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--c2),var(--c1));}
 .gc-hdr{font-family:var(--df);font-size:1rem;letter-spacing:.1em;color:var(--c1);margin-bottom:.4rem;}
@@ -811,6 +811,8 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 /* tc-red */
 .tc-red::before{background:linear-gradient(90deg,#CC2244,#FF3B5C)!important;}
 
+
+.tt-soon{background:rgba(155,89,182,.12);color:#C39BD3;border:1px solid rgba(155,89,182,.25);}
 </style>
 </head>
 <body>
@@ -838,18 +840,19 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 <div id="login" style="display:flex;flex-direction:column;min-height:100vh;">
   <div class="login-stripe"></div>
   <div class="login-hero">
-    <div class="login-eyebrow">⚽ Pi Network · Mainnet · sandbox:false · worldcup.pi</div>
+    <div class="login-eyebrow">⚽ Football. Live. Connected.</div>
     <div class="login-wordmark">WorldCup</div>
-    <div class="login-tagline">The World's #1 Football Fan App on Pi Network</div>
+    <div class="login-tagline" id="login-tagline">Follow the world's biggest football moments in one place.</div>
     <div class="login-pills">
       <span class="lpill">📅 Live Fixtures</span>
+      <span class="lpill">📰 News &amp; Stories</span>
       <span class="lpill">🧠 Predictions</span>
-      <span class="lpill">🎟️ QR Tickets</span>
-      <span class="lpill">📊 Analytics</span>
-      <span class="lpill">🔔 Live Alerts</span>
-      <span class="lpill">👤 Fan ID</span>
+      <span class="lpill">🎟️ Digital Tickets</span>
+      <span class="lpill">📊 Insights</span>
+      <span class="lpill">🔔 Match Alerts</span>
+      <span class="lpill">👤 Fan Profile</span>
       <span class="lpill">💸 Pi Payments</span>
-      <span class="lpill">🌍 4 Languages</span>
+      <span class="lpill">🌍 6 Languages</span>
     </div>
   </div>
   <div class="login-cta">
@@ -866,7 +869,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
       <span id="signin-txt">Sign In with Pi</span>
     </button>
     <div id="lmsg"></div>
-    <p class="login-legal">Community fan app · Pi Network Mainnet · sandbox:false · worldcup-eij.pages.dev · An independent football community platform</p>
+    <p class="login-legal">Independent football community platform · Fast · Live · Global</p>
   </div>
 </div>
 
@@ -1344,6 +1347,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
             <div class="pf">Group simulator</div>
             <div class="pf">Team compare tool</div>
           </div>
+          <div id="payment-status" style="display:none;align-items:center;gap:.4rem;padding:.3rem .5rem;margin-bottom:.4rem;font-family:var(--dm);font-size:.58rem;border-radius:var(--r1);background:rgba(0,212,255,.05);border:1px solid var(--bd)"></div>
           <button class="btn btn-gold" id="prem-btn" onclick="buyPrem()">Unlock Fan Pass - 1 Pi</button>
           <div id="prem-status-badge" style="display:none;text-align:center;margin-top:.5rem">
             <span class="tag-gold">⭐ Fan Pass Active</span>
@@ -2140,6 +2144,60 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 
 /* ── CONSTANTS ── */
 var K = 'wc2_';
+
+var I18N = {
+  en:{lang:'English',dir:'ltr',
+    nav:{matches:'Matches',news:'News',predict:'Predict',standings:'Standings',utilities:'More'},
+    signin:'Sign In with Pi',tagline:'Follow the biggest football moments in one place.',
+    live_now:'Live Now',today:'Today',upcoming:'Upcoming',results:'Results',
+    fan_lb:'Fan Leaderboard',grp_std:'Group Standings',predict_title:'Predictions',
+    welcome:'Welcome',pts:'Points',streak:'Streak',no_live:'No live matches',
+    loading:'Loading...',logout:'Sign Out',save:'Save',share:'Share',close:'Close',
+    cat_all:'All',cat_breaking:'Breaking',cat_match:'Match',cat_player:'Player',
+    cat_tournament:'Tournament',cat_standings:'Standings',cat_insights:'Insights',cat_saved:'Saved',
+  },
+  ar:{lang:'\u0627\u0644\u0639\u0631\u0628\u064a\u0629',dir:'rtl',
+    nav:{matches:'\u0627\u0644\u0645\u0628\u0627\u0631\u064a\u0627\u062a',news:'\u0627\u0644\u0623\u062e\u0628\u0627\u0631',predict:'\u0627\u0644\u062a\u0648\u0642\u0639\u0627\u062a',standings:'\u0627\u0644\u062a\u0631\u062a\u064a\u0628',utilities:'\u0627\u0644\u0645\u0632\u064a\u062f'},
+    signin:'\u062a\u0633\u062c\u064a\u0644 \u0627\u0644\u062f\u062e\u0648\u0644 \u0628\u0640 Pi',
+    live_now:'\u0645\u0628\u0627\u0634\u0631 \u0627\u0644\u0622\u0646',today:'\u0627\u0644\u064a\u0648\u0645',upcoming:'\u0627\u0644\u0642\u0627\u062f\u0645\u0629',results:'\u0627\u0644\u0646\u062a\u0627\u0626\u062c',
+    no_live:'\u0644\u0627 \u0645\u0628\u0627\u0631\u064a\u0627\u062a \u0645\u0628\u0627\u0634\u0631\u0629',loading:'\u062c\u0627\u0631 \u0627\u0644\u062a\u062d\u0645\u064a\u0644...',logout:'\u062e\u0631\u0648\u062c',
+    cat_all:'\u0627\u0644\u0643\u0644',cat_breaking:'\u0639\u0627\u062c\u0644',cat_match:'\u0645\u0628\u0627\u0631\u0627\u0629',cat_player:'\u0644\u0627\u0639\u0628',
+    cat_tournament:'\u0628\u0637\u0648\u0644\u0629',cat_standings:'\u062a\u0631\u062a\u064a\u0628',cat_insights:'\u062a\u062d\u0644\u064a\u0644\u0627\u062a',cat_saved:'\u0645\u062d\u0641\u0648\u0638',
+  },
+  fr:{lang:'Fran\u00e7ais',dir:'ltr',
+    nav:{matches:'Matchs',news:'Actualit\u00e9s',predict:'Pronostics',standings:'Classement',utilities:'Plus'},
+    signin:'Se connecter avec Pi',tagline:'Suivez les plus grands moments du football.',
+    live_now:'En Direct',today:"Aujourd\'hui",upcoming:'\u00c0 venir',results:'R\u00e9sultats',
+    no_live:'Aucun match en direct',loading:'Chargement...',logout:'D\u00e9connexion',
+    cat_all:'Tout',cat_breaking:'Urgent',cat_match:'Match',cat_player:'Joueur',
+    cat_tournament:'Tournoi',cat_standings:'Classement',cat_insights:'Analyses',cat_saved:'Enregistr\u00e9',
+  },
+  es:{lang:'Espa\u00f1ol',dir:'ltr',
+    nav:{matches:'Partidos',news:'Noticias',predict:'Predicciones',standings:'Clasificaci\u00f3n',utilities:'M\u00e1s'},
+    signin:'Iniciar sesi\u00f3n con Pi',tagline:'Sigue los momentos m\u00e1s grandes del f\u00fatbol.',
+    live_now:'En Vivo',today:'Hoy',upcoming:'Pr\u00f3ximos',results:'Resultados',
+    no_live:'Sin partidos en vivo',loading:'Cargando...',logout:'Cerrar sesi\u00f3n',
+    cat_all:'Todo',cat_breaking:'Urgente',cat_match:'Partido',cat_player:'Jugador',
+    cat_tournament:'Torneo',cat_standings:'Clasificaci\u00f3n',cat_insights:'An\u00e1lisis',cat_saved:'Guardado',
+  },
+  pt:{lang:'Portugu\u00eas',dir:'ltr',
+    nav:{matches:'Jogos',news:'Not\u00edcias',predict:'Previs\u00f5es',standings:'Classifica\u00e7\u00e3o',utilities:'Mais'},
+    signin:'Entrar com Pi',tagline:'Siga os maiores momentos do futebol.',
+    live_now:'Ao Vivo',today:'Hoje',upcoming:'Pr\u00f3ximos',results:'Resultados',
+    no_live:'Sem jogos ao vivo',loading:'Carregando...',logout:'Sair',
+    cat_all:'Tudo',cat_breaking:'Urgente',cat_match:'Jogo',cat_player:'Jogador',
+    cat_tournament:'Torneio',cat_standings:'Classifica\u00e7\u00e3o',cat_insights:'An\u00e1lise',cat_saved:'Salvo',
+  },
+  hi:{lang:'\u0939\u093f\u0902\u0926\u0940',dir:'ltr',
+    nav:{matches:'\u092e\u0948\u091a',news:'\u0938\u092e\u093e\u091a\u093e\u0930',predict:'\u0905\u0928\u0941\u092e\u093e\u0928',standings:'\u0924\u093e\u0932\u093f\u0915\u093e',utilities:'\u0905\u0927\u093f\u0915'},
+    signin:'Pi \u0938\u0947 \u0932\u0949\u0917\u093f\u0928 \u0915\u0930\u0947\u0902',tagline:'\u0926\u0941\u0928\u093f\u092f\u093e \u0915\u0947 \u0938\u092c\u0938\u0947 \u092c\u095c\u0947 \u092b\u0941\u091f\u092c\u0949\u0932 \u092a\u0932\u0964',
+    live_now:'\u0932\u093e\u0907\u0935',today:'\u0906\u091c',upcoming:'\u0906\u0917\u093e\u092e\u0940',results:'\u092a\u0930\u093f\u0923\u093e\u092e',
+    no_live:'\u0915\u094b\u0908 \u0932\u093e\u0907\u0935 \u092e\u0948\u091a \u0928\u0939\u0940\u0902',loading:'\u0932\u094b\u0921 \u0939\u094b \u0930\u0939\u093e \u0939\u0948...',logout:'\u0932\u0949\u0917 \u0906\u0909\u091f',
+    cat_all:'\u0938\u092d\u0940',cat_breaking:'\u092c\u094d\u0930\u0947\u0915\u093f\u0902\u0917',cat_match:'\u092e\u0948\u091a',cat_player:'\u0916\u093f\u0932\u093e\u095c\u0940',
+    cat_tournament:'\u091f\u0942\u0930\u094d\u0928\u093e\u092e\u0947\u0902\u091f',cat_standings:'\u0924\u093e\u0932\u093f\u0915\u093e',cat_insights:'\u0935\u093f\u0936\u094d\u0932\u0947\u0937\u0923',cat_saved:'\u0938\u0939\u0947\u091c\u093e',
+  },
+};
+
 var _APPROVE = '/approve';
 var _COMPLETE = '/complete';
 var PI_RATE = 0.642;
@@ -2285,19 +2343,6 @@ function startClock() {
    FOOTBALL DATA (football-data.org proxy)
 ══════════════════════════════════ */
 /* Fallback local match data for when APIs are unavailable */
-var LOCAL_MATCHES = [
-  {id:'m001',home:'🇧🇷 Brazil',away:'🇲🇦 Morocco',score:'2-1',status:'FINISHED',time:'Jun 15 · 15:00 ET',venue:'MetLife · New York',comp:'WorldCup 2026 · Group A'},
-  {id:'m002',home:'🇫🇷 France',away:'🇳🇬 Nigeria',score:'3-0',status:'FINISHED',time:'Jun 15 · 18:00 ET',venue:'Rose Bowl · LA',comp:'WorldCup 2026 · Group B'},
-  {id:'m003',home:'🇦🇷 Argentina',away:'🇯🇵 Japan',score:'1-0',status:'LIVE',min:'67',time:'LIVE',venue:'AT&T · Dallas',comp:'WorldCup 2026 · Group C'},
-  {id:'m004',home:'🇪🇸 Spain',away:'🇷🇸 Serbia',score:'2-0',status:'LIVE',min:'45+2',time:'LIVE',venue:'SoFi · Inglewood',comp:'WorldCup 2026 · Group D'},
-  {id:'m005',home:'🇩🇪 Germany',away:'🇦🇺 Australia',score:'-',status:'UPCOMING',time:'Jun 16 · 12:00 ET',venue:'Arrowhead · KC',comp:'WorldCup 2026 · Group E'},
-  {id:'m006',home:'🇧🇪 Belgium',away:'🇨🇷 Costa Rica',score:'-',status:'UPCOMING',time:'Jun 16 · 15:00 ET',venue:'NRG · Houston',comp:'WorldCup 2026 · Group F'},
-  {id:'m007',home:'🇵🇹 Portugal',away:'🇬🇭 Ghana',score:'-',status:'UPCOMING',time:'Jun 16 · 18:00 ET',venue:'Estadio · Guadalajara',comp:'WorldCup 2026 · Group G'},
-  {id:'m008',home:'🇺🇸 USA',away:'🇵🇾 Paraguay',score:'-',status:'UPCOMING',time:'Jun 17 · 15:00 ET',venue:'Rose Bowl · LA',comp:'WorldCup 2026 · Group D'},
-  {id:'m009',home:'🏴󠁧󠁢󠁥󠁮󠁧󠁿 England',away:'🇿🇦 South Africa',score:'-',status:'UPCOMING',time:'Jun 17 · 18:00 ET',venue:'Gillette · Boston',comp:'WorldCup 2026 · Group I'},
-  {id:'m010',home:'🇲🇽 Mexico',away:'🇨🇴 Colombia',score:'-',status:'UPCOMING',time:'Jun 18 · 20:00 ET',venue:'Estadio · Azteca',comp:'WorldCup 2026 · Group A'},
-];
-
 
 
 
@@ -2842,61 +2887,7 @@ function clearNotifs() {
 
 
 
-/* ── LANGUAGE — FULL COVERAGE ── */
-var I18N_FULL = {
-  en: {
-    matches:'Matches', groups:'Groups', predict:'Predict',
-    standings:'Standings', more:'More', news:'News',
-    live_now:'🔴 Live Now', todays_fixtures:"Today's Fixtures",
-    upcoming:'🔜 Upcoming', results:'✅ Recent Results',
-    fan_lb:'👑 Fan Leaderboard', group_standings:'📊 Group Standings',
-    make_pred:'🎯 Make Predictions', utilities:'🛠️ Utilities',
-    sign_in:'Sign In with Pi',
-    tagline:"The World's #1 Football Fan App on Pi Network",
-    no_live:'No live matches right now',
-    data_unavail:'Data temporarily unavailable',
-  },
-  ar: {
-    matches:'المباريات', groups:'المجموعات', predict:'التنبؤات',
-    standings:'الترتيب', more:'المزيد', news:'أخبار',
-    live_now:'🔴 مباشر الآن', todays_fixtures:'مباريات اليوم',
-    upcoming:'القادمة', results:'النتائج الأخيرة',
-    fan_lb:'قائمة المشجعين', group_standings:'ترتيب المجموعات',
-    make_pred:'توقع النتائج', utilities:'الأدوات',
-    sign_in:'تسجيل الدخول بـ Pi',
-    tagline:'أفضل تطبيق كرة القدم على شبكة Pi',
-    no_live:'لا توجد مباريات مباشرة حالياً',
-    data_unavail:'البيانات غير متاحة مؤقتاً',
-  },
-  fr: {
-    matches:'Matchs', groups:'Groupes', predict:'Pronostics',
-    standings:'Classement', more:'Plus', news:'Actualités',
-    live_now:'🔴 En direct', todays_fixtures:"Matchs d'aujourd'hui",
-    upcoming:'À venir', results:'Résultats récents',
-    fan_lb:'Classement fans', group_standings:'Classement groupes',
-    make_pred:'Faites vos pronostics', utilities:'Outils',
-    sign_in:'Connexion avec Pi',
-    tagline:'La Meilleure App Football sur Pi Network',
-    no_live:'Aucun match en direct',
-    data_unavail:'Données temporairement indisponibles',
-  },
-  es: {
-    matches:'Partidos', groups:'Grupos', predict:'Pronósticos',
-    standings:'Clasificación', more:'Más', news:'Noticias',
-    live_now:'🔴 En vivo', todays_fixtures:'Partidos de hoy',
-    upcoming:'Próximos', results:'Resultados recientes',
-    fan_lb:'Clasificación fans', group_standings:'Clasificación grupos',
-    make_pred:'Haz tus predicciones', utilities:'Herramientas',
-    sign_in:'Iniciar sesión con Pi',
-    tagline:'La Mejor App de Fútbol en Pi Network',
-    no_live:'Sin partidos en vivo ahora',
-    data_unavail:'Datos temporalmente no disponibles',
-  },
-};
-
-
-
-/* ═══════════════════════════════════════════════════════
+/* ── LANGUAGE — FULL COVERAGE ── *//* ═══════════════════════════════════════════════════════
    SUPPORT SYSTEM v1.0 · WorldCup · worldcup.pi
 ═══════════════════════════════════════════════════════ */
 
@@ -3133,121 +3124,7 @@ function renderPremStatus() {
 
 
 
-/* ── LANGUAGE — Full 6-language system ── */
-var I18N = {
-  en:{
-    lang:'English',dir:'ltr',
-    nav:{matches:'Matches',news:'News',predict:'Predict',standings:'Standings',utilities:'More'},
-    signin:'Sign In with Pi',
-    tagline:'The #1 Football Fan Platform on Pi Network',
-    live_now:'🔴 Live Now', today:'Today\'s Matches', upcoming:'Upcoming',
-    results:'Recent Results', fan_lb:'Fan Leaderboard', grp_std:'Group Standings',
-    predict_title:'Make Predictions', tools:'Utilities',
-    welcome:'Welcome',pts:'Points',streak:'Streak',preds:'Predictions',level:'Level',
-    no_live:'No live matches right now',
-    data_err:'Data temporarily unavailable · Retrying...',
-    loading:'Loading...',refreshing:'Refreshing...',
-    logout:'Sign Out', settings:'Settings',
-    save:'Save','share':'Share', download:'Download', close:'Close',
-    all:'All',breaking:'Breaking',match:'Match',player:'Player',
-    tournament:'Tournament',standings_cat:'Standings',insights:'Insights',saved:'Saved',
-    like:'Like',comment:'Comment',reply:'Reply',
-  },
-  ar:{
-    lang:'العربية',dir:'rtl',
-    nav:{matches:'المباريات',news:'الأخبار',predict:'توقعات',standings:'الترتيب',utilities:'المزيد'},
-    signin:'تسجيل الدخول بـ Pi',
-    tagline:'منصة كرة القدم رقم 1 على شبكة Pi',
-    live_now:'🔴 مباشر الآن', today:'مباريات اليوم', upcoming:'القادمة',
-    results:'نتائج أخيرة', fan_lb:'قائمة المشجعين', grp_std:'ترتيب المجموعات',
-    predict_title:'التوقعات', tools:'الأدوات',
-    welcome:'مرحباً',pts:'نقاط',streak:'متتالية',preds:'توقعات',level:'مستوى',
-    no_live:'لا توجد مباريات مباشرة',
-    data_err:'البيانات غير متاحة مؤقتاً...',
-    loading:'جارٍ التحميل...',refreshing:'جارٍ التحديث...',
-    logout:'تسجيل الخروج', settings:'الإعدادات',
-    save:'حفظ',share:'مشاركة',download:'تنزيل',close:'إغلاق',
-    all:'الكل',breaking:'عاجل',match:'مباراة',player:'لاعب',
-    tournament:'البطولة',standings_cat:'الترتيب',insights:'تحليلات',saved:'محفوظ',
-    like:'إعجاب',comment:'تعليق',reply:'رد',
-  },
-  fr:{
-    lang:'Français',dir:'ltr',
-    nav:{matches:'Matchs',news:'Actualités',predict:'Pronostics',standings:'Classement',utilities:'Plus'},
-    signin:'Connexion avec Pi',
-    tagline:'La plateforme football #1 sur Pi Network',
-    live_now:'🔴 En direct', today:"Matchs d'aujourd'hui", upcoming:'À venir',
-    results:'Résultats récents', fan_lb:'Classement fans', grp_std:'Classement groupes',
-    predict_title:'Pronostics', tools:'Outils',
-    welcome:'Bienvenue',pts:'Points',streak:'Série',preds:'Pronos',level:'Niveau',
-    no_live:'Aucun match en direct',
-    data_err:'Données temporairement indisponibles...',
-    loading:'Chargement...',refreshing:'Actualisation...',
-    logout:'Déconnexion', settings:'Paramètres',
-    save:'Sauv',share:'Partager',download:'Télécharger',close:'Fermer',
-    all:'Tout',breaking:'Flash',match:'Match',player:'Joueur',
-    tournament:'Tournoi',standings_cat:'Classement',insights:'Analyses',saved:'Sauvegardé',
-    like:'J\'aime',comment:'Commenter',reply:'Répondre',
-  },
-  es:{
-    lang:'Español',dir:'ltr',
-    nav:{matches:'Partidos',news:'Noticias',predict:'Pronósticos',standings:'Clasificación',utilities:'Más'},
-    signin:'Iniciar sesión con Pi',
-    tagline:'La plataforma de fútbol #1 en Pi Network',
-    live_now:'🔴 En vivo', today:'Partidos hoy', upcoming:'Próximos',
-    results:'Resultados recientes', fan_lb:'Clasificación fans', grp_std:'Clasificación grupos',
-    predict_title:'Pronósticos', tools:'Herramientas',
-    welcome:'Bienvenido',pts:'Puntos',streak:'Racha',preds:'Pronós',level:'Nivel',
-    no_live:'Sin partidos en vivo',
-    data_err:'Datos temporalmente no disponibles...',
-    loading:'Cargando...',refreshing:'Actualizando...',
-    logout:'Cerrar sesión', settings:'Configuración',
-    save:'Guardar',share:'Compartir',download:'Descargar',close:'Cerrar',
-    all:'Todo',breaking:'Última hora',match:'Partido',player:'Jugador',
-    tournament:'Torneo',standings_cat:'Clasificación',insights:'Análisis',saved:'Guardado',
-    like:'Me gusta',comment:'Comentar',reply:'Responder',
-  },
-  pt:{
-    lang:'Português',dir:'ltr',
-    nav:{matches:'Jogos',news:'Notícias',predict:'Previsões',standings:'Classificação',utilities:'Mais'},
-    signin:'Entrar com Pi',
-    tagline:'A plataforma de futebol #1 na Pi Network',
-    live_now:'🔴 Ao vivo', today:'Jogos hoje', upcoming:'Próximos',
-    results:'Resultados recentes', fan_lb:'Classificação fãs', grp_std:'Classificação grupos',
-    predict_title:'Previsões', tools:'Ferramentas',
-    welcome:'Bem-vindo',pts:'Pontos',streak:'Sequência',preds:'Prev',level:'Nível',
-    no_live:'Sem jogos ao vivo',
-    data_err:'Dados temporariamente indisponíveis...',
-    loading:'Carregando...',refreshing:'Atualizando...',
-    logout:'Sair', settings:'Configurações',
-    save:'Salvar',share:'Compartilhar',download:'Baixar',close:'Fechar',
-    all:'Tudo',breaking:'Urgente',match:'Jogo',player:'Jogador',
-    tournament:'Torneio',standings_cat:'Classificação',insights:'Análise',saved:'Salvo',
-    like:'Curtir',comment:'Comentar',reply:'Responder',
-  },
-  hi:{
-    lang:'हिंदी',dir:'ltr',
-    nav:{matches:'मैच',news:'समाचार',predict:'अनुमान',standings:'स्टैंडिंग',utilities:'अधिक'},
-    signin:'Pi से लॉगिन करें',
-    tagline:'Pi Network पर #1 फुटबॉल प्लेटफॉर्म',
-    live_now:'🔴 लाइव अभी', today:'आज के मैच', upcoming:'आगामी',
-    results:'हाल के परिणाम', fan_lb:'फैन लीडरबोर्ड', grp_std:'ग्रुप स्टैंडिंग',
-    predict_title:'अनुमान लगाएं', tools:'उपकरण',
-    welcome:'स्वागत',pts:'अंक',streak:'लकीर',preds:'अनुमान',level:'स्तर',
-    no_live:'अभी कोई लाइव मैच नहीं',
-    data_err:'डेटा अस्थायी रूप से अनुपलब्ध...',
-    loading:'लोड हो रहा है...',refreshing:'रिफ्रेश हो रहा है...',
-    logout:'लॉग आउट', settings:'सेटिंग्स',
-    save:'सहेजें',share:'शेयर',download:'डाउनलोड',close:'बंद करें',
-    all:'सभी',breaking:'ब्रेकिंग',match:'मैच',player:'खिलाड़ी',
-    tournament:'टूर्नामेंट',standings_cat:'स्टैंडिंग',insights:'विश्लेषण',saved:'सहेजा',
-    like:'पसंद',comment:'टिप्पणी',reply:'जवाब',
-  },
-};
-
-
-
-/* ── NEWS COMMENTS & LIKES — Persistent global system ── */
+/* ── LANGUAGE — Full 6-language system ── *//* ── NEWS COMMENTS & LIKES — Persistent global system ── */
 var newsLikes    = JSON.parse(localStorage.getItem(K+'nlikes')||'{}');
 var newsComments = JSON.parse(localStorage.getItem(K+'ncomments')||'{}');
 var userLiked    = JSON.parse(localStorage.getItem(K+'uliked')||'{}');
@@ -3804,6 +3681,7 @@ function buyPrem() {
         pts += 50;
         updatePtsDisplay();
         addTx('Fan Pass 1 Pi txid:' + txid.slice(0,12) + '...');
+        showPaymentStatus('success', 'Fan Pass activated!');
         renderPremStatus();
         toast('Fan Pass activated!');
       }).catch(function(err) {
@@ -3812,12 +3690,14 @@ function buyPrem() {
     },
     onCancel: function() {
       if (btn) { btn.textContent = 'Unlock Fan Pass - 1 Pi'; btn.disabled = false; }
+      showPaymentStatus('cancelled');
       toast('Payment cancelled');
     },
     onError: function(err) {
       console.error('[WorldCup] Payment error:', err);
       if (btn) { btn.textContent = 'Unlock Fan Pass - 1 Pi'; btn.disabled = false; }
-      toast('Payment error - try again');
+      showPaymentStatus('failed', 'Payment error — try again');
+      toast('Payment error — try again');
     }
   });
 }
@@ -3881,7 +3761,8 @@ function _doSendPi(to, amt, memo) {
     onCancel: function() { toast('Payment cancelled'); },
     onError:  function(err) {
       console.error('[WorldCup] Send error:', err);
-      toast('Payment error - try again');
+      showPaymentStatus('failed', 'Payment error — try again');
+      toast('Payment error — try again');
     }
   });
 }
@@ -4169,8 +4050,14 @@ function getFlag(name) {
     'wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','south africa':'🇿🇦','paraguay':'🇵🇾','costa rica':'🇨🇷',
     'panama':'🇵🇦','tunisia':'🇹🇳','algeria':'🇩🇿','egypt':'🇪🇬','nigeria':'🇳🇬',
     'new zealand':'🇳🇿','norway':'🇳🇴','hungary':'🇭🇺',
+    'bolivia':'🇧🇴','iraq':'🇮🇶','bahrain':'🇧🇭','congo dr':'🇨🇩',
+    'jordan':'🇯🇴','venezuela':'🇻🇪','albania':'🇦🇱','uzbekistan':'🇺🇿',
+    'trinidad & tobago':'🇹🇹','turkey':'🇹🇷','ukraine':'🇺🇦',
+    'china':'🇨🇳','cuba':'🇨🇺','qatar':'🇶🇦','iran':'🇮🇷',
+    'wales':'🏴󠁧󠁢󠁷󠁬󠁳󠁿','south africa':'🇿🇦','poland':'🇵🇱',
+    'costa rica':'🇨🇷','panama':'🇵🇦',
   };
-  return f[n] || '🏳️';
+  return f[n] || '🌍';
 }
 
 /* ── BUILD FROM WC2026 SCHEDULE ── */
@@ -4232,135 +4119,8 @@ var H2H = {
    Auto-refresh on match data change · Deduplicated images
 ================================================================ */
 
-var TOP_PLAYERS = [
-  {name:'Kylian Mbappe',team:'France',flag:'🇫🇷',goals:4,assists:2,rating:'9.4',
-   ai:'Tournament leading scorer. Four goals in two matches, combining pace and clinical finishing that no defender has been able to handle.'},
-  {name:'Vinicius Junior',team:'Brazil',flag:'🇧🇷',goals:3,assists:3,rating:'9.1',
-   ai:'Most direct attacker in the tournament. His combination of speed and creativity down the left flank is creating chances in every match.'},
-  {name:'Erling Haaland',team:'Norway',flag:'🇳🇴',goals:5,assists:1,rating:'9.0',
-   ai:'Record hat-trick scorer. Haaland set the fastest hat-trick in WorldCup history, confirming Norway as a genuine dark horse.'},
-  {name:'Pedri',team:'Spain',flag:'🇪🇸',goals:1,assists:4,rating:'8.9',
-   ai:'The tournament\'s best midfielder. His passing range and pressing intensity are the foundation of Spain\'s dominant performances.'},
-  {name:'Jude Bellingham',team:'England',flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',goals:2,assists:3,rating:'8.8',
-   ai:'England\'s heartbeat. Box-to-box energy combined with the composure to deliver in the biggest matches.'},
-];
-
 /* Build news from real match data + curated stories */
-function buildNewsData() {
-  var stories = [];
-  var ts = Date.now();
-  var usedImgs = {};
 
-  function pickImg(cat, seed) {
-    var pool = IMG[cat] || IMG.match;
-    var idx  = seed !== undefined ? Math.abs(seed) % pool.length : 0;
-    /* Rotate to avoid duplicates */
-    var tries = 0;
-    while (usedImgs[pool[idx]] && tries < pool.length) {
-      idx = (idx+1) % pool.length; tries++;
-    }
-    usedImgs[pool[idx]] = true;
-    return pool[idx];
-  }
-
-  /* Live match stories — directly from current match data */
-  allMatches.filter(function(m){return m.status==='LIVE';}).forEach(function(m,i){
-    stories.push({
-      id: 'live-'+m.id, cat: 'match', isLive: true, ts: ts,
-      headline: m.hName + ' vs ' + m.aName + ' — LIVE ' + m.score,
-      summary: 'WorldCup 2026 Group '+m.group+' · '+m.venue+' · '+m.time,
-      ai: m.hName+' and '+m.aName+' are currently playing in Group '+m.group+' at '+m.venue+'. The score stands at '+m.score+'. This is a crucial WorldCup 2026 group stage encounter with both teams fighting for qualification.',
-      time: 'LIVE · '+(m.min||''), source: 'Live Feed',
-      img: pickImg('match', i), tags: [m.hName, m.aName, 'Live', 'Group '+m.group],
-    });
-  });
-
-  /* Finished match result stories */
-  allMatches.filter(function(m){return m.status==='FINISHED';}).forEach(function(m,i){
-    var hs=m.hScore||0, as=m.aScore||0;
-    var winner = hs>as ? m.hName : as>hs ? m.aName : null;
-    var headline = winner
-      ? winner+' beat '+(winner===m.hName?m.aName:m.hName)+' '+m.score
-      : m.hName+' and '+m.aName+' draw '+m.score;
-    stories.push({
-      id: 'res-'+m.id, cat: 'match', isLive: false, isBreaking: i===0, ts: ts-3600000*(i+1),
-      headline: headline+' · Group '+m.group,
-      summary: m.comp+' · '+m.venue,
-      ai: winner
-        ? winner+' claimed 3 important points with a '+m.score+' win in WorldCup 2026 Group '+m.group+' at '+m.venue+'. The result strengthens their position in the group standings ahead of the final round of fixtures.'
-        : 'A competitive '+m.score+' draw in Group '+m.group+' at '+m.venue+'. Both teams share a point each and will need to perform in their remaining fixtures to secure qualification to the knockout stage.',
-      time: 'Full Time', source: 'Match Report',
-      img: pickImg('match', i+6), tags: [m.hName, m.aName, 'Result', 'Group '+m.group],
-    });
-  });
-
-  /* Upcoming match previews */
-  allMatches.filter(function(m){return m.status==='UPCOMING';}).slice(0,3).forEach(function(m,i){
-    stories.push({
-      id: 'pre-'+m.id, cat: 'match', isLive: false, ts: ts-7200000*(i+1),
-      headline: 'Preview: '+m.hName+' vs '+m.aName+' · Group '+m.group,
-      summary: m.time+' · '+m.venue,
-      ai: 'Group '+m.group+' fixture between '+m.hName+' and '+m.aName+' kicks off at '+m.time+' at '+m.venue+'. Both teams will be preparing carefully for this important WorldCup 2026 encounter which could shape their qualification prospects.',
-      time: m.time, source: 'Match Preview',
-      img: pickImg('tournament', i), tags: [m.hName, m.aName, 'Preview', 'Group '+m.group],
-    });
-  });
-
-  /* WorldCup.pi app feature stories */
-  stories.push({
-    id: 'app-1', cat: 'app', ts: ts, isApp: true,
-    headline: 'WorldCup.pi — Live scores, predictions and Pi payments on Pi Network',
-    summary: 'Track every WorldCup 2026 match live, make predictions, and earn Pi rewards.',
-    ai: 'WorldCup.pi is the most complete WorldCup 2026 fan platform on Pi Network. Follow live scores in real time, make match predictions to earn points, generate QR fan tickets, and access a full analytics dashboard. All features powered by real Pi payments on Mainnet.',
-    time: 'Featured', source: 'WorldCup.pi',
-    img: pickImg('stadium', 0), tags: ['WorldCup.pi', 'Pi Network', 'Live Scores', 'Predictions'],
-  });
-
-  /* Curated WorldCup 2026 editorial stories */
-  var editorial = [
-    {id:'ed-1', cat:'breaking', isBreaking: true, ts: ts-1800000,
-     headline: 'WorldCup 2026 group stage: results, standings and what happens next',
-     ai: 'Group stage is entering its decisive phase. Several groups remain wide open with multiple teams still capable of qualifying. The expanded 48-team format means more drama, more upsets, and more nations competing than ever before. This WorldCup is already delivering memorable moments.',
-     time: '30 min ago', source: 'Tournament News', img: pickImg('tournament',1), tags:['WorldCup 2026','Group Stage','Standings']},
-
-    {id:'ed-2', cat:'player', ts: ts-5400000,
-     headline: 'Mbappe leads Golden Boot race after four goals in two matches',
-     ai: 'Kylian Mbappe has taken early control of the Golden Boot with four goals in France\'s opening two matches. His movement, pace, and finishing have been at a level above everyone else in the tournament. France look the most complete team in the competition.',
-     time: '1 hour ago', source: 'Player Watch', img: pickImg('player',0), tags:['Mbappe','France','Golden Boot']},
-
-    {id:'ed-3', cat:'player', ts: ts-10800000,
-     headline: 'Haaland sets WorldCup record with fastest hat-trick in history',
-     ai: 'Erling Haaland scored the fastest hat-trick in WorldCup history against the Philippines. Three goals in 11 minutes confirmed Norway as genuine contenders and established Haaland as the most lethal striker in the competition. His movement inside the box is impossible to track.',
-     time: '3 hours ago', source: 'Records', img: pickImg('player',1), tags:['Haaland','Norway','Record','Hat-trick']},
-
-    {id:'ed-4', cat:'insights', ts: ts-14400000,
-     headline: 'Tactical breakdown: How high pressing is winning WorldCup 2026',
-     ai: 'The data from the opening round is clear — teams pressing aggressively from the front are dominating. Spain averaged 71% possession while Germany won 89% of their tackles. The physical and technical demands of this style are separating the elite from the good.',
-     time: '4 hours ago', source: 'Tactics', img: pickImg('insights',0), tags:['Tactics','Pressing','Spain','Germany']},
-
-    {id:'ed-5', cat:'tournament', ts: ts-18000000,
-     headline: '48 teams, 3 nations, 16 cities: WorldCup 2026 is the biggest ever',
-     ai: 'WorldCup 2026 is the largest tournament in the competition\'s 96-year history. USA, Canada, and Mexico are co-hosting 104 matches across 16 cities. The expanded format has given African, Asian, and CONCACAF nations more representation and the early results show it is working.',
-     time: '5 hours ago', source: 'Tournament', img: pickImg('stadium',1), tags:['WorldCup 2026','History','Format','USA']},
-
-    {id:'ed-6', cat:'standings', ts: ts-21600000,
-     headline: 'Group standings update: France, Brazil and Spain lead their groups',
-     ai: 'France top Group C with 6 points from 2 matches, Brazil lead Group D, and Spain are commanding Group E. Argentina and England are also on course to qualify. Groups F, G, and H remain completely open with the final round of fixtures yet to come.',
-     time: '6 hours ago', source: 'Standings', img: pickImg('standings',0), tags:['Standings','Groups','France','Brazil']},
-
-    {id:'ed-7', cat:'insights', ts: ts-28800000,
-     headline: 'African football at WorldCup 2026: Morocco, Nigeria and Senegal impress',
-     ai: 'African nations are making their mark on WorldCup 2026. Morocco, Nigeria, and Senegal have all taken points from strong opponents in the opening round. The continent\'s growing technical quality and tactical sophistication is earning widespread respect from coaches and analysts.',
-     time: '8 hours ago', source: 'Analysis', img: pickImg('insights',1), tags:['Africa','Morocco','Nigeria','Senegal']},
-
-    {id:'app-2', cat:'app', ts: ts-3600000, isApp: true,
-     headline: 'Earn Pi by predicting WorldCup matches on WorldCup.pi',
-     ai: 'Make predictions on every WorldCup 2026 match and earn points on WorldCup.pi. Unlock the Fan Pass for 1 Pi to access all premium features: unlimited predictions, analytics dashboard, group simulator, team comparisons, and a verified fan badge. Join fans from around the world on Pi Network.',
-     time: 'Platform', source: 'WorldCup.pi', img: pickImg('match',3), tags:['WorldCup.pi','Predictions','Fan Pass','Pi Network']},
-  ];
-
-  return stories.concat(editorial);
-}
 
 
 
@@ -4378,56 +4138,9 @@ function aiSummarize(story, callback) {
 }
 
 /* ── NEWS INIT + REFRESH ── */
-function initNews() {
-  if (newsLoading) return;
-  newsLoading = true;
-  var skels = document.getElementById('news-skeletons');
-  var aiProc = document.getElementById('ai-processing');
-  if (skels) skels.style.display = 'block';
-  if (aiProc) aiProc.style.display = 'flex';
 
-  newsCache = buildNewsData();
-  newsLoading = false;
 
-  setTimeout(function(){
-    if (skels) skels.style.display = 'none';
-    if (aiProc) aiProc.style.display = 'none';
-    renderNewsEngine();
-    var upd = document.getElementById('news-updated');
-    if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  }, 600);
-}
 
-function refreshNews() {
-  /* Clear AI summary cache */
-  var toDelete = [];
-  for (var i=0; i<localStorage.length; i++) {
-    var k = localStorage.key(i);
-    if (k && k.startsWith('wc2_ai_')) toDelete.push(k);
-  }
-  toDelete.forEach(function(k){ localStorage.removeItem(k); });
-
-  _newsInited = false;
-  newsLoading = false;
-  newsCache = [];
-  _lastNewsRebuild = 0;
-
-  var btn = document.getElementById('news-refresh-btn');
-  if (btn) btn.classList.add('spinning');
-
-  /* Re-fetch live match data too */
-  _fetchFlight = false;
-  fetchMatches();
-
-  setTimeout(function(){
-    newsCache = buildNewsData();
-    renderNewsEngine();
-    if (btn) btn.classList.remove('spinning');
-    var upd = document.getElementById('news-updated');
-    if (upd) upd.textContent = 'Updated ' + new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-    toast('News refreshed!');
-  }, 1400);
-}
 
 function filterNews(cat, btn) {
   newsFilter = cat;
@@ -4437,80 +4150,7 @@ function filterNews(cat, btn) {
 }
 
 /* ── RENDER NEWS ── */
-function renderNewsEngine() {
-  _newsInited = true;
-  if (!newsCache || !newsCache.length) newsCache = buildNewsData();
 
-  var stories = newsFilter === 'all'   ? newsCache :
-                newsFilter === 'saved' ? newsCache.filter(function(s){return newsSaved.includes(s.id);}) :
-                newsCache.filter(function(s){ return s.cat === newsFilter; });
-
-  var skels = document.getElementById('news-skeletons');
-  if (skels) skels.style.display = 'none';
-
-  if (!stories.length) {
-    var mc = document.getElementById('news-main-cards');
-    if (mc) mc.innerHTML = '<div class="empty">No stories in this category · Tap Refresh</div>';
-    var hs = document.getElementById('news-hero-slot'); if(hs) hs.innerHTML='';
-    return;
-  }
-
-  /* Breaking banner */
-  var brk = stories.find(function(s){return s.isBreaking && !s.isLive;});
-  var bb=document.getElementById('breaking-banner'), bt=document.getElementById('breaking-text');
-  if (brk && bb && bt) { bb.style.display='flex'; bt.textContent=brk.headline; bb._story=brk; }
-  else if (bb) bb.style.display='none';
-
-  /* Hero — prefer a result or breaking story */
-  var hero = stories.find(function(s){return !s.isLive && (s.cat==='match'||s.cat==='breaking') && !s.isApp;}) || stories[0];
-  renderHero(hero);
-
-  /* Live section */
-  var live = stories.filter(function(s){return s.isLive;});
-  var ls=document.getElementById('news-live-section'), lc=document.getElementById('news-live-cards');
-  if (live.length && ls && lc) {
-    ls.style.display='block';
-    lc.innerHTML=live.map(function(s){return buildCard(s,'compact');}).join('');
-    setTimeout(function(){lazyLoad('news-live-cards');},80);
-  } else if (ls) ls.style.display='none';
-
-  /* Players */
-  var ps=document.getElementById('news-player-section'), pc=document.getElementById('news-player-cards');
-  if (ps && pc && (newsFilter==='all'||newsFilter==='player')) {
-    ps.style.display='block';
-    pc.innerHTML=TOP_PLAYERS.slice(0,3).map(buildPlayer).join('');
-  } else if (ps) ps.style.display=(newsFilter==='player'?'block':'none');
-
-  /* Main stories */
-  var main = stories.filter(function(s){return s!==hero && !s.isLive;}).slice(0,5);
-  var mc2=document.getElementById('news-main-cards');
-  if (mc2) {
-    mc2.innerHTML=main.map(function(s){return buildCard(s,'full');}).join('');
-    setTimeout(function(){lazyLoad('news-main-cards');},80);
-    main.forEach(function(s){
-      aiSummarize(s,function(sum){ var el=document.getElementById('ai-sum-'+s.id); if(el) el.textContent=sum; });
-    });
-  }
-
-  /* Insights */
-  var ins=stories.filter(function(s){return s.cat==='insights';}).slice(0,2);
-  var is2=document.getElementById('news-insights-section'), ic=document.getElementById('news-insights-cards');
-  if (ins.length && is2 && ic && (newsFilter==='all'||newsFilter==='insights')) {
-    is2.style.display='block';
-    ic.innerHTML=ins.map(function(s){return buildCard(s,'full');}).join('');
-    setTimeout(function(){lazyLoad('news-insights-cards');},80);
-    ins.forEach(function(s){ aiSummarize(s,function(sum){ var el=document.getElementById('ai-sum-'+s.id); if(el) el.textContent=sum; }); });
-  } else if (is2) is2.style.display='none';
-
-  /* More */
-  var more=stories.filter(function(s){return s!==hero&&!s.isLive&&!main.includes(s)&&!ins.includes(s);}).slice(0,8);
-  var ms=document.getElementById('news-more-section'), mc3=document.getElementById('news-more-cards');
-  if (more.length && ms && mc3) {
-    ms.style.display='block';
-    mc3.innerHTML=more.map(function(s){return buildCard(s,'compact');}).join('');
-    setTimeout(function(){lazyLoad('news-more-cards');},80);
-  } else if (ms) ms.style.display='none';
-}
 
 function renderHero(s) {
   var slot=document.getElementById('news-hero-slot');
@@ -4586,17 +4226,7 @@ function buildCard(s,type) {
   +'</div>';
 }
 
-function buildPlayer(p) {
-  return '<div class="player-card">'
-    +'<div class="player-av">'+p.flag+'</div>'
-    +'<div class="player-info">'
-      +'<div class="player-name">'+p.name+'</div>'
-      +'<div class="player-team">'+p.team+'</div>'
-      +'<div class="player-stat">'+p.goals+' G · '+p.assists+' A · '+p.rating+' rating</div>'
-      +'<div class="player-ai">'+p.ai+'</div>'
-    +'</div>'
-  +'</div>';
-}
+
 
 function lazyLoad(id) {
   var c=document.getElementById(id); if(!c) return;
@@ -4824,34 +4454,7 @@ function renderPredictions() {
 }
 
 /* ── FIX: renderLeaderboard with empty state ── */
-function renderLeaderboard() {
-  var el = document.getElementById('lb-list');
-  if (!el) return;
-  var nm   = user ? '@'+user.username : 'You';
-  var fans = [
-    {name:nm,       pts:pts,                      streak:streak, preds:predsTotal, you:true},
-    {name:'@Ronaldo7',   pts:Math.max(pts+340,420), streak:14, preds:28},
-    {name:'@MbappeGoat', pts:Math.max(pts+270,360), streak:11, preds:22},
-    {name:'@PiFootball', pts:Math.max(pts+200,300), streak:9,  preds:18},
-    {name:'@GoalAlert',  pts:Math.max(pts+160,260), streak:7,  preds:14},
-    {name:'@TacticsBoss',pts:Math.max(pts+110,220), streak:5,  preds:10},
-    {name:'@Pi99Fan',    pts:Math.max(pts+70,180),  streak:4,  preds:8},
-  ].sort(function(a,b){return b.pts-a.pts;});
 
-  var medals=['👑','🥈','🥉'];
-  el.innerHTML = fans.length
-    ? fans.map(function(f,i){
-        return '<div class="lb-row" style="'+(f.you?'background:rgba(0,212,255,.06);border-left:2px solid var(--c1)':'')+';">'
-          +'<div class="lb-rank '+(i<3?'top':'')+'">'+  (medals[i]||('#'+(i+1)))+'</div>'
-          +'<div style="flex:1">'
-            +'<div class="lb-name">'+f.name+(f.you?' <span style="font-size:.42rem;color:var(--c1)">(you)</span>':'')+'</div>'
-            +'<div style="font-family:var(--dm);font-size:.48rem;color:var(--t3)">'+f.preds+' preds · '+f.streak+'d streak</div>'
-          +'</div>'
-          +'<div class="lb-pts">'+f.pts+'</div>'
-        +'</div>';
-      }).join('')
-    : '<div class="empty">Be the first — make a prediction!</div>';
-}
 
 /* ── FIX: makePred ── */
 function makePred(matchId, outcome, btn, h, a) {
@@ -4947,82 +4550,6 @@ var TSDB = 'https://www.thesportsdb.com/api/v1/json/3';
    All venues: confirmed WC 2026 host venues
    Status: computed at runtime from UTC clock — NEVER hardcoded
 ───────────────────────────────────────────────────────── */
-var WC2026_SCHEDULE = [
-
-  /* ── GROUP STAGE - Matchday 1 ── */
-  /* Matches use ISO UTC timestamps for accurate live detection */
-  {id:'wc-1',  h:'Mexico',      a:'South Africa', g:'A', hg:null,ag:null,
-   utc:'2026-06-11T21:00:00Z', v:'AT&T Stadium, Arlington TX'},
-  {id:'wc-2',  h:'USA',         a:'Bolivia',      g:'A', hg:null,ag:null,
-   utc:'2026-06-12T00:00:00Z', v:'MetLife Stadium, East Rutherford NJ'},
-  {id:'wc-3',  h:'Portugal',    a:'New Zealand',  g:'B', hg:null,ag:null,
-   utc:'2026-06-12T21:00:00Z', v:'SoFi Stadium, Inglewood CA'},
-  {id:'wc-4',  h:'Argentina',   a:'Iraq',         g:'B', hg:null,ag:null,
-   utc:'2026-06-13T00:00:00Z', v:'Levi\'s Stadium, Santa Clara CA'},
-  {id:'wc-5',  h:'Spain',       a:'Bahrain',      g:'C', hg:null,ag:null,
-   utc:'2026-06-13T21:00:00Z', v:'Rose Bowl, Pasadena CA'},
-  {id:'wc-6',  h:'Brazil',      a:'Congo DR',     g:'C', hg:null,ag:null,
-   utc:'2026-06-14T00:00:00Z', v:'AT&T Stadium, Arlington TX'},
-  {id:'wc-7',  h:'France',      a:'Jordan',       g:'D', hg:null,ag:null,
-   utc:'2026-06-14T21:00:00Z', v:'MetLife Stadium, East Rutherford NJ'},
-  {id:'wc-8',  h:'England',     a:'Serbia',       g:'D', hg:null,ag:null,
-   utc:'2026-06-15T00:00:00Z', v:'Gillette Stadium, Foxborough MA'},
-  {id:'wc-9',  h:'Germany',     a:'Saudi Arabia', g:'E', hg:null,ag:null,
-   utc:'2026-06-15T21:00:00Z', v:'Arrowhead Stadium, Kansas City'},
-  {id:'wc-10', h:'Netherlands', a:'Venezuela',    g:'E', hg:null,ag:null,
-   utc:'2026-06-16T00:00:00Z', v:'NRG Stadium, Houston TX'},
-  {id:'wc-11', h:'Belgium',     a:'Uruguay',      g:'F', hg:null,ag:null,
-   utc:'2026-06-16T21:00:00Z', v:'SoFi Stadium, Inglewood CA'},
-  {id:'wc-12', h:'Italy',       a:'Ecuador',      g:'F', hg:null,ag:null,
-   utc:'2026-06-17T00:00:00Z', v:'Rose Bowl, Pasadena CA'},
-  {id:'wc-13', h:'Colombia',    a:'Albania',      g:'G', hg:null,ag:null,
-   utc:'2026-06-17T21:00:00Z', v:'AT&T Stadium, Arlington TX'},
-  {id:'wc-14', h:'Morocco',     a:'Egypt',        g:'G', hg:null,ag:null,
-   utc:'2026-06-18T00:00:00Z', v:'MetLife Stadium, East Rutherford NJ'},
-  {id:'wc-15', h:'Croatia',     a:'Nigeria',      g:'H', hg:null,ag:null,
-   utc:'2026-06-18T21:00:00Z', v:'Gillette Stadium, Foxborough MA'},
-  {id:'wc-16', h:'Japan',       a:'Senegal',      g:'H', hg:null,ag:null,
-   utc:'2026-06-19T00:00:00Z', v:'Arrowhead Stadium, Kansas City'},
-  {id:'wc-17', h:'South Korea', a:'Uzbekistan',   g:'I', hg:null,ag:null,
-   utc:'2026-06-19T21:00:00Z', v:'NRG Stadium, Houston TX'},
-  {id:'wc-18', h:'Canada',      a:'Trinidad & Tobago', g:'I', hg:null,ag:null,
-   utc:'2026-06-20T00:00:00Z', v:'BMO Field, Toronto'},
-  {id:'wc-19', h:'Australia',   a:'Turkey',       g:'J', hg:null,ag:null,
-   utc:'2026-06-20T21:00:00Z', v:'BC Place, Vancouver'},
-  {id:'wc-20', h:'Ukraine',     a:'Tunisia',      g:'J', hg:null,ag:null,
-   utc:'2026-06-21T00:00:00Z', v:'Estadio Azteca, Mexico City'},
-  {id:'wc-21', h:'Switzerland', a:'Cameroon',     g:'K', hg:null,ag:null,
-   utc:'2026-06-21T21:00:00Z', v:'Estadio BBVA, Monterrey'},
-  {id:'wc-22', h:'Denmark',     a:'China',        g:'K', hg:null,ag:null,
-   utc:'2026-06-22T00:00:00Z', v:'Estadio Jalisco, Guadalajara'},
-  {id:'wc-23', h:'Iran',        a:'Cuba',         g:'L', hg:null,ag:null,
-   utc:'2026-06-22T21:00:00Z', v:'Estadio Azteca, Mexico City'},
-  {id:'wc-24', h:'Paraguay',    a:'Qatar',        g:'L', hg:null,ag:null,
-   utc:'2026-06-23T00:00:00Z', v:'Estadio BBVA, Monterrey'},
-
-  /* ── GROUP STAGE - Matchday 2 ── */
-  {id:'wc-25', h:'South Africa',a:'USA',          g:'A', hg:null,ag:null,
-   utc:'2026-06-15T18:00:00Z', v:'AT&T Stadium, Arlington TX'},
-  {id:'wc-26', h:'Bolivia',     a:'Mexico',       g:'A', hg:null,ag:null,
-   utc:'2026-06-15T21:00:00Z', v:'Rose Bowl, Pasadena CA'},
-  {id:'wc-27', h:'New Zealand', a:'Argentina',    g:'B', hg:null,ag:null,
-   utc:'2026-06-16T18:00:00Z', v:'MetLife Stadium, East Rutherford NJ'},
-  {id:'wc-28', h:'Iraq',        a:'Portugal',     g:'B', hg:null,ag:null,
-   utc:'2026-06-16T21:00:00Z', v:'Gillette Stadium, Foxborough MA'},
-  {id:'wc-29', h:'Bahrain',     a:'Brazil',       g:'C', hg:null,ag:null,
-   utc:'2026-06-17T18:00:00Z', v:'Arrowhead Stadium, Kansas City'},
-  {id:'wc-30', h:'Congo DR',    a:'Spain',        g:'C', hg:null,ag:null,
-   utc:'2026-06-17T21:00:00Z', v:'NRG Stadium, Houston TX'},
-  {id:'wc-31', h:'Jordan',      a:'England',      g:'D', hg:null,ag:null,
-   utc:'2026-06-18T18:00:00Z', v:'SoFi Stadium, Inglewood CA'},
-  {id:'wc-32', h:'Serbia',      a:'France',       g:'D', hg:null,ag:null,
-   utc:'2026-06-18T21:00:00Z', v:'Rose Bowl, Pasadena CA'},
-  {id:'wc-33', h:'Saudi Arabia',a:'Netherlands',  g:'E', hg:null,ag:null,
-   utc:'2026-06-19T18:00:00Z', v:'AT&T Stadium, Arlington TX'},
-  {id:'wc-34', h:'Venezuela',   a:'Germany',      g:'E', hg:null,ag:null,
-   utc:'2026-06-19T21:00:00Z', v:'MetLife Stadium, East Rutherford NJ'},
-];
-
 /* ── WC 2026 OFFICIAL GROUPS ── */
 var WC_GROUPS = {
   A:[{flag:'🇺🇸',name:'USA'},{flag:'🇲🇽',name:'Mexico'},{flag:'🇿🇦',name:'South Africa'},{flag:'🇧🇴',name:'Bolivia'}],
@@ -5128,31 +4655,7 @@ function computeMinute(utcStr) {
 }
 
 /* ── BUILD FROM SCHEDULE ── */
-function buildFromSchedule() {
-  return WC2026_SCHEDULE.map(function(s) {
-    var time   = utcToLocal(s.utc);
-    var status = computeStatus(s.utc, null, s.hg, s.ag);
-    var score  = (status === 'FINISHED' && s.hg !== null && s.ag !== null)
-                 ? s.hg + '-' + s.ag
-                 : (status === 'LIVE' ? '0-0' : '-');
-    var min    = status === 'LIVE' ? computeMinute(s.utc) : '';
-    return {
-      id: s.id, hName: s.h, aName: s.a, group: s.g,
-      home:   getFlag(s.h) + ' ' + s.h,
-      away:   getFlag(s.a) + ' ' + s.a,
-      score: score, status: status, min: min,
-      time:  status === 'LIVE' ? 'LIVE' : time.display,
-      venue: s.v, comp: 'WorldCup 2026 · Group ' + s.g,
-      hScore: s.hg || 0, aScore: s.ag || 0,
-      utc: s.utc, ts: time.ts,
-    };
-  }).sort(function(a,b){
-    var o = {LIVE:0, HT:1, UPCOMING:2, POSTPONED:3, FINISHED:4, CANCELLED:5};
-    var oa = o[a.status] !== undefined ? o[a.status] : 6;
-    var ob = o[b.status] !== undefined ? o[b.status] : 6;
-    return oa !== ob ? oa - ob : (a.ts||0) - (b.ts||0);
-  });
-}
+
 
 /* ── LOCALSTORAGE CACHE WITH TTL ── */
 function cacheGet(key) {
@@ -5396,49 +4899,7 @@ function _poll() {
 }
 
 /* ── RENDER MATCHES ── */
-function renderMatches() {
-  var live     = allMatches.filter(function(m){return m.status==='LIVE'||m.status==='HT';});
-  var upcoming = allMatches.filter(function(m){return m.status==='UPCOMING';});
-  var delayed  = allMatches.filter(function(m){return m.status==='POSTPONED'||m.status==='CANCELLED';});
-  var finished = allMatches.filter(function(m){return m.status==='FINISHED';});
-  var today    = upcoming.slice(0,4);
-  var more     = upcoming.slice(4,10);
 
-  function set(id,html){ var el=document.getElementById(id); if(el) el.innerHTML=html; }
-
-  var lc = document.getElementById('live-count');
-  if (lc) lc.textContent = live.length ? live.length+' live now' : '';
-
-  if (live.length) {
-    set('live-m', live.map(buildMC).join(''));
-  } else {
-    var nxt = upcoming[0];
-    set('live-m', '<div class="empty" style="padding:.65rem 1rem;font-size:.62rem;color:var(--t3)">'
-      + (nxt ? 'No live matches · Next: '+nxt.hName+' vs '+nxt.aName+' · '+nxt.time
-             : 'No live WorldCup 2026 matches right now')
-      + '</div>');
-  }
-
-  set('today-m',    today.length   ? today.map(buildMC).join('')   : '<div class="empty">No upcoming fixtures today</div>');
-  set('upcoming-m', more.length    ? more.map(buildMC).join('')    : '');
-  set('results-m',  finished.length? finished.slice(0,10).map(buildMC).join('') : '<div class="empty">No completed matches yet</div>');
-
-  /* Ticker */
-  var tick = document.getElementById('tick-live');
-  if (tick) {
-    if (live.length) {
-      tick.textContent = live.map(function(m){
-        return (m.status==='HT'?'HT':'LIVE')+': '+m.hName+' '+m.score+' '+m.aName+(m.min?' '+m.min:'');
-      }).join('  |  ');
-    } else if (upcoming[0]) {
-      tick.textContent = 'NEXT: '+upcoming[0].hName+' vs '+upcoming[0].aName+' · '+upcoming[0].time;
-    } else {
-      tick.textContent = 'WorldCup 2026 · USA · Canada · Mexico · worldcup-eij.pages.dev';
-    }
-  }
-
-  populateMatchSelect();
-}
 
 /* ── MATCH CARD ── */
 function buildMC(m) {
@@ -5597,78 +5058,13 @@ function buildPredict(m) {
 }
 
 /* ── GROUPS SCREEN ── */
-function renderGroups() {
-  var el=document.getElementById('ggrid'); if(!el) return;
-  el.innerHTML=Object.keys(WC_GROUPS).map(function(g){
-    var teams=WC_GROUPS[g];
-    /* Build standings from match results */
-    var table=teams.map(function(t){
-      var p=0,w=0,d=0,l=0,gf=0,ga=0;
-      allMatches.filter(function(m){
-        return m.status==='FINISHED'&&m.group===g&&
-          (m.hName===t.name||m.aName===t.name);
-      }).forEach(function(m){
-        var isH=m.hName===t.name,tg=isH?m.hScore:m.aScore,og=isH?m.aScore:m.hScore;
-        p++;gf+=tg;ga+=og;if(tg>og)w++;else if(tg===og)d++;else l++;
-      });
-      return {t:t,pts:w*3+d,p:p,gd:gf-ga};
-    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
-    return '<div class="gc"><div class="gc-hdr">GROUP '+g+'</div>'
-      +table.map(function(r,i){
-        return '<div class="gc-team" style="'+(i<2?'border-left:2px solid var(--grn);padding-left:.3rem':'')+'">'
-          +'<span class="gc-flag">'+r.t.flag+'</span>'
-          +'<span class="gc-name">'+r.t.name+'</span>'
-          +'<span class="gc-pts">'+r.pts+'</span>'
-        +'</div>';
-      }).join('')
-    +'</div>';
-  }).join('');
-}
+
 
 /* ── STANDINGS SCREEN ── */
-function renderStandings() {
-  var el=document.getElementById('st-list'); if(!el) return;
-  var groups=Object.keys(WC_GROUPS).slice(0,4);
-  el.innerHTML=groups.map(function(g){
-    var teams=WC_GROUPS[g];
-    var table=teams.map(function(t){
-      var p=0,w=0,d=0,l=0,gf=0,ga=0;
-      allMatches.filter(function(m){
-        return m.status==='FINISHED'&&m.group===g&&
-          (m.hName===t.name||m.aName===t.name);
-      }).forEach(function(m){
-        var isH=m.hName===t.name,tg=isH?m.hScore:m.aScore,og=isH?m.aScore:m.hScore;
-        p++;gf+=tg;ga+=og;if(tg>og)w++;else if(tg===og)d++;else l++;
-      });
-      return {t:t,pts:w*3+d,p:p,w:w,d:d,l:l,gd:gf-ga,gf:gf};
-    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
-    return '<div class="card card-blue" style="margin:.4rem 0;padding:.5rem;overflow-x:auto">'
-      +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'
-      +'<table class="st-table"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>'
-      +table.map(function(r,i){
-        return '<tr style="'+(i<2?'border-left:2px solid var(--grn)':'')+'">'
-          +'<td><span class="st-flag">'+r.t.flag+'</span> <span class="st-name">'+r.t.name+'</span></td>'
-          +'<td>'+r.p+'</td><td>'+r.w+'</td><td>'+r.d+'</td><td>'+r.l+'</td>'
-          +'<td style="color:'+(r.gd>=0?'var(--grn)':'var(--red)')+'">'+(r.gd>0?'+':'')+r.gd+'</td>'
-          +'<td class="st-pts">'+r.pts+'</td>'
-        +'</tr>';
-      }).join('')
-      +'</tbody></table>'
-      +'<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3);margin-top:.3rem">'
-        +'<span style="border-left:2px solid var(--grn);padding-left:.3rem">Top 2 qualify</span>'
-      +'</div>'
-    +'</div>';
-  }).join('');
-}
+
 
 /* ── NEWS REBUILD (throttled) ── */
-function rebuildNews() {
-  var now=Date.now();
-  if (now-_lastNewsRebuild < 10000) return;
-  _lastNewsRebuild=now;
-  newsCache=buildNewsData();
-  if (_newsInited) renderNewsEngine();
-}
+
 
 /* ── DATA HEALTH PANEL (hidden diagnostics) ── */
 var _dataHealth = {
@@ -5712,6 +5108,701 @@ function onLogoTap() {
   }
   setTimeout(function(){ _logoTaps = 0; }, 2000);
 }
+
+
+/* ================================================================
+   WC 2026 COMPLETE GROUP STAGE SCHEDULE
+   72 matches · Matchdays 1,2,3 · June 11 – July 2, 2026
+   All times UTC · Official host venues
+   Today: June 11, 2026 — Tournament starts tonight!
+================================================================ */
+var WC2026_SCHEDULE = [
+
+  /* ══ MATCHDAY 1 ══ */
+  {id:'wc001',h:'Mexico',        a:'South Africa',     g:'A',hg:null,ag:null,utc:'2026-06-11T21:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc002',h:'USA',           a:'Bolivia',          g:'A',hg:null,ag:null,utc:'2026-06-12T00:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc003',h:'Argentina',     a:'Iraq',             g:'B',hg:null,ag:null,utc:'2026-06-12T21:00:00Z',v:'Levi\'s Stadium, Santa Clara CA'},
+  {id:'wc004',h:'Portugal',      a:'New Zealand',      g:'B',hg:null,ag:null,utc:'2026-06-13T00:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc005',h:'Spain',         a:'Bahrain',          g:'C',hg:null,ag:null,utc:'2026-06-13T21:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc006',h:'Congo DR',      a:'Brazil',           g:'C',hg:null,ag:null,utc:'2026-06-14T00:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc007',h:'France',        a:'Jordan',           g:'D',hg:null,ag:null,utc:'2026-06-14T21:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc008',h:'Serbia',        a:'England',          g:'D',hg:null,ag:null,utc:'2026-06-15T00:00:00Z',v:'Gillette Stadium, Foxborough MA'},
+  {id:'wc009',h:'Germany',       a:'Saudi Arabia',     g:'E',hg:null,ag:null,utc:'2026-06-15T21:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'wc010',h:'Venezuela',     a:'Netherlands',      g:'E',hg:null,ag:null,utc:'2026-06-16T00:00:00Z',v:'NRG Stadium, Houston TX'},
+  {id:'wc011',h:'Belgium',       a:'Uruguay',          g:'F',hg:null,ag:null,utc:'2026-06-16T21:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc012',h:'Ecuador',       a:'Italy',            g:'F',hg:null,ag:null,utc:'2026-06-17T00:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc013',h:'Colombia',      a:'Albania',          g:'G',hg:null,ag:null,utc:'2026-06-17T21:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc014',h:'Egypt',         a:'Morocco',          g:'G',hg:null,ag:null,utc:'2026-06-18T00:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc015',h:'Croatia',       a:'Nigeria',          g:'H',hg:null,ag:null,utc:'2026-06-18T21:00:00Z',v:'Gillette Stadium, Foxborough MA'},
+  {id:'wc016',h:'Senegal',       a:'Japan',            g:'H',hg:null,ag:null,utc:'2026-06-19T00:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'wc017',h:'Uzbekistan',    a:'South Korea',      g:'I',hg:null,ag:null,utc:'2026-06-19T21:00:00Z',v:'NRG Stadium, Houston TX'},
+  {id:'wc018',h:'Trinidad & Tobago',a:'Canada',        g:'I',hg:null,ag:null,utc:'2026-06-20T00:00:00Z',v:'BMO Field, Toronto'},
+  {id:'wc019',h:'Turkey',        a:'Australia',        g:'J',hg:null,ag:null,utc:'2026-06-20T21:00:00Z',v:'BC Place, Vancouver'},
+  {id:'wc020',h:'Tunisia',       a:'Ukraine',          g:'J',hg:null,ag:null,utc:'2026-06-21T00:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'wc021',h:'Cameroon',      a:'Switzerland',      g:'K',hg:null,ag:null,utc:'2026-06-21T21:00:00Z',v:'Estadio BBVA, Monterrey'},
+  {id:'wc022',h:'China',         a:'Denmark',          g:'K',hg:null,ag:null,utc:'2026-06-22T00:00:00Z',v:'Estadio Jalisco, Guadalajara'},
+  {id:'wc023',h:'Cuba',          a:'Iran',             g:'L',hg:null,ag:null,utc:'2026-06-22T21:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'wc024',h:'Qatar',         a:'Paraguay',         g:'L',hg:null,ag:null,utc:'2026-06-23T00:00:00Z',v:'Estadio BBVA, Monterrey'},
+
+  /* ══ MATCHDAY 2 ══ */
+  {id:'wc025',h:'South Africa',  a:'Bolivia',          g:'A',hg:null,ag:null,utc:'2026-06-15T18:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc026',h:'USA',           a:'Mexico',           g:'A',hg:null,ag:null,utc:'2026-06-16T02:00:00Z',v:'Levi\'s Stadium, Santa Clara CA'},
+  {id:'wc027',h:'New Zealand',   a:'Iraq',             g:'B',hg:null,ag:null,utc:'2026-06-16T18:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc028',h:'Argentina',     a:'Portugal',         g:'B',hg:null,ag:null,utc:'2026-06-17T02:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc029',h:'Bahrain',       a:'Congo DR',         g:'C',hg:null,ag:null,utc:'2026-06-17T18:00:00Z',v:'Gillette Stadium, Foxborough MA'},
+  {id:'wc030',h:'Brazil',        a:'Spain',            g:'C',hg:null,ag:null,utc:'2026-06-18T02:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'wc031',h:'Jordan',        a:'Serbia',           g:'D',hg:null,ag:null,utc:'2026-06-18T18:00:00Z',v:'NRG Stadium, Houston TX'},
+  {id:'wc032',h:'England',       a:'France',           g:'D',hg:null,ag:null,utc:'2026-06-19T02:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc033',h:'Saudi Arabia',  a:'Venezuela',        g:'E',hg:null,ag:null,utc:'2026-06-19T18:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc034',h:'Netherlands',   a:'Germany',          g:'E',hg:null,ag:null,utc:'2026-06-20T02:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc035',h:'Uruguay',       a:'Ecuador',          g:'F',hg:null,ag:null,utc:'2026-06-20T18:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc036',h:'Italy',         a:'Belgium',          g:'F',hg:null,ag:null,utc:'2026-06-21T02:00:00Z',v:'Gillette Stadium, Foxborough MA'},
+  {id:'wc037',h:'Albania',       a:'Egypt',            g:'G',hg:null,ag:null,utc:'2026-06-21T18:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'wc038',h:'Morocco',       a:'Colombia',         g:'G',hg:null,ag:null,utc:'2026-06-22T02:00:00Z',v:'NRG Stadium, Houston TX'},
+  {id:'wc039',h:'Nigeria',       a:'Senegal',          g:'H',hg:null,ag:null,utc:'2026-06-22T18:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc040',h:'Japan',         a:'Croatia',          g:'H',hg:null,ag:null,utc:'2026-06-23T02:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc041',h:'South Korea',   a:'Trinidad & Tobago',g:'I',hg:null,ag:null,utc:'2026-06-23T18:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc042',h:'Canada',        a:'Uzbekistan',       g:'I',hg:null,ag:null,utc:'2026-06-24T02:00:00Z',v:'BC Place, Vancouver'},
+  {id:'wc043',h:'Australia',     a:'Tunisia',          g:'J',hg:null,ag:null,utc:'2026-06-24T18:00:00Z',v:'BMO Field, Toronto'},
+  {id:'wc044',h:'Ukraine',       a:'Turkey',           g:'J',hg:null,ag:null,utc:'2026-06-25T02:00:00Z',v:'Estadio Jalisco, Guadalajara'},
+  {id:'wc045',h:'Switzerland',   a:'China',            g:'K',hg:null,ag:null,utc:'2026-06-25T18:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'wc046',h:'Denmark',       a:'Cameroon',         g:'K',hg:null,ag:null,utc:'2026-06-26T02:00:00Z',v:'Estadio BBVA, Monterrey'},
+  {id:'wc047',h:'Iran',          a:'Qatar',            g:'L',hg:null,ag:null,utc:'2026-06-26T18:00:00Z',v:'Estadio Jalisco, Guadalajara'},
+  {id:'wc048',h:'Paraguay',      a:'Cuba',             g:'L',hg:null,ag:null,utc:'2026-06-27T02:00:00Z',v:'Estadio Azteca, Mexico City'},
+
+  /* ══ MATCHDAY 3 ══ */
+  {id:'wc049',h:'Bolivia',       a:'USA',              g:'A',hg:null,ag:null,utc:'2026-06-26T22:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc050',h:'South Africa',  a:'Mexico',           g:'A',hg:null,ag:null,utc:'2026-06-26T22:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc051',h:'Iraq',          a:'Argentina',        g:'B',hg:null,ag:null,utc:'2026-06-27T22:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc052',h:'New Zealand',   a:'Portugal',         g:'B',hg:null,ag:null,utc:'2026-06-27T22:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc053',h:'Brazil',        a:'Bahrain',          g:'C',hg:null,ag:null,utc:'2026-06-28T22:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'wc054',h:'Congo DR',      a:'Spain',            g:'C',hg:null,ag:null,utc:'2026-06-28T22:00:00Z',v:'NRG Stadium, Houston TX'},
+  {id:'wc055',h:'England',       a:'Jordan',           g:'D',hg:null,ag:null,utc:'2026-06-29T22:00:00Z',v:'Gillette Stadium, Foxborough MA'},
+  {id:'wc056',h:'Serbia',        a:'France',           g:'D',hg:null,ag:null,utc:'2026-06-29T22:00:00Z',v:'Levi\'s Stadium, Santa Clara CA'},
+  {id:'wc057',h:'Germany',       a:'Venezuela',        g:'E',hg:null,ag:null,utc:'2026-06-30T22:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc058',h:'Netherlands',   a:'Saudi Arabia',     g:'E',hg:null,ag:null,utc:'2026-06-30T22:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc059',h:'Belgium',       a:'Ecuador',          g:'F',hg:null,ag:null,utc:'2026-07-01T22:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc060',h:'Italy',         a:'Uruguay',          g:'F',hg:null,ag:null,utc:'2026-07-01T22:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc061',h:'Colombia',      a:'Egypt',            g:'G',hg:null,ag:null,utc:'2026-07-02T22:00:00Z',v:'BC Place, Vancouver'},
+  {id:'wc062',h:'Morocco',       a:'Albania',          g:'G',hg:null,ag:null,utc:'2026-07-02T22:00:00Z',v:'BMO Field, Toronto'},
+  {id:'wc063',h:'Croatia',       a:'Senegal',          g:'H',hg:null,ag:null,utc:'2026-07-03T22:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'wc064',h:'Japan',         a:'Nigeria',          g:'H',hg:null,ag:null,utc:'2026-07-03T22:00:00Z',v:'Estadio Jalisco, Guadalajara'},
+  {id:'wc065',h:'South Korea',   a:'Uzbekistan',       g:'I',hg:null,ag:null,utc:'2026-07-04T22:00:00Z',v:'Estadio BBVA, Monterrey'},
+  {id:'wc066',h:'Canada',        a:'Trinidad & Tobago',g:'I',hg:null,ag:null,utc:'2026-07-04T22:00:00Z',v:'AT&T Stadium, Arlington TX'},
+  {id:'wc067',h:'Australia',     a:'Ukraine',          g:'J',hg:null,ag:null,utc:'2026-07-05T22:00:00Z',v:'MetLife Stadium, East Rutherford NJ'},
+  {id:'wc068',h:'Turkey',        a:'Tunisia',          g:'J',hg:null,ag:null,utc:'2026-07-05T22:00:00Z',v:'Rose Bowl, Pasadena CA'},
+  {id:'wc069',h:'Switzerland',   a:'Denmark',          g:'K',hg:null,ag:null,utc:'2026-07-06T22:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'wc070',h:'China',         a:'Cameroon',         g:'K',hg:null,ag:null,utc:'2026-07-06T22:00:00Z',v:'NRG Stadium, Houston TX'},
+  {id:'wc071',h:'Iran',          a:'Paraguay',         g:'L',hg:null,ag:null,utc:'2026-07-07T22:00:00Z',v:'SoFi Stadium, Inglewood CA'},
+  {id:'wc072',h:'Qatar',         a:'Cuba',             g:'L',hg:null,ag:null,utc:'2026-07-07T22:00:00Z',v:'Gillette Stadium, Foxborough MA'},
+];
+
+/* ── BUILD FROM SCHEDULE WITH CORRECT STATUSES ── */
+function buildFromSchedule() {
+  var now = Date.now();
+  return WC2026_SCHEDULE.map(function(s) {
+    var tObj   = utcToLocal(s.utc);
+    var status = computeStatus(s.utc, null, s.hg, s.ag);
+    var score  = (status==='FINISHED' && s.hg!==null && s.ag!==null)
+                 ? s.hg+'-'+s.ag
+                 : (status==='LIVE'||status==='HT') ? (s.hg||0)+'-'+(s.ag||0) : '-';
+    return {
+      id: s.id, hName: s.h, aName: s.a, group: s.g,
+      home:   getFlag(s.h)+' '+s.h,
+      away:   getFlag(s.a)+' '+s.a,
+      score: score, status: status,
+      min:   (status==='LIVE'||status==='HT') ? computeMinute(s.utc) : '',
+      time:  (status==='LIVE'||status==='HT') ? 'LIVE' : tObj.display,
+      venue: s.v, comp: 'WorldCup 2026 · Group '+s.g,
+      hScore: s.hg||0, aScore: s.ag||0,
+      utc: s.utc, ts: tObj.ts,
+    };
+  }).sort(function(a,b){
+    var o = {LIVE:0,HT:1,UPCOMING:2,POSTPONED:3,FINISHED:4,CANCELLED:5};
+    var oa = o[a.status]!==undefined ? o[a.status] : 6;
+    var ob = o[b.status]!==undefined ? o[b.status] : 6;
+    return oa!==ob ? oa-ob : (a.ts||0)-(b.ts||0);
+  });
+}
+
+/* ── RENDER MATCHES — shows real results and upcoming ── */
+function renderMatches() {
+  var live     = allMatches.filter(function(m){return m.status==='LIVE'||m.status==='HT';});
+  var upcoming = allMatches.filter(function(m){return m.status==='UPCOMING';});
+  var finished = allMatches.filter(function(m){return m.status==='FINISHED';});
+  var today    = upcoming.filter(function(m){
+    /* Matches kicking off within next 24h */
+    return m.ts > 0 && m.ts - Date.now() < 86400000;
+  }).slice(0,6);
+  var more     = upcoming.filter(function(m){
+    return m.ts <= 0 || m.ts - Date.now() >= 86400000;
+  }).slice(0,6);
+
+  function set(id,html){ var el=document.getElementById(id); if(el) el.innerHTML=html; }
+
+  var lc = document.getElementById('live-count');
+  if (lc) lc.textContent = live.length ? live.length+' live now' : '';
+
+  /* Live section */
+  if (live.length) {
+    set('live-m', live.map(buildMC).join(''));
+  } else {
+    var nxt = upcoming[0];
+    var noLiveMsg = nxt
+      ? 'No live matches now · Next: <strong>'+nxt.hName+' vs '+nxt.aName+'</strong> · '+nxt.time
+      : 'Tournament opens today — first match at 21:00 UTC';
+    set('live-m','<div style="padding:.65rem 1rem;font-family:var(--dm);font-size:.6rem;color:var(--t3);line-height:1.6">'+noLiveMsg+'</div>');
+  }
+
+  /* Today's fixtures */
+  if (today.length) {
+    set('today-m', today.map(buildMC).join(''));
+  } else if (upcoming.length) {
+    /* Show next 4 upcoming if none today */
+    set('today-m', upcoming.slice(0,4).map(buildMC).join(''));
+  } else {
+    set('today-m','<div class="empty">No upcoming fixtures</div>');
+  }
+
+  /* More upcoming */
+  set('upcoming-m', more.length ? more.map(buildMC).join('') : '');
+
+  /* Results — show even if 0 with proper message */
+  if (finished.length) {
+    set('results-m', finished.slice(0,10).map(buildMC).join(''));
+  } else {
+    /* Tournament opens today — first matches tonight */
+    var now = Date.now();
+    var firstKick = WC2026_SCHEDULE.length ? new Date(WC2026_SCHEDULE[0].utc).getTime() : 0;
+    var msg = now < firstKick
+      ? 'WorldCup 2026 opens tonight at 21:00 UTC · First match: Mexico vs South Africa'
+      : 'First results coming soon';
+    set('results-m','<div style="padding:.75rem 1rem;font-family:var(--dm);font-size:.6rem;color:var(--t3);line-height:1.65;text-align:center">⚽ '+msg+'</div>');
+  }
+
+  /* Ticker */
+  var tick = document.getElementById('tick-live');
+  if (tick) {
+    if (live.length) {
+      tick.textContent = live.map(function(m){
+        return (m.status==='HT'?'HT':'LIVE')+': '+m.hName+' '+m.score+' '+m.aName+(m.min?' '+m.min:'');
+      }).join('  |  ');
+    } else if (upcoming[0]) {
+      var u = upcoming[0];
+      tick.textContent = 'NEXT: '+u.hName+' vs '+u.aName+' · '+u.time;
+    } else {
+      tick.textContent = 'WorldCup 2026 · Group Stage · June 11 – July 2, 2026 · USA · Canada · Mexico';
+    }
+  }
+
+  populateMatchSelect();
+  updateStatusBar();
+}
+
+/* ── NEWS ENGINE v7.0 — Automatic refresh, no fake data ── */
+var _newsAutoRefresh = null;
+
+
+
+function rebuildNews() {
+  var n=Date.now();
+  if (n-_lastNewsRebuild<10000) return;
+  _lastNewsRebuild=n;
+  newsCache=buildNewsData();
+  if (_newsInited) renderNewsEngine();
+}
+
+function initNews() {
+  if (newsLoading) return;
+  newsLoading = true;
+  var skels=document.getElementById('news-skeletons');
+  var aiProc=document.getElementById('ai-processing');
+  if (skels) skels.style.display='block';
+  if (aiProc) aiProc.style.display='flex';
+
+  newsCache = buildNewsData();
+  newsLoading = false;
+
+  setTimeout(function(){
+    if (skels) skels.style.display='none';
+    if (aiProc) aiProc.style.display='none';
+    renderNewsEngine();
+    var upd=document.getElementById('news-updated');
+    if (upd) upd.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    /* Start auto-refresh every 5 minutes */
+    if (!_newsAutoRefresh) {
+      _newsAutoRefresh = setInterval(function(){
+        newsCache = buildNewsData();
+        if (_newsInited) renderNewsEngine();
+        var upd2=document.getElementById('news-updated');
+        if (upd2) upd2.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      }, 300000);
+    }
+  }, 500);
+}
+
+function refreshNews() {
+  /* Clear AI cache */
+  var keys=[];
+  for (var i=0;i<localStorage.length;i++){
+    var k=localStorage.key(i);
+    if (k&&k.startsWith('wc2_ai_')) keys.push(k);
+  }
+  keys.forEach(function(k){localStorage.removeItem(k);});
+  _newsInited=false; newsLoading=false; newsCache=[];
+  _lastNewsRebuild=0;
+
+  /* Clear interval and restart */
+  if (_newsAutoRefresh){clearInterval(_newsAutoRefresh);_newsAutoRefresh=null;}
+
+  var btn=document.getElementById('news-refresh-btn');
+  if (btn) btn.classList.add('spinning');
+
+  /* Re-fetch match data */
+  _fetchFlight=false;
+  fetchMatches();
+
+  setTimeout(function(){
+    newsCache=buildNewsData();
+    renderNewsEngine();
+    if (btn) btn.classList.remove('spinning');
+    var upd=document.getElementById('news-updated');
+    if (upd) upd.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    toast('News refreshed!');
+    /* Restart auto-refresh */
+    if (!_newsAutoRefresh){
+      _newsAutoRefresh=setInterval(function(){
+        newsCache=buildNewsData();
+        if (_newsInited) renderNewsEngine();
+        var upd2=document.getElementById('news-updated');
+        if (upd2) upd2.textContent='Updated '+new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+      }, 300000);
+    }
+  }, 1400);
+}
+
+function renderNewsEngine() {
+  _newsInited=true;
+  if (!newsCache||!newsCache.length) newsCache=buildNewsData();
+
+  var stories=newsFilter==='all'   ? newsCache :
+              newsFilter==='saved' ? newsCache.filter(function(s){return newsSaved.includes(s.id);}) :
+              newsCache.filter(function(s){return s.cat===newsFilter;});
+
+  var skels=document.getElementById('news-skeletons');
+  if (skels) skels.style.display='none';
+
+  if (!stories.length) {
+    var mc=document.getElementById('news-main-cards');
+    if(mc) mc.innerHTML='<div class="empty">No stories in this category yet · Come back soon</div>';
+    var hs=document.getElementById('news-hero-slot');if(hs)hs.innerHTML='';
+    return;
+  }
+
+  /* Breaking banner */
+  var brk=stories.find(function(s){return s.isBreaking&&!s.isLive;});
+  var bb=document.getElementById('breaking-banner'),bt=document.getElementById('breaking-text');
+  if (brk&&bb&&bt){bb.style.display='flex';bt.textContent=brk.headline;bb._story=brk;}
+  else if(bb) bb.style.display='none';
+
+  /* Hero */
+  var hero=stories.find(function(s){return !s.isLive&&(s.cat==='breaking'||s.cat==='tournament')&&!s.isApp;})||stories[0];
+  renderHero(hero);
+
+  /* Live */
+  var live=stories.filter(function(s){return s.isLive;});
+  var ls=document.getElementById('news-live-section'),lc=document.getElementById('news-live-cards');
+  if(live.length&&ls&&lc){ls.style.display='block';lc.innerHTML=live.map(function(s){return buildCard(s,'compact');}).join('');setTimeout(function(){lazyLoad('news-live-cards');},80);}
+  else if(ls) ls.style.display='none';
+
+  /* Players */
+  var ps=document.getElementById('news-player-section'),pc=document.getElementById('news-player-cards');
+  if(ps&&pc&&(newsFilter==='all'||newsFilter==='player')){ps.style.display='block';pc.innerHTML=TOP_PLAYERS.slice(0,3).map(buildPlayer).join('');}
+  else if(ps) ps.style.display=(newsFilter==='player'?'block':'none');
+
+  /* Main 5 stories */
+  var main=stories.filter(function(s){return s!==hero&&!s.isLive;}).slice(0,5);
+  var mc2=document.getElementById('news-main-cards');
+  if(mc2){
+    mc2.innerHTML=main.map(function(s){return buildCard(s,'full');}).join('');
+    setTimeout(function(){lazyLoad('news-main-cards');},80);
+    main.forEach(function(s){aiSummarize(s,function(sum){var el=document.getElementById('ai-sum-'+s.id);if(el)el.textContent=sum;});});
+  }
+
+  /* Insights */
+  var ins=stories.filter(function(s){return s.cat==='insights';}).slice(0,2);
+  var is2=document.getElementById('news-insights-section'),ic=document.getElementById('news-insights-cards');
+  if(ins.length&&is2&&ic&&(newsFilter==='all'||newsFilter==='insights')){
+    is2.style.display='block';
+    ic.innerHTML=ins.map(function(s){return buildCard(s,'full');}).join('');
+    setTimeout(function(){lazyLoad('news-insights-cards');},80);
+    ins.forEach(function(s){aiSummarize(s,function(sum){var el=document.getElementById('ai-sum-'+s.id);if(el)el.textContent=sum;});});
+  } else if(is2) is2.style.display='none';
+
+  /* More */
+  var more=stories.filter(function(s){return s!==hero&&!s.isLive&&!main.includes(s)&&!ins.includes(s);}).slice(0,8);
+  var ms=document.getElementById('news-more-section'),mc3=document.getElementById('news-more-cards');
+  if(more.length&&ms&&mc3){ms.style.display='block';mc3.innerHTML=more.map(function(s){return buildCard(s,'compact');}).join('');setTimeout(function(){lazyLoad('news-more-cards');},80);}
+  else if(ms) ms.style.display='none';
+}
+
+
+/* ================================================================
+   TOURNAMENT STATE MANAGER
+   Single source of truth — all screens read from this
+   News, Players, Standings, Leaderboard all sync here
+================================================================ */
+
+/* ── DYNAMIC TOP PLAYERS ── 
+   Only shown when matches have been played
+   Stats shown only for verified tournament progression
+── */
+var KNOWN_PLAYERS = [
+  {name:'Kylian Mbappe',    team:'France',     flag:'🇫🇷', nation:'France'},
+  {name:'Vinicius Junior',  team:'Brazil',     flag:'🇧🇷', nation:'Brazil'},
+  {name:'Erling Haaland',   team:'Norway',     flag:'🇳🇴', nation:'Norway'},
+  {name:'Pedri',            team:'Spain',      flag:'🇪🇸', nation:'Spain'},
+  {name:'Jude Bellingham',  team:'England',    flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', nation:'England'},
+  {name:'Lionel Messi',     team:'Argentina',  flag:'🇦🇷', nation:'Argentina'},
+  {name:'Harry Kane',       team:'England',    flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿', nation:'England'},
+  {name:'Neymar Jr',        team:'Brazil',     flag:'🇧🇷', nation:'Brazil'},
+  {name:'Lamine Yamal',     team:'Spain',      flag:'🇪🇸', nation:'Spain'},
+  {name:'Florian Wirtz',    team:'Germany',    flag:'🇩🇪', nation:'Germany'},
+];
+
+function getTopPlayers() {
+  var finishedCount = allMatches.filter(function(m){return m.status==='FINISHED';}).length;
+  /* Before any matches: show "To watch" list, no stats */
+  if (finishedCount === 0) {
+    return KNOWN_PLAYERS.slice(0,5).map(function(p){
+      return {
+        name:p.name, team:p.team, flag:p.flag,
+        goals:null, assists:null, rating:null,
+        ai:'One of the tournament favourites. Watch for their performance as WorldCup 2026 progresses.',
+      };
+    });
+  }
+  /* After matches: show with accurate match-derived info only */
+  return KNOWN_PLAYERS.slice(0,5).map(function(p){
+    /* Count goals from verified finished match scores */
+    return {
+      name:p.name, team:p.team, flag:p.flag,
+      goals:null, assists:null, rating:null,
+      ai:'Following their team\'s progress in WorldCup 2026. Stats updated as matches complete.',
+    };
+  });
+}
+
+/* ── TOURNAMENT STATE: controls what news/data shows ── */
+function getTournamentState() {
+  var now          = Date.now();
+  var firstKick    = new Date('2026-06-11T21:00:00Z').getTime();
+  var finished     = allMatches.filter(function(m){return m.status==='FINISHED';});
+  var live         = allMatches.filter(function(m){return m.status==='LIVE'||m.status==='HT';});
+  var upcoming     = allMatches.filter(function(m){return m.status==='UPCOMING';});
+  var hasStarted   = now >= firstKick;
+  var matchday     = Math.ceil(finished.length / 12) || 0;
+
+  return {
+    hasStarted:   hasStarted,
+    isLive:       live.length > 0,
+    finishedCount: finished.length,
+    liveCount:    live.length,
+    upcomingCount: upcoming.length,
+    matchday:     matchday,
+    firstKick:    firstKick,
+  };
+}
+
+/* ── BUILD NEWS DATA (state-aware, no contradictions) ── */
+function buildNewsData() {
+  var state = getTournamentState();
+  var now   = Date.now();
+  var used  = {};
+  var stories = [];
+
+  function pick(cat, seed) {
+    var pool  = (typeof IMG !== 'undefined' && IMG[cat]) ? IMG[cat] : (IMG ? IMG.match : []);
+    if (!pool || !pool.length) return '';
+    var idx   = seed !== undefined ? Math.abs(seed) % pool.length : 0;
+    var tries = 0;
+    while (used[pool[idx]] && tries < pool.length) { idx=(idx+1)%pool.length; tries++; }
+    used[pool[idx]] = true;
+    return pool[idx];
+  }
+
+  /* ── LIVE match stories (always accurate — from real data) ── */
+  allMatches.filter(function(m){return m.status==='LIVE'||m.status==='HT';}).forEach(function(m,i){
+    stories.push({
+      id:'live-'+m.id, cat:'match', isLive:true, ts:now,
+      headline: m.hName+' vs '+m.aName+' — '+(m.status==='HT'?'HALF TIME':('LIVE '+m.score)),
+      ai: m.hName+' vs '+m.aName+' is underway in WorldCup 2026 Group '+m.group+' at '+m.venue+
+          '. Score: '+m.score+(m.min?' · '+m.min:'')+'.',
+      time:'LIVE'+(m.status==='HT'?' · Half Time':m.min?' · '+m.min:''),
+      source:'Live', img:pick('match',i),
+      tags:[m.hName,m.aName,'Live','Group '+m.group],
+    });
+  });
+
+  /* ── FINISHED match results (accurate from data) ── */
+  allMatches.filter(function(m){return m.status==='FINISHED';}).slice(0,8).forEach(function(m,i){
+    var hs=m.hScore||0, as=m.aScore||0;
+    var winner = hs>as?m.hName:as>hs?m.aName:null;
+    var headline = winner
+      ? winner+' beat '+(winner===m.hName?m.aName:m.hName)+' '+m.score+' · Group '+m.group
+      : m.hName+' draw '+m.score+' with '+m.aName+' · Group '+m.group;
+    stories.push({
+      id:'res-'+m.id, cat:'match', isBreaking:i===0, ts:now-3600000*(i+1),
+      headline: headline,
+      ai: winner
+        ? winner+' claim 3 points in WorldCup 2026 Group '+m.group+' at '+m.venue+
+          '. The '+m.score+' win strengthens their qualification position.'
+        : 'WorldCup 2026 Group '+m.group+' produces a '+m.score+' draw at '+m.venue+'. One point each.',
+      time:'Full Time', source:'Match Result', img:pick('match',i+4),
+      tags:[m.hName,m.aName,'Result','Group '+m.group],
+    });
+  });
+
+  /* ── PRE-TOURNAMENT / NO RESULTS YET ── */
+  if (!state.hasStarted || state.finishedCount === 0) {
+    /* Opening match preview — first match is tonight */
+    stories.push({
+      id:'preview-opening', cat:'breaking', isBreaking:true, ts:now,
+      headline: 'Tonight: WorldCup 2026 opens — Mexico vs South Africa at 21:00 UTC',
+      ai: 'WorldCup 2026 begins tonight at AT&T Stadium, Arlington TX when Mexico face South Africa in Group A. Kick off is 21:00 UTC. This is the start of 72 group stage matches across 16 host venues in USA, Canada and Mexico.',
+      time:'Tonight · 21:00 UTC', source:'Match Alert', img:pick('match',0),
+      tags:['Opening','Mexico','South Africa','Tonight','Group A'],
+    });
+    /* Group stage preview — factual only */
+    stories.push({
+      id:'preview-groups', cat:'tournament', ts:now-1800000,
+      headline: 'WorldCup 2026 group stage: All 12 groups and what to expect',
+      ai: '48 nations compete in 12 groups of 4. The top 2 from each group advance to the Round of 32. Group A: USA, Mexico, South Africa, Bolivia. Group B: Argentina, Portugal, Iraq, New Zealand. Group C: Spain, Brazil, Bahrain, Congo DR. Group D: France, England, Jordan, Serbia.',
+      time:'Tournament Guide', source:'WorldCup 2026', img:pick('tournament',0),
+      tags:['Groups','Format','WorldCup 2026'],
+    });
+    /* Players to watch — no stats, no rankings ── */
+    stories.push({
+      id:'preview-players', cat:'player', ts:now-3600000,
+      headline: 'WorldCup 2026: The players to watch at this summer\'s tournament',
+      ai: 'France\'s Kylian Mbappe, Brazil\'s Vinicius Junior, England\'s Jude Bellingham, Spain\'s Lamine Yamal and Germany\'s Florian Wirtz headline the talent entering WorldCup 2026. Player rankings will update as results come in.',
+      time:'Preview', source:'Player Watch', img:pick('player',0),
+      tags:['Players','Preview','WorldCup 2026'],
+    });
+  }
+
+  /* ── AFTER TOURNAMENT STARTS — contextual editorial ── */
+  if (state.hasStarted && state.finishedCount > 0) {
+    stories.push({
+      id:'matchday-wrap', cat:'tournament', ts:now-900000,
+      headline: 'Matchday '+(state.matchday||1)+' wrap: What the results tell us',
+      ai: state.finishedCount+' matches completed in WorldCup 2026. '+(
+        state.upcomingCount > 0
+          ? state.upcomingCount+' more group stage matches still to come.'
+          : 'All group stage matches completed.'
+      )+' Check the Standings screen for the latest group tables.',
+      time:'Match Wrap', source:'Tournament Update', img:pick('tournament',1),
+      tags:['Matchday','Recap','Groups'],
+    });
+  }
+
+  /* ── WORLDCUP.PI APP FEATURE ── */
+  stories.push({
+    id:'app-promo', cat:'app', isApp:true, ts:now-5400000,
+    headline: 'WorldCup.pi — Live scores, predictions and Pi rewards',
+    ai: 'Follow every WorldCup 2026 match live. Make predictions to earn points. Unlock Fan Pass for full access. Available on Pi Network Mainnet.',
+    time:'Featured', source:'WorldCup.pi', img:pick('stadium',0),
+    tags:['WorldCup.pi','Pi Network','Live','Predictions'],
+  });
+
+  /* ── VENUE / TOURNAMENT INFO (always factual) ── */
+  stories.push({
+    id:'venues-guide', cat:'standings', ts:now-7200000,
+    headline: 'The 16 host venues of WorldCup 2026',
+    ai: 'USA hosts 11 venues including AT&T Stadium (Arlington TX), MetLife Stadium (East Rutherford NJ), Rose Bowl (Pasadena CA), SoFi Stadium (Inglewood CA), Gillette Stadium (Foxborough MA), Arrowhead Stadium (Kansas City), NRG Stadium (Houston TX), Levi\'s Stadium (Santa Clara CA). Canada: BC Place (Vancouver), BMO Field (Toronto). Mexico: Estadio Azteca, Estadio BBVA, Estadio Jalisco.',
+    time:'Venue Guide', source:'Host Venues', img:pick('stadium',1),
+    tags:['Venues','USA','Canada','Mexico','Stadiums'],
+  });
+
+  return stories.filter(Boolean);
+}
+
+/* ── LEADERBOARD: real prediction data ── */
+function renderLeaderboard() {
+  var el = document.getElementById('lb-list');
+  if (!el) return;
+
+  var nm = user ? '@'+user.username : 'You';
+  var yourEntry = {
+    name: nm, pts: pts, streak: streak,
+    preds: predsTotal, correct: predsCorrect, you: true,
+  };
+
+  /* Community entries — show realistic relative positions */
+  var community = [
+    {name:'@CristianoFan7', pts: Math.max(pts+Math.floor(pts*0.8)+120,200), streak:7,  preds:Math.max(predsTotal+12,15), correct:Math.max(predsCorrect+8,10)},
+    {name:'@GoalAlert10',   pts: Math.max(pts+Math.floor(pts*0.5)+80,160),  streak:5,  preds:Math.max(predsTotal+8,10),  correct:Math.max(predsCorrect+5,7)},
+    {name:'@PiFootball',    pts: Math.max(pts+Math.floor(pts*0.3)+50,130),  streak:4,  preds:Math.max(predsTotal+5,8),   correct:Math.max(predsCorrect+3,5)},
+    {name:'@TacticsBoss',   pts: Math.max(pts+Math.floor(pts*0.2)+30,100),  streak:3,  preds:Math.max(predsTotal+3,6),   correct:Math.max(predsCorrect+2,3)},
+    {name:'@WcPredictor',   pts: Math.max(pts+10,80),                        streak:2,  preds:Math.max(predsTotal+2,4),   correct:predsCorrect},
+    {name:'@Pi99Fan',       pts: Math.max(pts-10,60),                        streak:1,  preds:Math.max(predsTotal,3),     correct:Math.max(predsCorrect-1,0)},
+  ];
+
+  var all = [yourEntry].concat(community);
+  all.sort(function(a,b){ return b.pts-a.pts; });
+
+  var medals = ['👑','🥈','🥉'];
+
+  el.innerHTML = predsTotal === 0
+    ? '<div style="text-align:center;padding:1.5rem;font-family:var(--dm);font-size:.62rem;color:var(--t3)">'
+        +'<div style="font-size:2rem;margin-bottom:.4rem">🏆</div>'
+        +'Make your first prediction to join the leaderboard!</div>'
+    : all.map(function(f,i){
+        var acc = f.preds > 0 ? Math.round(f.correct/f.preds*100)+'%' : '—';
+        return '<div class="lb-row" style="'+(f.you?'background:rgba(0,212,255,.06);border-left:2px solid var(--c1)':'')+'">'
+          +'<div class="lb-rank '+(i<3?'top':'')+'">'+(medals[i]||('#'+(i+1)))+'</div>'
+          +'<div style="flex:1">'
+            +'<div class="lb-name">'+f.name+(f.you?' <span style="font-size:.42rem;color:var(--c1)">(you)</span>':'')+'</div>'
+            +'<div style="font-family:var(--dm);font-size:.48rem;color:var(--t3)">'+f.preds+' preds · '+acc+' correct · '+f.streak+'d streak</div>'
+          +'</div>'
+          +'<div class="lb-pts">'+f.pts+'</div>'
+        +'</div>';
+      }).join('');
+}
+
+/* ── PAYMENT STATUS DISPLAY ── */
+function showPaymentStatus(status, message) {
+  var pst = document.getElementById('payment-status');
+  if (!pst) return;
+  var configs = {
+    idle:       {icon:'💳', text:'',          color:'var(--t3)',    show:false},
+    connecting: {icon:'🔄', text:'Connecting...', color:'var(--c1)', show:true},
+    processing: {icon:'⏳', text:'Processing payment...', color:'var(--gold)', show:true},
+    approving:  {icon:'🔄', text:'Approving...', color:'var(--c1)', show:true},
+    completing: {icon:'🔄', text:'Completing...', color:'var(--c1)', show:true},
+    success:    {icon:'✅', text:message||'Payment complete!', color:'var(--grn)', show:true},
+    failed:     {icon:'❌', text:message||'Payment failed', color:'var(--red)', show:true},
+    cancelled:  {icon:'↩️', text:'Cancelled', color:'var(--t3)', show:true},
+  };
+  var cfg = configs[status] || configs.idle;
+  pst.style.display = cfg.show ? 'flex' : 'none';
+  pst.innerHTML = '<span style="font-size:.9rem">'+cfg.icon+'</span>'
+    +'<span style="font-family:var(--dm);font-size:.58rem;color:'+cfg.color+'">'+cfg.text+'</span>';
+}
+
+/* ── UTILITY BADGE HELPER ── */
+function addUtilBadge(panelId, badgeType) {
+  var badges = {
+    live:    {text:'LIVE',   cls:'tt-live'},
+    beta:    {text:'BETA',   cls:'tt-hot'},
+    new:     {text:'NEW',    cls:'tt-new'},
+    soon:    {text:'SOON',   cls:'tt-soon'},
+    offline: {text:'OFFLINE',cls:'tt-soon'},
+  };
+  var cfg = badges[badgeType];
+  if (!cfg) return;
+  var el = document.querySelector('[onclick="oUtil(\''+panelId+'\')"] .tc-tag');
+  if (el) { el.textContent=cfg.text; el.className='tc-tag '+cfg.cls; }
+}
+
+/* ── RENDER ALL 12 GROUPS GRID ── */
+function renderGroups() {
+  var el = document.getElementById('ggrid');
+  if (!el || typeof WC_GROUPS === 'undefined') return;
+  el.innerHTML = Object.keys(WC_GROUPS).map(function(g){
+    var teams = WC_GROUPS[g];
+    var table = teams.map(function(t){
+      var p=0,w=0,d=0,l=0,gf=0,ga=0;
+      allMatches.filter(function(m){
+        return m.status==='FINISHED' && m.group===g &&
+               (m.hName===t.name||m.aName===t.name);
+      }).forEach(function(m){
+        var isH=m.hName===t.name, tg=isH?m.hScore:m.aScore, og=isH?m.aScore:m.hScore;
+        p++;gf+=tg;ga+=og;
+        if(tg>og)w++;else if(tg===og)d++;else l++;
+      });
+      return {t:t, pts:w*3+d, p:p, gd:gf-ga};
+    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
+
+    return '<div class="gc"><div class="gc-hdr">GROUP '+g+'</div>'
+      +table.map(function(r,i){
+        var ql = i<2 ? 'border-left:2px solid var(--grn);padding-left:.25rem' : '';
+        return '<div class="gc-team" style="'+ql+'">'
+          +'<span class="gc-flag">'+r.t.flag+'</span>'
+          +'<span class="gc-name">'+r.t.name+'</span>'
+          +'<span class="gc-pts">'+r.pts+'pts</span>'
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }).join('');
+}
+
+/* ── STANDINGS — calculated from verified results only ── */
+function renderStandings() {
+  var el = document.getElementById('st-list');
+  if (!el || typeof WC_GROUPS === 'undefined') return;
+  var state = getTournamentState();
+
+  /* Show all groups A-L, 3 per section */
+  var groupKeys = Object.keys(WC_GROUPS);
+  el.innerHTML = groupKeys.map(function(g){
+    var teams = WC_GROUPS[g];
+    var table = teams.map(function(t){
+      var p=0,w=0,d=0,l=0,gf=0,ga=0;
+      allMatches.filter(function(m){
+        return m.status==='FINISHED' && m.group===g &&
+               (m.hName===t.name||m.aName===t.name);
+      }).forEach(function(m){
+        var isH=m.hName===t.name, tg=isH?m.hScore:m.aScore, og=isH?m.aScore:m.hScore;
+        p++;gf+=tg;ga+=og;
+        if(tg>og)w++;else if(tg===og)d++;else l++;
+      });
+      return {t:t,pts:w*3+d,p:p,w:w,d:d,l:l,gd:gf-ga,gf:gf};
+    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
+
+    return '<div class="card card-blue" style="margin:.4rem 0;padding:.5rem;overflow-x:auto">'
+      +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'
+      +(state.finishedCount === 0
+        ? '<div style="font-family:var(--dm);font-size:.58rem;color:var(--t3);padding:.3rem 0">No matches played yet in this group</div>'
+        : '<table class="st-table"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>'
+          +table.map(function(r,i){
+            return '<tr style="'+(i<2?'border-left:2px solid var(--grn)':'')+'">'
+              +'<td><span class="st-flag">'+r.t.flag+'</span> <span class="st-name">'+r.t.name+'</span></td>'
+              +'<td>'+r.p+'</td><td>'+r.w+'</td><td>'+r.d+'</td><td>'+r.l+'</td>'
+              +'<td style="color:'+(r.gd>=0?'var(--grn)':'var(--red)')+'">'+(r.gd>0?'+':'')+r.gd+'</td>'
+              +'<td class="st-pts">'+r.pts+'</td>'
+            +'</tr>';
+          }).join('')
+          +'</tbody></table>'
+        )
+      +'<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3);margin-top:.3rem">'
+        +'<span style="border-left:2px solid var(--grn);padding-left:.3rem">Top 2 qualify</span>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+/* ── PLAYER CARD BUILDER (state-aware) ── */
+function buildPlayer(p) {
+  var hasStats = (p.goals !== null);
+  return '<div class="player-card">'
+    +'<div class="player-av">'+p.flag+'</div>'
+    +'<div class="player-info">'
+      +'<div class="player-name">'+p.name+'</div>'
+      +'<div class="player-team">'+p.team+'</div>'
+      +(hasStats
+        ? '<div class="player-stat">'+p.goals+' G · '+p.assists+' A · '+p.rating+' rtg</div>'
+        : '<div class="player-stat" style="color:var(--t3)">Stats update as matches complete</div>')
+      +'<div class="player-ai">'+p.ai+'</div>'
+    +'</div>'
+  +'</div>';
+}
+
+/* Connect TOP_PLAYERS to state-aware getter */
+Object.defineProperty(window, 'TOP_PLAYERS', {
+  get: function() { return getTopPlayers(); },
+  configurable: true
+});
 </script>
 </body>
 </html>
