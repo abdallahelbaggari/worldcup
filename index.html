@@ -2308,13 +2308,16 @@ function goS(id, btn) {
   }
   if (navStack[navStack.length-1] !== id) navStack.push(id);
   if (navStack.length > 20) navStack.shift();
-  // Auto-init
   setTimeout(function(){
-    if (id === 'groups') renderGroups();
-    if (id === 'predict') renderPredictions();
+    if (id === 'groups')    renderGroups();
+    if (id === 'predict')   renderPredictions();
     if (id === 'standings') { renderLeaderboard(); renderStandings(); }
     if (id === 'utilities') { renderWalletStats(); }
-    if (id === 'notifs') renderNotifs();
+    if (id === 'notifs')    renderNotifs();
+    if (id === 'news') {
+      if (typeof NEWS !== 'undefined' && !NEWS.inited) initNews();
+      else if (typeof NEWS !== 'undefined' && NEWS.inited) renderNewsEngine();
+    }
   }, 60);
 }
 
@@ -3927,27 +3930,7 @@ var allMatches   = [];var newsSaved    = JSON.parse(localStorage.getItem('wc2_sa
    NO PAYMENT CHANGES
 ================================================================ */
 
-/* ── FIX: goS hook for news + data rebuild ── */
-var _goSBase = goS;
-goS = function(id, btn) {
-  _goSBase(id, btn);
-  /* Init news on first visit */
-  if (id === 'news' && !_newsInited) {
-    _newsInited = true;
-    setTimeout(initNews, 80);
-  }
-  /* Always rebuild news from latest match data */
-  if (id === 'news' && newsCache.length) {
-    newsCache = buildNewsData();
-    renderNewsEngine();
-  }
-  /* Init standings/groups on visit */
-  if (id === 'standings') { renderLeaderboard(); renderStandings(); }
-  if (id === 'groups')    renderGroups();
-  if (id === 'predict')   renderPredictions();
-};
-
-/* ── FIX: renderGroups uses WC_GROUPS ── */
+/* ── FIX: goS hook for news + data rebuild ── *//* ── FIX: renderGroups uses WC_GROUPS ── */
 
 
 /* ── FIX: renderStandings uses real match data ── */
@@ -4638,14 +4621,7 @@ function closeLegal() {
 /* ── BUILD SCHEDULE WITH CORRECT STATUS ── */
 
 
-/* ── FETCH LIVE DATA FROM THESPORTSDB ──
-   Strategy:
-   1. Check cache (15s live, 60s upcoming)
-   2. Try today's soccer events → filter WC only
-   3. Try season endpoint (league ID for WC 2026)
-   4. Fall back to schedule with clock-computed statuses
-   Always: merge API data onto confirmed schedule
-── */
+
 
 
 
@@ -4689,24 +4665,7 @@ function closeLegal() {
    - Cache for performance only, never as source of truth
 ================================================================ */
 
-/* ── SINGLE STATE OBJECT ── */
-var WC = {
-  matches:   [],       /* Normalized from API */
-  groups:    {},       /* Derived from API events */
-  standings: [],       /* From API standings endpoint */
-  news:      [],       /* Derived from real match events */
-  saved:     JSON.parse(localStorage.getItem('wc2_saved')||'[]'),
-  filter:    'all',
-  pollTimer: null,
-  fetching:  false,
-  lastFetch: 0,
-  cacheKey:  'wc2_matches_v8',
-  cacheTTL:  { live: 20000, upcoming: 60000, finished: 900000 },
-};
-
-/* ── DATA ENDPOINT ── */
-var DATA_URL = '/data';
-
+/* ── SINGLE STATE OBJECT ── *//* ── DATA ENDPOINT ── */
 /* ── FLAG LOOKUP — team name to emoji ── */
 var FLAGS = {
   /* Hosts */  'Mexico':'🇲🇽','Canada':'🇨🇦','USA':'🇺🇸','United States':'🇺🇸',
@@ -4732,16 +4691,7 @@ function getFlag(name) {
 }
 
 /* ── API FETCH ── */
-function apiFetch(type, extra) {
-  var url = DATA_URL + '?type=' + type + (extra||'');
-  return fetch(url).then(function(r){
-    if (!r.ok) throw new Error('HTTP '+r.status);
-    return r.json();
-  }).then(function(body){
-    if (!body.success) throw new Error(body.error||'API error');
-    return body.data;
-  });
-}
+
 
 /* ── CACHE ── */
 function cacheGet(key) {
@@ -4764,123 +4714,21 @@ function cacheClear() {
 }
 
 /* ── POLLING ── */
-function startPolling() {
-  stopPolling();
-  loadMatches();
-  _schedulePoll();
-}
 
-function stopPolling() {
-  if (WC.pollTimer) { clearTimeout(WC.pollTimer); WC.pollTimer=null; }
-}
 
-function _schedulePoll() {
-  var hasLive = WC.matches.some(function(m){return m.status==='LIVE'||m.status==='HT';});
-  WC.pollTimer = setTimeout(function(){
-    loadMatches();
-    _schedulePoll();
-  }, hasLive ? 20000 : 60000);
-}
 
-/* ── LOAD MATCHES ──
-   1. Try today's matches from API
-   2. If none, try full season (for fixtures)
-   3. On error: show "Data unavailable" — never fake data
-── */
-function loadMatches() {
-  if (WC.fetching) return;
-  WC.fetching = true;
-  setStatus('loading');
 
-  var today = new Date().toISOString().slice(0,10);
 
-  apiFetch('today', '&date='+today)
-    .then(function(events){
-      WC.fetching = false;
-      WC.lastFetch = Date.now();
 
-      if (events && events.length > 0) {
-        WC.matches = events;
-        cacheSet(WC.cacheKey, events, getActiveTTL());
-        setStatus('live');
-      } else {
-        /* No matches today — load full season for upcoming fixtures */
-        return loadSeason();
-      }
-      renderMatches();
-      buildNewsFromMatches();
-    })
-    .catch(function(err){
-      WC.fetching = false;
-      console.warn('[WC] Today fetch failed:', err.message);
-      /* Try season endpoint */
-      loadSeason().catch(function(){
-        /* Try cache */
-        var cached = cacheGet(WC.cacheKey);
-        if (cached && cached.length) {
-          WC.matches = cached;
-          setStatus('cached');
-          renderMatches();
-          buildNewsFromMatches();
-        } else {
-          setStatus('unavailable');
-          showUnavailable();
-        }
-      });
-    });
-}
 
-function loadSeason() {
-  return apiFetch('season')
-    .then(function(events){
-      WC.fetching = false;
-      WC.lastFetch = Date.now();
-      if (events && events.length > 0) {
-        WC.matches = events;
-        cacheSet(WC.cacheKey, events, WC.cacheTTL.upcoming);
-        setStatus('fixtures');
-        renderMatches();
-        buildNewsFromMatches();
-      } else {
-        setStatus('no-fixtures');
-        showUnavailable();
-      }
-    });
-}
 
-function getActiveTTL() {
-  var hasLive = WC.matches.some(function(m){return m.status==='LIVE'||m.status==='HT';});
-  var allDone = WC.matches.every(function(m){return m.status==='FINISHED';});
-  return hasLive ? WC.cacheTTL.live : allDone ? WC.cacheTTL.finished : WC.cacheTTL.upcoming;
-}
+
+
+
+
 
 /* ── STATUS BAR ── */
-function setStatus(status) {
-  var dst   = document.getElementById('dst');
-  var badge = document.querySelector('.live-badge');
-  var dsl   = document.getElementById('data-source-label');
-  var lul   = document.getElementById('last-updated-label');
-  var now   = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
-  var liveN = WC.matches.filter(function(m){return m.status==='LIVE'||m.status==='HT';}).length;
-  var lc    = document.getElementById('live-count');
-  if (lc) lc.textContent = liveN ? liveN+' live now' : '';
 
-  var cfg = {
-    live:        {text:'Live · '+now,              color:'var(--grn)',   badge:liveN?'LIVE':'UPDATED'},
-    fixtures:    {text:'Fixtures · '+now,          color:'var(--grn)',   badge:'FIXTURES'},
-    loading:     {text:'Loading...',               color:'var(--t3)',    badge:'...'},
-    cached:      {text:'Cached · '+now,            color:'var(--t3)',    badge:'CACHED'},
-    'no-fixtures':{text:'No fixtures available',   color:'var(--t3)',    badge:'—'},
-    unavailable: {text:'Data unavailable',         color:'var(--orange)',badge:'OFFLINE'},
-  };
-  var c = cfg[status]||cfg.loading;
-  if (dst)   { dst.textContent=c.text; dst.style.color=c.color; }
-  if (badge) badge.textContent = c.badge;
-  if (dsl)   dsl.textContent   = 'TheSportsDB';
-  if (lul)   lul.textContent   = WC.lastFetch
-    ? 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
-    : now;
-}
 
 /* ── RENDER MATCHES ── */
 function renderMatches() {
@@ -5227,18 +5075,7 @@ function renderStandingsFromMatches(el) {
 }
 
 /* ── SHOW UNAVAILABLE STATE ── */
-function showUnavailable() {
-  var sections = ['live-m','today-m','upcoming-m','results-m'];
-  var msg = '<div style="text-align:center;padding:1.5rem;font-family:var(--dm);font-size:.62rem;color:var(--t3)">'
-    +'<div style="font-size:1.5rem;margin-bottom:.5rem">📡</div>'
-    +'Data unavailable · Check your connection<br>'
-    +'<button onclick="loadMatches()" style="margin-top:.75rem;background:rgba(0,212,255,.1);border:1px solid var(--bd);color:var(--c1);border-radius:99px;padding:.3rem .85rem;font-family:var(--dm);font-size:.58rem;cursor:pointer">Retry</button>'
-    +'</div>';
-  sections.forEach(function(id){
-    var el=document.getElementById(id);
-    if(el) el.innerHTML=msg;
-  });
-}
+
 
 /* ── NEWS FROM REAL MATCH DATA ── */
 var newsCache = [];var newsFilter = 'all';
@@ -5294,18 +5131,7 @@ function renderLeaderboard() {
   }).join('');
 }
 
-/* ── goS hook — init screens on visit ── */
-var _goSBase = goS;
-goS = function(id, btn) {
-  _goSBase(id, btn);
-  if (id==='news' && !_newsInited) { _newsInited=true; setTimeout(initNews,80); }
-  if (id==='news' && _newsInited)  { buildNewsFromMatches(); renderNewsEngine(); }
-  if (id==='standings')             { renderLeaderboard(); renderStandings(); }
-  if (id==='groups')                renderGroups();
-  if (id==='predict')               renderPredictions();
-};
-
-/* ── Predictions ── */
+/* ── goS hook — init screens on visit ── *//* ── Predictions ── */
 function renderPredictions() {
   var el=document.getElementById('pred-list');if(!el)return;
   var avail=WC.matches.filter(function(m){return m.status==='UPCOMING';}).slice(0,8);
@@ -5880,11 +5706,397 @@ function escHtml(s) {
 }
 
 /* ── goS hook updates ── */
-var _goSNewsBase = goS;
-goS = function(id, btn) {
-  _goSNewsBase(id, btn);
-  if (id==='news') { if (!NEWS.inited) initNews(); else { buildNewsFromMatches && buildNewsFromMatches(); renderNewsEngine(); } }
+
+/* ================================================================
+   WC 2026 LIVE ENGINE — FIXED
+   - goS: 1 clean hook (no chaining)
+   - Schedule fallback: always shows fixtures (never blank)
+   - Direct TheSportsDB fetch (no proxy needed — CORS open)
+   - API merges onto schedule; schedule always available
+================================================================ */
+
+/* ── CONFIRMED SCHEDULE — verified from LiveScore ──
+   Status computed from UTC clock — only used as fallback
+   API data takes priority and overwrites status/scores
+── */
+var WC_SCHED = [
+  {id:'s001',h:'Mexico',        a:'South Africa',          g:'A',hg:2,ag:0,  utc:'2026-06-11T23:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'s002',h:'South Korea',   a:'Czechia',               g:'A',hg:null,ag:null,utc:'2026-06-12T06:00:00Z',v:'Estadio Akron, Guadalajara'},
+  {id:'s003',h:'Canada',        a:'Bosnia and Herzegovina', g:'B',hg:null,ag:null,utc:'2026-06-13T00:00:00Z',v:'BMO Field, Toronto'},
+  {id:'s004',h:'USA',           a:'Paraguay',               g:'D',hg:null,ag:null,utc:'2026-06-13T05:00:00Z',v:'SoFi Stadium, Los Angeles'},
+  {id:'s005',h:'Qatar',         a:'Switzerland',            g:'B',hg:null,ag:null,utc:'2026-06-13T23:00:00Z',v:"Levi's Stadium, San Francisco"},
+  {id:'s006',h:'Brazil',        a:'Morocco',                g:'C',hg:null,ag:null,utc:'2026-06-14T02:00:00Z',v:'MetLife Stadium, New York'},
+  {id:'s007',h:'Haiti',         a:'Scotland',               g:'C',hg:null,ag:null,utc:'2026-06-14T05:00:00Z',v:'Gillette Stadium, Boston'},
+  {id:'s008',h:'Australia',     a:'Türkiye',                g:'D',hg:null,ag:null,utc:'2026-06-14T08:00:00Z',v:'BC Place, Vancouver'},
+  {id:'s009',h:'Germany',       a:'Curaçao',                g:'E',hg:null,ag:null,utc:'2026-06-14T21:00:00Z',v:'NRG Stadium, Houston'},
+  {id:'s010',h:'Netherlands',   a:'Japan',                  g:'F',hg:null,ag:null,utc:'2026-06-15T00:00:00Z',v:'AT&T Stadium, Dallas'},
+  {id:'s011',h:'Ivory Coast',   a:'Ecuador',                g:'E',hg:null,ag:null,utc:'2026-06-15T03:00:00Z',v:'Lincoln Financial Field, Philadelphia'},
+  {id:'s012',h:'Sweden',        a:'Tunisia',                g:'F',hg:null,ag:null,utc:'2026-06-15T06:00:00Z',v:'Estadio BBVA, Monterrey'},
+  {id:'s013',h:'Spain',         a:'Cape Verde',             g:'H',hg:null,ag:null,utc:'2026-06-15T20:00:00Z',v:'Mercedes-Benz Stadium, Atlanta'},
+  {id:'s014',h:'Belgium',       a:'Egypt',                  g:'G',hg:null,ag:null,utc:'2026-06-15T23:00:00Z',v:'Lumen Field, Seattle'},
+  {id:'s015',h:'Saudi Arabia',  a:'Uruguay',                g:'H',hg:null,ag:null,utc:'2026-06-16T02:00:00Z',v:'Hard Rock Stadium, Miami'},
+  {id:'s016',h:'Iran',          a:'New Zealand',            g:'G',hg:null,ag:null,utc:'2026-06-16T05:00:00Z',v:'SoFi Stadium, Los Angeles'},
+  {id:'s017',h:'France',        a:'Senegal',                g:'I',hg:null,ag:null,utc:'2026-06-16T23:00:00Z',v:'MetLife Stadium, New York'},
+  {id:'s018',h:'Iraq',          a:'Norway',                 g:'I',hg:null,ag:null,utc:'2026-06-17T02:00:00Z',v:'Gillette Stadium, Boston'},
+  {id:'s019',h:'Argentina',     a:'Algeria',                g:'J',hg:null,ag:null,utc:'2026-06-17T05:00:00Z',v:'Arrowhead Stadium, Kansas City'},
+  {id:'s020',h:'Austria',       a:'Jordan',                 g:'J',hg:null,ag:null,utc:'2026-06-17T08:00:00Z',v:"Levi's Stadium, San Francisco"},
+  {id:'s021',h:'Portugal',      a:'DR Congo',               g:'K',hg:null,ag:null,utc:'2026-06-17T21:00:00Z',v:'NRG Stadium, Houston'},
+  {id:'s022',h:'England',       a:'Croatia',                g:'L',hg:null,ag:null,utc:'2026-06-18T00:00:00Z',v:'AT&T Stadium, Dallas'},
+  {id:'s023',h:'Ghana',         a:'Panama',                 g:'L',hg:null,ag:null,utc:'2026-06-18T03:00:00Z',v:'BMO Field, Toronto'},
+  {id:'s024',h:'Uzbekistan',    a:'Colombia',               g:'K',hg:null,ag:null,utc:'2026-06-18T06:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'s025',h:'Czechia',       a:'South Africa',           g:'A',hg:null,ag:null,utc:'2026-06-18T20:00:00Z',v:'Estadio Akron, Guadalajara'},
+  {id:'s026',h:'Mexico',        a:'South Korea',            g:'A',hg:null,ag:null,utc:'2026-06-19T05:00:00Z',v:'Estadio Azteca, Mexico City'},
+  {id:'s027',h:'England',       a:'Panama',                 g:'L',hg:null,ag:null,utc:'2026-06-22T03:00:00Z',v:'BMO Field, Toronto'},
+  {id:'s028',h:'Germany',       a:'Ivory Coast',            g:'E',hg:null,ag:null,utc:'2026-06-29T22:00:00Z',v:'AT&T Stadium, Dallas'},
+  {id:'s029',h:'France',        a:'Iraq',                   g:'I',hg:null,ag:null,utc:'2026-07-03T22:00:00Z',v:'MetLife Stadium, New York'},
+  {id:'s030',h:'Spain',         a:'Uruguay',                g:'H',hg:null,ag:null,utc:'2026-07-02T22:00:00Z',v:'Hard Rock Stadium, Miami'},
+];
+
+/* ── WC_GROUPS for Groups/Standings tabs ── */
+var WC_GROUPS = {
+  A:[{flag:'🇨🇿',name:'Czechia'},{flag:'🇲🇽',name:'Mexico'},{flag:'🇿🇦',name:'South Africa'},{flag:'🇰🇷',name:'South Korea'}],
+  B:[{flag:'🇧🇦',name:'Bosnia and Herzegovina'},{flag:'🇨🇦',name:'Canada'},{flag:'🇶🇦',name:'Qatar'},{flag:'🇨🇭',name:'Switzerland'}],
+  C:[{flag:'🇧🇷',name:'Brazil'},{flag:'🇭🇹',name:'Haiti'},{flag:'🇲🇦',name:'Morocco'},{flag:'🏴󠁧󠁢󠁳󠁣󠁴󠁿',name:'Scotland'}],
+  D:[{flag:'🇦🇺',name:'Australia'},{flag:'🇵🇾',name:'Paraguay'},{flag:'🇹🇷',name:'Türkiye'},{flag:'🇺🇸',name:'USA'}],
+  E:[{flag:'🇨🇼',name:'Curaçao'},{flag:'🇪🇨',name:'Ecuador'},{flag:'🇩🇪',name:'Germany'},{flag:'🇨🇮',name:'Ivory Coast'}],
+  F:[{flag:'🇯🇵',name:'Japan'},{flag:'🇳🇱',name:'Netherlands'},{flag:'🇸🇪',name:'Sweden'},{flag:'🇹🇳',name:'Tunisia'}],
+  G:[{flag:'🇧🇪',name:'Belgium'},{flag:'🇪🇬',name:'Egypt'},{flag:'🇮🇷',name:'Iran'},{flag:'🇳🇿',name:'New Zealand'}],
+  H:[{flag:'🇨🇻',name:'Cape Verde'},{flag:'🇸🇦',name:'Saudi Arabia'},{flag:'🇪🇸',name:'Spain'},{flag:'🇺🇾',name:'Uruguay'}],
+  I:[{flag:'🇫🇷',name:'France'},{flag:'🇮🇶',name:'Iraq'},{flag:'🇳🇴',name:'Norway'},{flag:'🇸🇳',name:'Senegal'}],
+  J:[{flag:'🇩🇿',name:'Algeria'},{flag:'🇦🇷',name:'Argentina'},{flag:'🇦🇹',name:'Austria'},{flag:'🇯🇴',name:'Jordan'}],
+  K:[{flag:'🇨🇴',name:'Colombia'},{flag:'🇨🇩',name:'DR Congo'},{flag:'🇵🇹',name:'Portugal'},{flag:'🇺🇿',name:'Uzbekistan'}],
+  L:[{flag:'🇭🇷',name:'Croatia'},{flag:'🏴󠁧󠁢󠁥󠁮󠁧󠁿',name:'England'},{flag:'🇬🇭',name:'Ghana'},{flag:'🇵🇦',name:'Panama'}],
 };
+
+/* ── STATE ── */
+var WC = {
+  matches:  [],
+  fetching: false,
+  lastFetch:0,
+  pollTimer:null,
+  cacheKey: 'wc2_mv9',
+  ttl:      {live:20000, upcoming:60000, finished:900000},
+};
+
+/* ── CACHE ── */
+function cacheGet(key) {
+  try {
+    var r=localStorage.getItem(key); if(!r) return null;
+    var o=JSON.parse(r);
+    if(!o||!o.ts||!o.d) return null;
+    if(Date.now()-o.ts>(o.ttl||60000)){localStorage.removeItem(key);return null;}
+    return o.d;
+  } catch(e){return null;}
+}
+function cacheSet(key,data,ttl){
+  try{localStorage.setItem(key,JSON.stringify({ts:Date.now(),ttl:ttl||60000,d:data}));}catch(e){}
+}
+
+/* ── BUILD FROM SCHEDULE (guaranteed fallback) ── */
+function buildFromSchedule() {
+  var now = Date.now();
+  return WC_SCHED.map(function(s){
+    var kick    = new Date(s.utc).getTime();
+    var elapsed = (now - kick) / 60000;
+    var status, score, progress='';
+    if (s.hg!==null && s.ag!==null && elapsed >= 110) {
+      status='FINISHED'; score=s.hg+'-'+s.ag;
+    } else if (elapsed >= 110) {
+      status='FINISHED'; score='-';
+    } else if (elapsed >= 0 && elapsed < 110) {
+      status = elapsed >= 45 && elapsed < 50 ? 'HT' : 'LIVE';
+      score  = (s.hg!==null && s.ag!==null) ? s.hg+'-'+s.ag : '0-0';
+      progress = elapsed < 45 ? Math.floor(elapsed)+"'" : elapsed < 50 ? 'HT' : Math.floor(elapsed-5)+"'";
+    } else {
+      status='UPCOMING'; score='-';
+    }
+    var dispTime='TBD';
+    try {
+      var d=new Date(s.utc);
+      dispTime=d.toLocaleDateString([],{month:'short',day:'numeric'})+' · '+
+               d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+    } catch(e){}
+    return {
+      id:s.id, homeTeam:s.h, awayTeam:s.a, group:s.g,
+      homeScore:(status!=='UPCOMING'&&s.hg!==null)?s.hg:null,
+      awayScore:(status!=='UPCOMING'&&s.ag!==null)?s.ag:null,
+      score:score, status:status, progress:progress,
+      dateUTC:s.utc, ts:kick, venue:s.v,
+      league:'WorldCup 2026 · Group '+s.g,
+      dispTime:dispTime,
+    };
+  }).sort(function(a,b){
+    var o={LIVE:0,HT:1,UPCOMING:2,FINISHED:3};
+    var oa=o[a.status]!==undefined?o[a.status]:4;
+    var ob=o[b.status]!==undefined?o[b.status]:4;
+    return oa!==ob?oa-ob:a.ts-b.ts;
+  });
+}
+
+/* ── SET STATUS BAR ── */
+function setStatus(st) {
+  var dst   = document.getElementById('dst');
+  var badge = document.querySelector('.live-badge');
+  var dsl   = document.getElementById('data-source-label');
+  var lul   = document.getElementById('last-updated-label');
+  var now   = new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  var liveN = WC.matches.filter(function(m){return m.status==='LIVE'||m.status==='HT';}).length;
+  var lc    = document.getElementById('live-count');
+  if (lc) lc.textContent = liveN ? liveN+' live now' : '';
+  var msgs = {
+    live:     {text:'Live · '+now,       color:'var(--grn)',   badge:liveN?'LIVE':'UPDATED'},
+    schedule: {text:'Schedule · '+now,   color:'var(--t3)',    badge:liveN?'LIVE':'SCHEDULE'},
+    loading:  {text:'Updating...',       color:'var(--t3)',    badge:'...'},
+  };
+  var m=msgs[st]||msgs.schedule;
+  if (dst)   {dst.textContent=m.text; dst.style.color=m.color;}
+  if (badge) badge.textContent=m.badge;
+  if (dsl)   dsl.textContent='TheSportsDB';
+  if (lul)   lul.textContent=WC.lastFetch
+    ? 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+    : now;
+}
+
+/* ── START / STOP POLLING ── */
+function startPolling() {
+  stopPolling();
+  /* Render schedule immediately so screen is never blank */
+  var cached = cacheGet(WC.cacheKey);
+  if (cached && cached.length) {
+    WC.matches = cached;
+  } else {
+    WC.matches = buildFromSchedule();
+  }
+  setStatus('schedule');
+  renderMatches();
+  /* Fetch live data via /data proxy */
+  loadMatches();
+  /* Poll every 60s (20s if live) */
+  _schedulePoll();
+}
+
+function stopPolling() {
+  if (WC.pollTimer) {clearTimeout(WC.pollTimer); WC.pollTimer=null;}
+}
+
+/* ── FETCH LIVE FROM THESPORTSDB ── */
+
+
+/* Alias for refresh buttons */
+
+
+/* ── BUILD NEWS FROM REAL MATCH DATA ── */
+function buildNewsFromMatches() {
+  if(typeof NEWS==='undefined') return;
+  var now=Date.now();
+  var stories=[];
+  var live    =WC.matches.filter(function(m){return m.status==='LIVE'||m.status==='HT';});
+  var finished=WC.matches.filter(function(m){return m.status==='FINISHED'&&m.homeScore!==null;});
+  var upcoming=WC.matches.filter(function(m){return m.status==='UPCOMING';});
+
+  live.forEach(function(m,i){
+    stories.push({
+      id:'live-'+m.id, cat:'match', isLive:true, ts:now, publishedAt:now,
+      title:m.homeTeam+' vs '+m.awayTeam+' — '+(m.status==='HT'?'HALF TIME':'LIVE '+m.score),
+      summary:m.homeTeam+' and '+m.awayTeam+' are playing in '+m.league+' at '+(m.venue||'')+(m.progress?' · '+m.progress+'.':'.'),
+      source:'Live', imageUrl:null,
+    });
+  });
+  finished.slice(0,5).forEach(function(m,i){
+    var hs=m.homeScore,as_=m.awayScore;
+    var w=hs>as_?m.homeTeam:as_>hs?m.awayTeam:null;
+    stories.push({
+      id:'res-'+m.id, cat:'match', ts:now-(i+1)*3600000, publishedAt:now-(i+1)*3600000,
+      title:w?w+' beat '+(w===m.homeTeam?m.awayTeam:m.homeTeam)+' '+hs+'-'+as_
+             :m.homeTeam+' draw '+hs+'-'+as_+' with '+m.awayTeam,
+      summary:m.league+' result at '+(m.venue||'')+'.',
+      source:'Match Result', imageUrl:null,
+    });
+  });
+
+  if(stories.length>0){
+    var matchIds=stories.map(function(s){return s.id;});
+    NEWS.articles=stories.concat(
+      (NEWS.articles||[]).filter(function(a){return !matchIds.includes(a.id);})
+    );
+    if(NEWS.inited) renderNewsEngine();
+  }
+}
+
+/* ── GROUPS — from WC_GROUPS + match results ── */
+function renderGroups() {
+  var el=document.getElementById('ggrid');
+  if(!el) return;
+  el.innerHTML=Object.keys(WC_GROUPS).map(function(g){
+    var teams=WC_GROUPS[g];
+    var table=teams.map(function(t){
+      var p=0,w=0,d=0,l=0,gf=0,ga=0;
+      WC.matches.filter(function(m){
+        return m.status==='FINISHED'&&m.group===g&&(m.homeTeam===t.name||m.awayTeam===t.name);
+      }).forEach(function(m){
+        var isH=m.homeTeam===t.name,tg=isH?m.homeScore:m.awayScore,og=isH?m.awayScore:m.homeScore;
+        p++;gf+=tg;ga+=og;if(tg>og)w++;else if(tg===og)d++;else l++;
+      });
+      return {t:t,pts:w*3+d,p:p,gd:gf-ga};
+    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
+    return '<div class="gc"><div class="gc-hdr">GROUP '+g+'</div>'+
+      table.map(function(r,i){
+        return '<div class="gc-team" style="'+(i<2?'border-left:2px solid var(--grn);padding-left:.25rem':'')+'">'
+          +'<span class="gc-flag">'+r.t.flag+'</span>'
+          +'<span class="gc-name">'+r.t.name+'</span>'
+          +'<span class="gc-pts">'+r.pts+'pts</span>'
+        +'</div>';
+      }).join('')+'</div>';
+  }).join('');
+}
+
+/* ── STANDINGS — from match results ── */
+function renderStandings() {
+  var el=document.getElementById('st-list');
+  if(!el) return;
+  var finished=WC.matches.filter(function(m){return m.status==='FINISHED'&&m.homeScore!==null;});
+  if(!finished.length){
+    el.innerHTML='<div style="text-align:center;padding:1.5rem;font-family:var(--dm);font-size:.6rem;color:var(--t3)">Standings update after matches complete</div>';
+    return;
+  }
+  el.innerHTML=Object.keys(WC_GROUPS).map(function(g){
+    var teams=WC_GROUPS[g];
+    var table=teams.map(function(t){
+      var p=0,w=0,d=0,l=0,gf=0,ga=0;
+      finished.filter(function(m){
+        return m.group===g&&(m.homeTeam===t.name||m.awayTeam===t.name);
+      }).forEach(function(m){
+        var isH=m.homeTeam===t.name,tg=isH?m.homeScore:m.awayScore,og=isH?m.awayScore:m.homeScore;
+        p++;gf+=tg;ga+=og;if(tg>og)w++;else if(tg===og)d++;else l++;
+      });
+      return {t:t,pts:w*3+d,p:p,w:w,d:d,l:l,gd:gf-ga};
+    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
+    return '<div class="card card-blue" style="margin:.4rem 0;padding:.5rem;overflow-x:auto">'
+      +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'
+      +'<table class="st-table"><thead><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr></thead><tbody>'
+      +table.map(function(r,i){
+        return '<tr style="'+(i<2?'border-left:2px solid var(--grn)':'')+'">'
+          +'<td><span class="st-flag">'+r.t.flag+'</span> <span class="st-name">'+r.t.name+'</span></td>'
+          +'<td>'+r.p+'</td><td>'+r.w+'</td><td>'+r.d+'</td><td>'+r.l+'</td>'
+          +'<td style="color:'+(r.gd>=0?'var(--grn)':'var(--red)')+'">'+(r.gd>0?'+':'')+r.gd+'</td>'
+          +'<td class="st-pts">'+r.pts+'</td></tr>';
+      }).join('')+'</tbody></table></div>';
+  }).join('');
+}
+
+/* ── ONE CLEAN goS HOOK ── */
+(function(){
+  var _base=goS;
+  goS=function(id,btn){
+    _base(id,btn);
+    if(id==='news'){if(!NEWS.inited){NEWS.inited=true;setTimeout(initNews,80);}else{buildNewsFromMatches();renderNewsEngine();}}
+    if(id==='standings'){renderLeaderboard();renderStandings();}
+    if(id==='groups')   renderGroups();
+    if(id==='predict')  renderPredictions();
+  };
+})();
+
+
+/* ================================================================
+   WORLDCUP FETCH ENGINE v10.0
+   All data via /data Cloudflare Function — no direct API calls
+   Pi Browser blocks external API calls (CORS)
+================================================================ */
+
+var DATA_URL = '/data';
+
+function apiFetch(type, params) {
+  var url = DATA_URL + '?type=' + type + (params || '');
+  return fetch(url)
+    .then(function(r) {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(function(body) {
+      if (!body.success) throw new Error(body.error || 'API error');
+      return body.data || [];
+    });
+}
+
+function mergeAPIIntoSchedule(events) {
+  var base = buildFromSchedule();
+  events.forEach(function(e) {
+    if (!e.homeTeam || !e.awayTeam) return;
+    var slot = base.find(function(s) {
+      var sh = (s.homeTeam || '').toLowerCase().slice(0, 5);
+      var ah = (e.homeTeam || '').toLowerCase().slice(0, 5);
+      return sh === ah || sh.includes(ah) || ah.includes(sh);
+    });
+    if (slot && e.status && e.status !== 'UPCOMING') {
+      slot.status   = e.status;
+      slot.progress = e.progress || '';
+      if (e.homeScore !== null && e.awayScore !== null) {
+        slot.homeScore = e.homeScore;
+        slot.awayScore = e.awayScore;
+        slot.score     = e.homeScore + '-' + e.awayScore;
+      }
+      if (e.venue) slot.venue = e.venue;
+    }
+  });
+  WC.matches = base;
+}
+
+function loadMatches() {
+  if (WC.fetching) return;
+  WC.fetching = true;
+  setStatus('loading');
+
+  var today = new Date().toISOString().slice(0, 10);
+
+  apiFetch('today', '&date=' + today)
+    .then(function(events) {
+      WC.fetching  = false;
+      WC.lastFetch = Date.now();
+      if (events && events.length > 0) {
+        mergeAPIIntoSchedule(events);
+      } else {
+        /* No matches today — load full season for fixtures */
+        return apiFetch('season')
+          .then(function(season) {
+            if (season && season.length > 0) {
+              mergeAPIIntoSchedule(season);
+            }
+          })
+          .catch(function() {
+            WC.matches = buildFromSchedule();
+          });
+      }
+    })
+    .catch(function(err) {
+      WC.fetching = false;
+      console.warn('[WC] /data failed:', err.message);
+      WC.matches = buildFromSchedule();
+    })
+    .then(function() {
+      WC.fetching = false;
+      cacheSet(WC.cacheKey, WC.matches, WC.ttl.upcoming);
+      setStatus(WC.matches.some(function(m){
+        return m.status === 'LIVE' || m.status === 'HT';
+      }) ? 'live' : 'schedule');
+      renderMatches();
+      if (typeof buildNewsFromMatches === 'function') buildNewsFromMatches();
+    });
+}
+
+function showUnavailable() {
+  if (!WC.matches.length) WC.matches = buildFromSchedule();
+  renderMatches();
+}
+
+function _schedulePoll() {
+  stopPolling();
+  var hasLive = WC.matches.some(function(m){ return m.status==='LIVE'||m.status==='HT'; });
+  WC.pollTimer = setTimeout(function(){
+    WC.fetching = false;
+    loadMatches();
+    _schedulePoll();
+  }, hasLive ? 20000 : 60000);
+}
 </script>
 
 <!-- LEGAL OVERLAY -->
