@@ -56,15 +56,35 @@ async function fetchTSDB(path) {
 }
 
 /* Filter events to WC 2026 only */
+/* Strict WC 2026 filter — rejects handball, club football, other tournaments */
+const BLOCKED_SPORTS  = ['handball','basketball','rugby','ice hockey','american football'];
+const BLOCKED_LEAGUES = ['champions league','premier league','bundesliga','la liga',
+                          'serie a','ligue 1','friendly','ehf','nba','nfl','nhl'];
+
 function isWC(event) {
   if (!event || !event.strHomeTeam || !event.strAwayTeam) return false;
-  const lg  = (event.strLeague || '').toLowerCase();
-  const tn  = (event.strTournament || '').toLowerCase();
-  const id  = String(event.idLeague || '');
-  return lg.includes('world cup') ||
-         lg.includes('worldcup') ||
-         tn.includes('world cup') ||
-         WC_LEAGUES.includes(id);
+  const sport = (event.strSport || '').toLowerCase();
+  const lg    = (event.strLeague || '').toLowerCase();
+  const tn    = (event.strTournament || '').toLowerCase();
+  const id    = String(event.idLeague || '');
+
+  /* Reject non-football sports immediately */
+  if (BLOCKED_SPORTS.some(b => sport.includes(b) || lg.includes(b))) return false;
+
+  /* Reject blocked leagues */
+  if (BLOCKED_LEAGUES.some(b => lg.includes(b) || tn.includes(b))) return false;
+
+  /* Must be football/soccer */
+  const isFootball = sport === '' || sport.includes('soccer') || sport.includes('football');
+  if (!isFootball) return false;
+
+  /* Must match WC criteria */
+  const isWCLeague = lg.includes('world cup') ||
+                     lg.includes('worldcup') ||
+                     tn.includes('world cup') ||
+                     WC_LEAGUES.includes(id);
+
+  return isWCLeague;
 }
 
 /* Normalize event to consistent shape */
