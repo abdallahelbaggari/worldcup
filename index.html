@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -814,6 +813,38 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 
 
 .tt-soon{background:rgba(155,89,182,.12);color:#C39BD3;border:1px solid rgba(155,89,182,.25);}
+
+  .legal-overlay{position:fixed;inset:0;z-index:9500;background:#0a0e1a;
+    overflow-y:auto;display:none;flex-direction:column;}
+  .legal-overlay.open{display:flex;}
+  .legal-hdr{position:sticky;top:0;background:rgba(10,14,26,.97);
+    backdrop-filter:blur(10px);border-bottom:1px solid rgba(108,99,255,.18);
+    padding:.75rem 1rem;display:flex;align-items:center;
+    justify-content:space-between;z-index:10;}
+  .legal-hdr-title{font-family:var(--df,sans-serif);font-size:1rem;
+    letter-spacing:.08em;color:#a5b4fc;}
+  .legal-close{background:rgba(108,99,255,.12);border:1px solid rgba(108,99,255,.25);
+    color:#a5b4fc;border-radius:99px;padding:.25rem .8rem;
+    font-family:var(--dm,'Courier New',monospace);font-size:.6rem;cursor:pointer;}
+  .legal-body{padding:1.5rem 1.25rem 4rem;max-width:700px;margin:0 auto;
+    font-family:'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.75;}
+  .legal-body h1{font-size:1.4rem;font-weight:700;color:#fff;margin-bottom:.3rem;}
+  .legal-body .meta{font-size:.72rem;color:#6b7280;margin-bottom:1.5rem;
+    padding-bottom:.75rem;border-bottom:1px solid rgba(255,255,255,.06);}
+  .legal-body h2{font-size:.72rem;font-weight:700;color:#a5b4fc;margin:1.75rem 0 .5rem;
+    letter-spacing:.05em;text-transform:uppercase;}
+  .legal-body p{color:#c5cdd8;margin-bottom:.85rem;}
+  .legal-body ul{color:#c5cdd8;margin:.3rem 0 .85rem 1.4rem;}
+  .legal-body li{margin-bottom:.3rem;}
+  .legal-body .highlight{background:rgba(108,99,255,.08);
+    border:1px solid rgba(108,99,255,.2);border-radius:8px;
+    padding:.85rem 1rem;margin:1.25rem 0;color:#a5b4fc;font-size:.85rem;}
+  .legal-body .warning{background:rgba(239,68,68,.06);
+    border:1px solid rgba(239,68,68,.18);border-radius:8px;
+    padding:.85rem 1rem;margin:1.25rem 0;color:#fca5a5;font-size:.85rem;}
+  .legal-body a{color:#00bcd4;}
+  .legal-footer-txt{text-align:center;padding:1.5rem;font-size:.7rem;color:#4b5563;
+    border-top:1px solid rgba(255,255,255,.05);}
 </style>
 </head>
 <body>
@@ -870,7 +901,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
       <span id="signin-txt">Sign In with Pi</span>
     </button>
     <div id="lmsg"></div>
-    <p class="login-legal">Independent football community platform · Fast · Live · Global<br><a href="privacy-policy.html" style="color:rgba(255,255,255,.4);font-size:.6rem;margin-right:.8rem">Privacy Policy</a><a href="terms-of-service.html" style="color:rgba(255,255,255,.4);font-size:.6rem">Terms of Service</a></p>
+    <p class="login-legal">Independent football community platform · Fast · Live · Global<br><a href="#" onclick="showLegal('privacy');return false;" style="color:rgba(255,255,255,.4);font-size:.6rem;margin-right:.8rem">Privacy Policy</a><a href="#" onclick="showLegal('terms');return false;" style="color:rgba(255,255,255,.4);font-size:.6rem">Terms of Service</a></p>
   </div>
 </div>
 
@@ -5804,6 +5835,237 @@ Object.defineProperty(window, 'TOP_PLAYERS', {
   get: function() { return getTopPlayers(); },
   configurable: true
 });
+
+
+/* ================================================================
+   LEGAL OVERLAYS — Privacy Policy + Terms of Service
+   Opens in-app (Pi Browser blocks external navigation)
+================================================================ */
+
+var _legalContent = {
+  privacy: {
+    title: 'Privacy Policy',
+    html: `<h1>Privacy Policy</h1>
+  <div class="meta">
+    Version 1.0 — Last Updated June 11, 2026
+  </div>
+
+  <div class="highlight">
+    WorldCup is an independent fan platform and is not affiliated with, endorsed by, sponsored by, or officially associated with any football governing body, tournament organiser, federation, broadcaster, league, or trademark owner. This Privacy Policy explains how we handle information when you use our application.
+  </div>
+
+  <h2>1. Who We Are</h2>
+  <p>WorldCup ("the App", "we", "us") is an independent community application that operates within the Pi Network ecosystem. The App is accessible via WorldCup.pi (currently hosted through worldcup-app.pages.dev infrastructure). We are not associated with any official football organisation, governing body, or tournament management entity.</p>
+
+  <h2>2. Information We Collect</h2>
+  <p>We collect the minimum information necessary to provide the service:</p>
+  <ul>
+    <li><strong>Pi Network username:</strong> Provided by the Pi Network SDK upon authentication. Used solely to identify your fan profile within the App.</li>
+    <li><strong>App activity data:</strong> Predictions you make, points you earn, and preferences you set (language, saved stories). Stored locally within your browser storage mechanisms (including localStorage where applicable).</li>
+    <li><strong>Payment records:</strong> Pi payment identifiers (payment IDs and transaction IDs) processed through the Pi Network SDK. We do not store wallet addresses, balances, or any financial data beyond what is required to confirm a transaction was completed.</li>
+  </ul>
+  <p>We do not collect your real name, email address, phone number, physical address, or any biometric data.</p>
+
+  <h2>3. How We Use Information</h2>
+  <p>By using the App, you consent to the collection and processing of information described in this Privacy Policy solely for operation, authentication, and feature delivery purposes.</p>
+  <ul>
+    <li>To authenticate you via the Pi Network and display your fan profile.</li>
+    <li>To process Pi payments for the Fan Pass feature using the Pi Network payment API.</li>
+    <li>To save your preferences on your device (language selection, saved news stories, prediction history).</li>
+    <li>To display leaderboard rankings based on prediction points earned within the App.</li>
+  </ul>
+  <p>We do not use your information for advertising, profiling, or sale to third parties.</p>
+
+  <h2>4. Pi Network SDK and Payments</h2>
+  <p>This App integrates the Pi Network SDK to enable authentication and Pi cryptocurrency payments. When you sign in or make a payment, the Pi Network SDK processes your credentials and transaction data in accordance with the <a href="https://minepi.com/policy" target="_blank" rel="noopener">Pi Network Privacy Policy</a> and the <a href="https://minepi.com/terms" target="_blank" rel="noopener">Pi Network Terms of Service</a>. Please review those policies carefully.</p>
+  <p>Pi payments are processed on the Pi Network Mainnet. All payment approvals and completions are handled via the Pi Network API at <code>api.minepi.com</code>. We receive confirmation that a payment was completed but do not have access to your wallet or its contents. Note that blockchain transaction records are permanent and cannot be modified or deleted.</p>
+
+  <h2>5. Local Storage</h2>
+  <p>The App stores the following data locally within your browser storage mechanisms (including localStorage where applicable):</p>
+  <ul>
+    <li>Your Pi username (session persistence)</li>
+    <li>Language preference</li>
+    <li>Prediction history and earned points</li>
+    <li>Saved news stories</li>
+    <li>Fan Pass activation status</li>
+  </ul>
+  <p>This data resides on your device only and is not transmitted to our servers unless necessary to process a Pi payment.</p>
+
+  <h2>6. Data Sharing</h2>
+  <p>We do not sell, rent, or trade your information with third parties. We share data only in the following limited circumstances:</p>
+  <ul>
+    <li><strong>Pi Network:</strong> Payment identifiers are shared with the Pi Network API to approve and complete transactions.</li>
+    <li><strong>Legal requirements:</strong> If required by applicable law or a valid legal process.</li>
+  </ul>
+
+  <h2>7. Third-Party Services</h2>
+  <p>The App uses the following third-party services to deliver its features:</p>
+  <ul>
+    <li><strong>Pi Network SDK</strong> (minepi.com) — Authentication and payments</li>
+    <li><strong>TheSportsDB API</strong> (thesportsdb.com) — Match data and fixtures</li>
+    <li><strong>Unsplash</strong> (unsplash.com) — Editorial images displayed in the news feed</li>
+    <li><strong>Cloudflare Pages</strong> (cloudflare.com) — Application hosting and delivery</li>
+  </ul>
+  <p>Each of these services operates under its own privacy policy. We encourage you to review them independently.</p>
+
+  <h2>8. Data Retention</h2>
+  <p>Data stored locally on your device persists until you clear your browser storage or uninstall the Pi Browser. You may request deletion of eligible server-side records where legally and technically feasible; however, blockchain transaction records cannot be modified or deleted.</p>
+
+  <h2>9. Children's Privacy</h2>
+  <p>The App is intended for users who meet the minimum age requirements of the Pi Network as set out in Pi Network's Terms of Service. We do not knowingly collect information from individuals below that age threshold.</p>
+
+  <h2>10. Your Rights</h2>
+  <p>You may:</p>
+  <ul>
+    <li>Clear all locally stored data at any time by clearing your browser's localStorage.</li>
+    <li>Sign out of the App at any time via More → Sign Out.</li>
+    <li>Request deletion of eligible server-side records where legally and technically feasible.</li>
+  </ul>
+
+  <h2>11. Security</h2>
+  <p>We implement industry-standard practices to protect data in transit, including HTTPS encryption for all API communications. We do not store sensitive personal data on our servers.</p>
+
+  <h2>12. Changes to This Policy</h2>
+  <p>We may update this Privacy Policy from time to time. Material changes will be indicated by a revised version date. Continued use of the App after changes are published constitutes acceptance of the updated policy.</p>
+
+  <h2>13. Contact</h2>
+  <p>For privacy requests, legal notices, or support inquiries, contact us through More → Support within the App.</p>`
+  },
+  terms: {
+    title: 'Terms of Service',
+    html: `<h1>Terms of Service</h1>
+  <div class="meta">
+    Version 1.0 — Last Updated June 11, 2026
+  </div>
+
+  <div class="highlight">
+    Please read these Terms of Service carefully before using WorldCup. By accessing or using the App, you agree to be bound by these terms. If you do not agree, do not use the App.
+  </div>
+
+  <h2>1. About WorldCup</h2>
+  <p>WorldCup ("the App", "we", "us") is an independent community-driven football fan platform built within the Pi Network ecosystem. The App is accessible via WorldCup.pi (currently hosted through worldcup-app.pages.dev infrastructure).</p>
+  <p>WorldCup is an independent fan platform and is not affiliated with, endorsed by, sponsored by, or officially associated with any football governing body, tournament organiser, federation, broadcaster, league, or trademark owner. WorldCup operates in compliance with Pi Network's Developer Terms of Service and Guidelines. All Pi payment features operate on the Pi Network Mainnet.</p>
+
+  <h2>2. Eligibility</h2>
+  <p>To use WorldCup, you must:</p>
+  <ul>
+    <li>Meet the minimum age requirements set by the Pi Network Terms of Service.</li>
+    <li>Have a valid Pi Network account in good standing.</li>
+    <li>Agree to these Terms and the Pi Network Terms of Service.</li>
+    <li>Not be prohibited from using Pi Network services under applicable law.</li>
+  </ul>
+
+  <h2>3. Pi Network Compliance</h2>
+  <p>WorldCup operates within the Pi Network ecosystem as a third-party application. By using this App, you also agree to:</p>
+  <ul>
+    <li>The <a href="https://minepi.com/terms" target="_blank" rel="noopener">Pi Network Terms of Service</a></li>
+    <li>The <a href="https://minepi.com/policy" target="_blank" rel="noopener">Pi Network Privacy Policy</a></li>
+    <li>The Pi Network Developer Usage Policies</li>
+  </ul>
+  <p>In the event of conflict between these Terms and Pi Network's policies, Pi Network's policies take precedence.</p>
+
+  <h2>4. Pi Payments and Fan Pass</h2>
+  <p>WorldCup offers a Fan Pass feature that requires a one-time payment of 1 Pi via the Pi Network. By making a payment through the App:</p>
+  <ul>
+    <li>You authorise the deduction of the stated amount from your Pi wallet.</li>
+    <li>You acknowledge that all Pi transactions are processed and governed by the Pi Network and are subject to Pi Network rules.</li>
+    <li>You understand that completed blockchain transactions are generally irreversible. Refund requests, if accepted, remain solely at the discretion of the App operators unless otherwise required by applicable law.</li>
+    <li>You agree that WorldCup is not responsible for failures or delays caused by the Pi Network infrastructure.</li>
+    <li>Fan Pass access is granted per account and is non-transferable.</li>
+  </ul>
+
+  <div class="warning">
+    Pi cryptocurrency may be subject to volatility and regulatory uncertainty. Only use Pi amounts you are comfortable with. WorldCup does not provide financial or investment advice.
+  </div>
+
+  <h2>5. App Features and Availability</h2>
+  <p>WorldCup provides the following features, subject to availability:</p>
+  <ul>
+    <li>Live WorldCup 2026 match scores and fixtures</li>
+    <li>Match predictions and fan leaderboard</li>
+    <li>News feed with editorial football content</li>
+    <li>Group standings and tournament data</li>
+    <li>Digital fan identity and QR fan tickets</li>
+    <li>Multi-language support (English, Arabic, French, Spanish, Portuguese, Hindi)</li>
+  </ul>
+  <p>The App may be updated, interrupted, restricted, or discontinued at any time without liability. Match data is sourced from third-party APIs and may not always reflect real-time accuracy. We are not responsible for data errors originating from third-party sources.</p>
+
+  <h2>6. User Conduct</h2>
+  <p>When using WorldCup, you agree not to:</p>
+  <ul>
+    <li>Attempt to manipulate the prediction leaderboard through automated or fraudulent means.</li>
+    <li>Reverse-engineer, decompile, or tamper with the App's payment infrastructure.</li>
+    <li>Use the App for any unlawful purpose or in violation of Pi Network policies.</li>
+    <li>Post or transmit content that is abusive, defamatory, or harmful to other users.</li>
+    <li>Attempt to gain unauthorised access to any part of the App or its backend services.</li>
+  </ul>
+
+  <h2>7. Points and Leaderboard</h2>
+  <p>Points earned through predictions, daily bonuses, and Fan Pass activation have no monetary value and cannot be exchanged for Pi or any other currency. Points are maintained locally on your device and may be reset if your browser data is cleared. We reserve the right to modify the points system at any time.</p>
+
+  <h2>8. Intellectual Property</h2>
+  <p>All original content in the App — including the application interface, original graphics, custom software code, and non-third-party materials — is owned by or licensed to the App operators.</p>
+  <p>Match data and statistics displayed in the App are sourced from third-party providers and remain the property of their respective owners. The App operators make no claim to any official football competition trademark, federation name, or tournament designation. All such marks are the property of their respective owners.</p>
+
+  <h2>9. Disclaimers</h2>
+  <p>THE APP IS PROVIDED "AS IS" WITHOUT WARRANTIES OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR ACCURACY OF DATA.</p>
+  <p>WorldCup does not guarantee:</p>
+  <ul>
+    <li>The accuracy, completeness, or timeliness of match data or news content.</li>
+    <li>Uninterrupted access to the App or its features.</li>
+    <li>The outcome of any Pi Network payment transaction.</li>
+  </ul>
+  <p>The App may be updated, interrupted, restricted, or discontinued at any time without liability.</p>
+
+  <h2>10. Limitation of Liability</h2>
+  <p>To the fullest extent permitted by applicable law, the App operators shall not be liable for any indirect, incidental, special, consequential, or punitive damages, including but not limited to loss of Pi, loss of data, or loss of access, arising out of or in connection with your use of the App.</p>
+
+  <h2>11. Indemnification</h2>
+  <p>You agree to indemnify and hold harmless the App operators from any claims, damages, losses, or expenses (including reasonable legal fees) arising from your violation of these Terms or your use of the App.</p>
+
+  <h2>12. Modifications to the App and Terms</h2>
+  <p>We reserve the right to modify, suspend, or discontinue any feature of the App at any time without prior notice. We may update these Terms from time to time. Continued use of the App after updates are published constitutes your acceptance of the revised Terms.</p>
+
+  <h2>13. Governing Law</h2>
+  <p>These Terms shall be governed by applicable laws to the extent permitted under relevant jurisdictions. Any disputes shall be resolved through the competent legal authorities where applicable.</p>
+
+  <h2>14. Contact</h2>
+  <p>For privacy requests, legal notices, or support inquiries, contact us through More → Support within the App.</p>
+
+  <h2>15. Entire Agreement</h2>
+  <p>These Terms, together with the Privacy Policy and Pi Network's Terms of Service, constitute the entire agreement between you and the App operators regarding your use of the App.</p>`
+  }
+};
+
+function showLegal(type) {
+  var overlay = document.getElementById('legal-overlay');
+  var title   = document.getElementById('legal-title');
+  var body    = document.getElementById('legal-body');
+  var content = _legalContent[type];
+  if (!overlay || !content) return;
+  if (title) title.textContent = content.title;
+  if (body)  body.innerHTML    = content.html;
+  overlay.classList.add('open');
+  overlay.scrollTop = 0;
+}
+
+function closeLegal() {
+  var overlay = document.getElementById('legal-overlay');
+  if (overlay) overlay.classList.remove('open');
+}
 </script>
+
+<!-- LEGAL OVERLAY -->
+<div id="legal-overlay" class="legal-overlay">
+  <div class="legal-hdr">
+    <span class="legal-hdr-title" id="legal-title">Privacy Policy</span>
+    <button class="legal-close" onclick="closeLegal()">&#x2715; Close</button>
+  </div>
+  <div class="legal-body" id="legal-body"></div>
+  <div class="legal-footer-txt">
+    WorldCup &middot; Accessible via WorldCup.pi &middot; Pi Network &middot; Independent fan platform<br>
+    &copy; 2026 WorldCup App Operators. All rights reserved.
+  </div>
+</div>
 </body>
 </html>
