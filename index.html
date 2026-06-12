@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
@@ -869,7 +870,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
       <span id="signin-txt">Sign In with Pi</span>
     </button>
     <div id="lmsg"></div>
-    <p class="login-legal">Independent football community platform · Fast · Live · Global</p>
+    <p class="login-legal">Independent football community platform · Fast · Live · Global<br><a href="privacy-policy.html" style="color:rgba(255,255,255,.4);font-size:.6rem;margin-right:.8rem">Privacy Policy</a><a href="terms-of-service.html" style="color:rgba(255,255,255,.4);font-size:.6rem">Terms of Service</a></p>
   </div>
 </div>
 
@@ -1546,7 +1547,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <a href="mailto:support.worldcup@gmail.com" class="btn btn-ghost btn-sm" style="text-decoration:none;flex-shrink:0;">✉️ Email</a>
         </div>
         <div class="ibox" style="margin:.5rem 1rem 1rem;text-align:center;font-size:.55rem;color:var(--t3);">
-          Version 2.0 · worldcup-eij.pages.dev · © 2026 WorldCup
+          Version 2.0 · worldcup-app.pages.dev · © 2026 WorldCup
         </div>
       </div>
 
@@ -1692,7 +1693,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           </div>
         </div>
         <div style="text-align:center;margin:.5rem 1rem 1.5rem;">
-          <a href="https://worldcup-eij.pages.dev/privacy-policy" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Policy ›</a>
+          <a href="https://worldcup-app.pages.dev/privacy-policy" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Policy ›</a>
         </div>
       </div>
 
@@ -1708,7 +1709,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           </div>
         </div>
         <div style="text-align:center;margin:.5rem 1rem 1.5rem;">
-          <a href="https://worldcup-eij.pages.dev/terms-of-service" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Terms ›</a>
+          <a href="https://worldcup-app.pages.dev/terms-of-service" target="_blank" class="btn btn-ghost" style="text-decoration:none;display:inline-block;width:auto;padding:.5rem 1.2rem;">View Full Terms ›</a>
         </div>
       </div>
 
@@ -1891,7 +1892,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
             </div>
             <div class="help-item" onclick="toggleHelp(this)">
               <div class="help-q">What is worldcup.pi?</div>
-              <div class="help-a">worldcup.pi is WorldCup's official Pi Network domain. The app is also accessible at worldcup-eij.pages.dev. It is an independent community fan platform — an independent community fan platform.</div>
+              <div class="help-a">worldcup.pi is WorldCup's official Pi Network domain. The app is also accessible at worldcup-app.pages.dev. It is an independent community fan platform — an independent community fan platform.</div>
             </div>
           </div>
 
@@ -2005,7 +2006,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
             Signed in as <strong id="set-user" style="color:var(--c1)">—</strong> via Pi Network
           </div>
           <div style="font-family:var(--dm);font-size:.52rem;color:var(--t3);margin-bottom:.65rem;">
-            worldcup-eij.pages.dev · sandbox:false · Real Pi
+            worldcup-app.pages.dev · sandbox:false · Real Pi
           </div>
           <button class="btn btn-red" onclick="confirmLogout()" style="margin-top:0;">
             🚪 Sign Out
@@ -2105,7 +2106,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
           <div class="notif-icon">💸</div>
           <div class="notif-body">
             <div class="notif-title">Pi Payments · Mainnet Active</div>
-            <div class="notif-sub">sandbox:false · Real Pi · worldcup-eij.pages.dev</div>
+            <div class="notif-sub">sandbox:false · Real Pi · worldcup-app.pages.dev</div>
           </div>
           <div class="notif-time">now</div>
         </div>
@@ -2139,7 +2140,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 /* ═══════════════════════════════════════════════════════
    WORLDCUP · Pi Network · Cloudflare Pages
    Mainnet · sandbox:false
-   Domain: worldcup.pi · worldcup-eij.pages.dev
+   Domain: worldcup.pi · worldcup-app.pages.dev
 ═══════════════════════════════════════════════════════ */
 
 /* ── CONSTANTS ── */
@@ -2433,7 +2434,7 @@ function generateFanId() {
 function renderFanId() {
   if (!user) return;
   var serial = localStorage.getItem(K+'fanid') || 'WC-FAN-00000000';
-  var url = 'https://worldcup-eij.pages.dev/fan/'+serial;
+  var url = 'https://worldcup-app.pages.dev/fan/'+serial;
   var lvl = document.getElementById('fid-lvl'); if(lvl) lvl.textContent = getLevelShort();
   var fp = document.getElementById('fid-prem'); if(fp) fp.style.display = isPrem ? 'inline' : 'none';
   updatePtsDisplay();
@@ -2483,7 +2484,7 @@ function doCheckin() {
   /* QR output */
   var out = document.getElementById('ci-out');
   if (out) {
-    var url = 'https://worldcup-eij.pages.dev/ci/'+id;
+    var url = 'https://worldcup-app.pages.dev/ci/'+id;
     var html = '<div class="card card-green" style="text-align:center;padding:1rem;margin:0 1rem .5rem">'+
       '<div style="font-family:var(--df);font-size:1rem;color:var(--grn);margin-bottom:.4rem">✅ Checked In!</div>'+
       '<div style="font-family:var(--dm);font-size:.55rem;color:var(--t3);margin-bottom:.5rem">'+id+'</div>'+
@@ -2534,7 +2535,7 @@ function genTicket() {
   var expires = new Date(Date.now() + 24*60*60*1000).toLocaleString();
   tickets[tktId] = {match:m.id, expires:expires, used:false, fan:user?user.username:'guest'};
   saveSt();
-  var url = 'https://worldcup-eij.pages.dev/ticket/'+tktId;
+  var url = 'https://worldcup-app.pages.dev/ticket/'+tktId;
   var out = document.getElementById('tkt-out');
   out.innerHTML =
     '<div class="card card-gold" style="text-align:center;padding:1rem;margin:.5rem 1rem 0">'+
@@ -2611,7 +2612,7 @@ function renderPredQr() {
       var canvas = document.getElementById('pqr-'+mid);
       if (canvas && typeof QRCode !== 'undefined') {
         var proof = 'WC-PRED-'+mid+'-'+predictions[mid];
-        QRCode.toCanvas(canvas, 'https://worldcup-eij.pages.dev/pred/'+proof, {width:60, color:{dark:'#00D4FF',light:'#ffffff'}});
+        QRCode.toCanvas(canvas, 'https://worldcup-app.pages.dev/pred/'+proof, {width:60, color:{dark:'#00D4FF',light:'#ffffff'}});
       }
     });
   }, 100);
@@ -3086,7 +3087,7 @@ function filterHelp(query) {
 /* ═══════════════════════════════════════════════════════════
    WORLDCUP v3.0 — FINAL PRODUCTION PATCH
    Auth · Payments · Language · Logout · Comments · Live data
-   Domain: worldcup-eij.pages.dev
+   Domain: worldcup-app.pages.dev
 ═══════════════════════════════════════════════════════════ */
 
 /* ── AUTH — Stable Pi SDK flow ── */
@@ -3335,7 +3336,7 @@ function showReceipt(txt) {
     '<div id="rcpt-card" style="background:linear-gradient(160deg,#061410,#0E2419);border:1px solid rgba(201,168,76,.35);border-radius:20px;padding:1.4rem 1.3rem;width:100%;max-width:290px;">' +
       '<div style="text-align:center;border-bottom:1px solid rgba(201,168,76,.15);padding-bottom:.7rem;margin-bottom:.7rem;">' +
         '<div style="font-family:\'Cormorant Garamond\',serif;font-size:1.15rem;font-weight:700;color:#E2C46A;letter-spacing:.12em">WorldCup</div>' +
-        '<div style="font-size:.42rem;color:#C9A84C;letter-spacing:.14em;margin-top:.1rem">worldcup-eij.pages.dev \u00B7 Pi Network Mainnet</div>' +
+        '<div style="font-size:.42rem;color:#C9A84C;letter-spacing:.14em;margin-top:.1rem">worldcup-app.pages.dev \u00B7 Pi Network Mainnet</div>' +
       '</div>' +
       '<div style="text-align:center;margin-bottom:.65rem;">' +
         '<div style="font-size:.72rem;font-weight:700;color:#F0EAD8;margin-bottom:.15rem">Transaction Receipt</div>' +
@@ -3350,7 +3351,7 @@ function showReceipt(txt) {
           '<span>\u2705</span><span>Completed \u00B7 Mainnet</span>' +
         '</div>' +
       '</div>' +
-      '<div style="text-align:center;font-size:.42rem;color:rgba(201,168,76,.35);margin-bottom:.65rem;">worldcup-eij.pages.dev \u00B7 \u00A9 2026 WorldCup</div>' +
+      '<div style="text-align:center;font-size:.42rem;color:rgba(201,168,76,.35);margin-bottom:.65rem;">worldcup-app.pages.dev \u00B7 \u00A9 2026 WorldCup</div>' +
       '<div style="display:flex;gap:.35rem;">' +
         '<button class="btn btn-gold btn-sm" style="flex:1" onclick="downloadReceipt()">\uD83D\uDCE5 Download</button>' +
         '<button class="btn btn-ghost btn-sm" style="flex:1" onclick="shareReceiptNow()">\uD83D\uDCE4 Share</button>' +
@@ -3399,7 +3400,7 @@ function shareReceiptNow() {
   var m = document.getElementById('rcpt-modal');
   if (!m||!m._d) return;
   var d = m._d;
-  var t = 'WorldCup Receipt\n\nID: '+d.id+'\n'+d.text+'\nDate: '+d.date+'\nUser: '+d.user+'\n\nworldcup-eij.pages.dev \u00B7 Pi Network Mainnet';
+  var t = 'WorldCup Receipt\n\nID: '+d.id+'\n'+d.text+'\nDate: '+d.date+'\nUser: '+d.user+'\n\nworldcup-app.pages.dev \u00B7 Pi Network Mainnet';
   if (navigator.share) navigator.share({ title:'WorldCup Receipt', text:t });
   else { if (typeof copyClip==='function') copyClip(t); if (typeof toast==='function') toast('Copied!'); }
 }
@@ -3437,7 +3438,7 @@ oUtil = function(id) {
 /* ═══════════════════════════════════════════════════════════════
    WORLDCUP · AUTH + PAYMENT · HARAMAIN EXACT PATTERN
    Pi Network Mainnet · sandbox:false
-   worldcup-eij.pages.dev
+   worldcup-app.pages.dev
 ═══════════════════════════════════════════════════════════════ */
 
 /* ── Pi SDK Ready Guard ── */var _piReadyCallbacks = [];
@@ -3473,7 +3474,7 @@ oUtil = function(id) {
 /* ================================================================
    WORLDCUP - PAYMENT FUNCTIONS
    Pi Network Mainnet - sandbox:false
-   Cloudflare Pages - worldcup-eij.pages.dev
+   Cloudflare Pages - worldcup-app.pages.dev
    RULES:
    - memo: ASCII only, no special chars, max 40 chars
    - metadata: simple keys, no 'version' key (reserved by Pi SDK)
@@ -3493,7 +3494,7 @@ oUtil = function(id) {
 /* ================================================================
    WORLDCUP DATA ENGINE v4.0
    Real live data · Multi-source · Auto-refresh
-   worldcup-eij.pages.dev · Pi Network Mainnet
+   worldcup-app.pages.dev · Pi Network Mainnet
 ================================================================ */
 
 /* ── DATA VARS ── */
@@ -3951,7 +3952,7 @@ document.addEventListener('DOMContentLoaded', function() {
 /* ================================================================
    WORLDCUP DATA ENGINE v5.0
    Real data · Live scores · Auto-refresh · AI News
-   worldcup-eij.pages.dev · Pi Network Mainnet
+   worldcup-app.pages.dev · Pi Network Mainnet
 ================================================================ */
 
 /* ── STATE ── */
@@ -4258,7 +4259,7 @@ function openStory(id) {
       +(isApp?'<div style="background:rgba(0,212,255,.06);border:1px solid var(--bd);border-radius:var(--r2);padding:.85rem;margin:.75rem 0;">'
         +'<div style="font-family:var(--df);font-size:.95rem;color:var(--c1);margin-bottom:.5rem;letter-spacing:.06em">WorldCup.pi Features</div>'
         +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.8">Live match scores · Match predictions · QR fan tickets<br>Fan ID card · Pi payments · Group standings<br>AI news feed · 6 languages · Real-time alerts<br>Fan leaderboard · Analytics · Daily bonuses</div>'
-        +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--c1);margin-top:.5rem">worldcup-eij.pages.dev · Pi Network Mainnet · sandbox:false</div>'
+        +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--c1);margin-top:.5rem">worldcup-app.pages.dev · Pi Network Mainnet · sandbox:false</div>'
       +'</div>':'')
       +'<div class="story-tags">'+(s.tags||[]).map(function(t){return '<div class="story-tag">'+t+'</div>';}).join('')+'</div>'
       +'<div style="display:flex;gap:.5rem;margin-top:.85rem">'
@@ -4526,7 +4527,7 @@ startPolling = function() {
    WORLDCUP · DATA ACCURACY ENGINE v6.0
    Single source of truth · Validated · UTC timestamps
    Real status from current time · No fake LIVE markers
-   worldcup-eij.pages.dev · Pi Network Mainnet
+   worldcup-app.pages.dev · Pi Network Mainnet
 ================================================================ */
 
 /* ── SINGLE SOURCE OF TRUTH ──
