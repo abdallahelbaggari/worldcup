@@ -216,6 +216,31 @@ export async function onRequestGet(context) {
       return ok({ home, away, homeTeam, awayTeam }, CACHE_TTL.match);
     }
 
+    /* ── PAST RESULTS (finished matches) ── */
+    if (type === 'results') {
+      /* Fetch recent days to find completed WC matches */
+      const results = [];
+      const today   = new Date();
+      /* Check last 14 days */
+      for (let i = 1; i <= 14; i++) {
+        const d = new Date(today);
+        d.setDate(d.getDate() - i);
+        const dateStr = d.toISOString().slice(0,10);
+        try {
+          const data   = await fetchTSDB(`eventsday.php?d=${dateStr}&s=Soccer`);
+          const events = (data.events || data.event || [])
+            .filter(isWC)
+            .filter(e => {
+              const raw = (e.strStatus||'').toLowerCase();
+              return raw === 'ft' || raw.includes('finish') || raw === 'aet' || raw === 'pen';
+            })
+            .map(normalizeEvent);
+          results.push(...events);
+        } catch(e) { /* skip day */ }
+      }
+      return ok(results, CACHE_TTL.season);
+    }
+
     return err('Unknown type');
 
   } catch (e) {
