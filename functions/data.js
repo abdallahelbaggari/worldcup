@@ -180,6 +180,22 @@ export async function onRequestGet(context) {
       return ok(data.eventstats || [], CACHE_TTL.match);
     }
 
+    /* ── MATCH EVENTS (goals, cards, subs, VAR) ── */
+    if (type === 'events' && id) {
+      const data = await fetchTSDB(`lookupeventresults.php?id=${id}`);
+      return ok(data.results || data.eventtimeline || [], CACHE_TTL.match);
+    }
+
+    /* ── MATCH LINEUP ── */
+    if (type === 'lineup' && id) {
+      const data = await fetchTSDB(`lookuplineup.php?id=${id}`);
+      const home = (data.lineup||[]).filter(p => p.strSide === 'home');
+      const away = (data.lineup||[]).filter(p => p.strSide === 'away');
+      const homeTeam = home[0]?.strTeam || '';
+      const awayTeam = away[0]?.strTeam || '';
+      return ok({ home, away, homeTeam, awayTeam }, CACHE_TTL.match);
+    }
+
     return err('Unknown type');
 
   } catch (e) {
