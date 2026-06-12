@@ -3,7 +3,9 @@
   "include": ["/*"],
   "exclude": [],
   "routes": [
-    { "pattern": "/approve",  "script": "functions/approve.js" },
-    { "pattern": "/complete", "script": "functions/complete.js" }
+    { "pattern": "/approve", "script": "functions/approve.js" },
+    { "pattern": "/complete","script": "functions/complete.js" },
+    { "pattern": "/data",    "script": "functions/data.js"    },
+    { "pattern": "/news",    "script": "functions/news.js"    }
   ]
 }
