@@ -1016,11 +1016,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         <div class="tile"><div class="tn" id="meta-upcoming">—</div><div class="tl">Upcoming</div></div>
         <div class="tile"><div class="tn">🇺🇸🇨🇦🇲🇽</div><div class="tl">Hosts</div></div>
       </div>
-      <div class="tiles">
-        <div class="tile"><div class="tn" style="font-size:1.4rem">🇺🇸</div><div class="tl">USA · 11</div></div>
-        <div class="tile"><div class="tn" style="font-size:1.4rem">🇨🇦</div><div class="tl">Canada · 2</div></div>
-        <div class="tile"><div class="tn" style="font-size:1.4rem">🇲🇽</div><div class="tl">Mexico · 3</div></div>
-      </div>
+
     </section>
 
     <!-- ═══ GROUPS ═══ -->
@@ -1061,6 +1057,9 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
       </div>
       <div class="sh mt"><div class="sh-t sh-grp-std">📊 Group Standings</div></div>
       <div id="st-list"></div>
+    
+      <div class="sh mt"><div class="sh-t">🥅 Top Scorers</div></div>
+      <div id="scorers-list"><div class="api-loading">Loading...</div></div>
     </section>
 
     <!-- ═══ UTILITIES ═══ -->
@@ -2349,7 +2348,7 @@ function goS(id, btn) {
   setTimeout(function(){
     if (id === 'groups')    renderGroups();
     if (id === 'predict')   renderPredictions();
-    if (id === 'standings') { renderLeaderboard(); renderStandings(); }
+    if (id === 'standings') { renderLeaderboard(); renderStandings(); setTimeout(renderTopScorers, 500); }
     if (id === 'utilities') { renderWalletStats(); }
     if (id === 'notifs')    renderNotifs();
     if (id === 'news') {
@@ -5314,18 +5313,43 @@ var WC2026_TEAMS_LOWER = [
 ];
 
 var BLOCKED_LEAGUES = [
+  /* Wrong sports */
   'handball','basketball','rugby','ice hockey','american football',
-  'ehf','nba','nfl','nhl','champions league','premier league',
-  'bundesliga','la liga','serie a','ligue 1','friendly','futsal',
-  'beach soccer','women','olympic','youth','u20','u17',
+  'cricket','tennis','golf','baseball','volleyball','futsal','beach soccer',
+  /* Wrong org codes */
+  'ehf','nba','nfl','nhl','mlb','uefa cl','concacaf',
+  /* Club competitions */
+  'champions league','premier league','bundesliga','la liga','serie a',
+  'ligue 1','eredivisie','primeira liga','championship','mls','j-league',
+  'super league','coppa italia','dfb','carabao','fa cup','copa del rey',
+  /* Wrong football competitions */
+  'friendly','friendlies','club world cup','copa america',
+  'gold cup','nations league','africa cup','afcon','asian cup',
+  'euros','euro 2024','euro 2028','european championship',
+  /* Wrong categories */
+  'olympic','youth','u-20','u-17','u-23','u20','u17','u23',
+  'women','under-20','under-17','under-23','womens',
+  /* Qualifiers only */
+  'world cup qualification','world cup qualifying','wc qualification',
+  'wc qualifying','2026 qualification','2026 qualifying',
 ];
 
 function isWC2026(m) {
   if (!m || !m.homeTeam || !m.awayTeam) return false;
   var lg = (m.league || '').toLowerCase();
-  /* Block non-WC competitions */
+
+  /* Layer 1: Block any non-WC competition by name */
   if (BLOCKED_LEAGUES.some(function(b){ return lg.includes(b); })) return false;
-  /* Require both teams in WC 2026 */
+
+  /* Layer 2: If league name is provided, it must reference World Cup */
+  if (lg.length > 0) {
+    var isWCLeague = lg.includes('world cup') || lg.includes('worldcup') ||
+                     lg.includes('fifa') || lg === 'worldcup 2026' ||
+                     lg === 'fifa world cup 2026';
+    if (!isWCLeague) return false;
+  }
+
+  /* Layer 3: Both teams must be verified WC 2026 nations */
   function inWC(name) {
     var n = name.toLowerCase().replace(/[^a-z\s]/g,'').trim();
     return WC2026_TEAMS_LOWER.some(function(t){
@@ -5346,6 +5370,11 @@ function apiFetch(type, params) {
     })
     .then(function(body){
       if (!body.success) throw new Error(body.error || 'API error');
+      /* Surface data source for transparency */
+      if (body.source && body.source !== 'none') {
+        var dsl = document.getElementById('data-source-label');
+        if (dsl) dsl.textContent = body.source;
+      }
       return body.data || [];
     });
 }
@@ -5511,38 +5540,7 @@ function refreshResults() {
 }
 
 /* ── POLLING — Rule 9 intervals ── */
-function startPolling() {
-  stopPolling();
 
-  /* Restore caches */
-  WC.finished = cacheGetFinished();
-  var cachedUp = cacheGet(WC.cacheKeyUpcoming);
-  if (cachedUp && cachedUp.length) WC.upcoming = cachedUp;
-
-  /* ALWAYS show schedule immediately — never blank on startup */
-  /* buildFromSchedule has verified results built in */
-  var sched = buildFromSchedule();
-  /* Merge schedule into correct buckets */
-  sched.forEach(function(m) {
-    if (m.status === 'FINISHED') {
-      var exists = WC.finished.some(function(f){ return f.homeTeam===m.homeTeam && f.awayTeam===m.awayTeam; });
-      if (!exists) WC.finished.push(m);
-    } else if (m.status === 'UPCOMING') {
-      var existsUp = WC.upcoming.some(function(u){ return u.homeTeam===m.homeTeam && u.awayTeam===m.awayTeam; });
-      if (!existsUp) WC.upcoming.push(m);
-    }
-  });
-
-  rebuildAll();
-  setStatus('schedule');
-  renderMatches();
-  updateMetaTiles();
-
-  /* Then fetch live data */
-  loadMatches();
-  _schedulePoll();
-  setTimeout(fetchPastResults, 3000);
-}
 
 function stopPolling() {
   if (WC.pollTimer) { clearTimeout(WC.pollTimer); WC.pollTimer = null; }
@@ -5581,7 +5579,7 @@ function setStatus(state) {
   var cfg = STATES[state] || STATES.loading;
   if (dst)   { dst.textContent = cfg.text; dst.style.color = cfg.color; }
   if (badge) badge.textContent = cfg.badge;
-  if (dsl)   dsl.textContent   = 'TheSportsDB';
+  /* source set by apiFetch response — do not override here */
   var syncTime, cacheAge = '';
   if (WC.lastFetch) {
     var ago = Math.round((Date.now()-WC.lastFetch)/1000);
@@ -5590,7 +5588,11 @@ function setStatus(state) {
   } else {
     syncTime = '--:--';
   }
-  if (lul)  lul.textContent  = syncTime + (cacheAge ? ' · '+cacheAge : '');
+  if (lul) {
+    var src = document.getElementById('data-source-label');
+    var srcTxt = src ? src.textContent : 'API';
+    lul.textContent = syncTime + (cacheAge ? ' · '+cacheAge : '') + ' · ' + srcTxt;
+  }
   if (hdrs) hdrs.textContent = syncTime;
 }
 
@@ -5821,7 +5823,7 @@ var WC_SCHED = [
   {id:'s001',h:'Mexico',        a:'South Africa',           g:'A',hg:2, ag:0, st:'FINISHED', v:'Estadio Azteca, Mexico City',        utc:'2026-06-11T23:00:00Z', verified:true},
   {id:'s002',h:'South Korea',   a:'Czechia',                g:'A',hg:2, ag:1, st:'FINISHED', v:'Estadio Akron, Guadalajara',         utc:'2026-06-12T06:00:00Z', verified:true},
   {id:'s003',h:'Canada',        a:'Bosnia and Herzegovina', g:'B',hg:1, ag:1, st:'FINISHED', v:'BMO Field, Toronto',                 utc:'2026-06-13T00:00:00Z', verified:true},
-  {id:'s004',h:'USA',           a:'Paraguay',               g:'D',hg:null,ag:null,st:'UPCOMING',v:'SoFi Stadium, Los Angeles',      utc:'2026-06-13T05:00:00Z', verified:false},
+  {id:'s004',h:'USA',           a:'Paraguay',               g:'D',hg:4,   ag:1,   st:'FINISHED', v:'SoFi Stadium, Los Angeles',      utc:'2026-06-13T05:00:00Z', verified:true},
   /* UPCOMING */
   {id:'s005',h:'Qatar',         a:'Switzerland',            g:'B',hg:null,ag:null,st:'UPCOMING',v:"Levi's Stadium, San Francisco",   utc:'2026-06-13T23:00:00Z'},
   {id:'s006',h:'Brazil',        a:'Morocco',                g:'C',hg:null,ag:null,st:'UPCOMING',v:'MetLife Stadium, New York',       utc:'2026-06-14T02:00:00Z'},
@@ -6377,6 +6379,82 @@ appendNewsCards = function(articles) {
   var startIdx = NEWS.articles.indexOf(articles[articles.length-1]) + 1;
   if (startIdx > 0) prefetchImages(NEWS.articles, startIdx, 10);
 };
+
+
+function startPolling() {
+  stopPolling();
+
+  /* Step 1: Load persisted finished matches from cache */
+  WC.finished = cacheGetFinished();
+  var cachedUp = cacheGet(WC.cacheKeyUpcoming);
+  if (cachedUp && cachedUp.length) WC.upcoming = cachedUp;
+
+  /* Step 2: Always merge verified schedule results into WC.finished */
+  /* This ensures verified:true entries survive API merges */
+  var sched = buildFromSchedule();
+  sched.forEach(function(m) {
+    if (m.status === 'FINISHED') {
+      var exists = WC.finished.some(function(f){
+        return f.homeTeam === m.homeTeam && f.awayTeam === m.awayTeam;
+      });
+      if (!exists) WC.finished.push(m);
+    } else if (m.status === 'UPCOMING') {
+      var existsUp = WC.upcoming.some(function(u){
+        return u.homeTeam === m.homeTeam && u.awayTeam === m.awayTeam;
+      });
+      if (!existsUp) WC.upcoming.push(m);
+    }
+  });
+
+  /* Step 3: Persist the merged finished matches so API merges don't lose them */
+  if (WC.finished.length) {
+    cacheSaveFinished(WC.finished);
+  }
+
+  rebuildAll();
+  setStatus('schedule');
+  renderMatches();
+  updateMetaTiles();
+
+  /* Step 4: Fetch live API data */
+  loadMatches();
+  _schedulePoll();
+  setTimeout(fetchPastResults, 3000);
+}
+
+
+/* ── TOP SCORERS from football-data.org ── */
+function renderTopScorers() {
+  var el = document.getElementById('scorers-list');
+  if (!el) return;
+  el.innerHTML = '<div class="api-loading">Loading scorers...</div>';
+
+  apiFetch('scorers')
+    .then(function(scorers) {
+      if (!scorers || !scorers.length) {
+        el.innerHTML = '<div class="no-data-msg">Scorer data not yet available</div>';
+        return;
+      }
+      el.innerHTML = '<div style="padding:.4rem 0">'
+        + scorers.slice(0,10).map(function(s, i) {
+            return '<div style="display:flex;align-items:center;gap:.6rem;padding:.4rem .85rem;border-bottom:1px solid rgba(255,255,255,.05)">'
+              + '<div style="font-family:var(--df);font-size:.9rem;color:var(--t3);width:1.2rem;text-align:center">'+(i+1)+'</div>'
+              + (s.teamCrest ? '<img src="'+s.teamCrest+'" style="width:18px;height:18px;object-fit:contain" alt="">' : '<div style="width:18px"></div>')
+              + '<div style="flex:1">'
+                + '<div style="font-family:var(--dm);font-size:.6rem;color:var(--t1)">'+escHtml(s.playerName)+'</div>'
+                + '<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(s.teamName)+'</div>'
+              + '</div>'
+              + '<div style="font-family:var(--df);font-size:1.1rem;color:var(--c1)">'+s.goals+'</div>'
+              + '<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3);margin-left:.2rem">goals</div>'
+            +'</div>';
+          }).join('')
+        + '<div style="font-family:var(--dm);font-size:.42rem;color:var(--t3);text-align:center;padding:.4rem">Source: football-data.org</div>'
+        + '</div>';
+    })
+    .catch(function() {
+      el.innerHTML = '<div class="no-data-msg">Scorer data unavailable</div>';
+    });
+}
 </script>
 
 <!-- LEGAL OVERLAY -->
