@@ -370,51 +370,57 @@ export async function onRequestGet(context) {
   }
 
   /* ── STANDINGS / GROUP TABLES ── */
-  if (type === 'standings') {
-    /* PRIMARY: football-data.org WC standings */
-    if (FD_KEY) {
-      try {
-        const data = await fetchFD('competitions/WC/standings?season=2026');
-        const groups = data.standings || [];
-        /* Flatten all groups into rows with group letter */
-        const rows = [];
-        groups.forEach(g => {
-          const letter = g.group?.replace('GROUP_','').replace('GROUP ','') || '';
-          (g.table || []).forEach(row => {
-            rows.push({
-              group:              letter,
-              strTeam:            row.team?.name || '',
-              teamCrest:          row.team?.crest || null,
-              intPlayed:          row.playedGames || 0,
-              intWin:             row.won || 0,
-              intDraw:            row.draw || 0,
-              intLoss:            row.lost || 0,
-              intGoalsFor:        row.goalsFor || 0,
-              intGoalsAgainst:    row.goalsAgainst || 0,
-              intGoalDifference:  row.goalDifference || 0,
-              intPoints:          row.points || 0,
-              strForm:            row.form || '',
-            });
-          });
-        });
-        return ok(rows, 'football-data.org');
-      } catch(e) {
-        console.warn('[data] FD standings failed:', e.message);
+    if (type === 'standings') {
+      if (FD_KEY) {
+        try {
+          const data = await fetchFD('competitions/WC/standings?season=2026');
+          const seen = new Set();
+
+          /* Filter type===TOTAL only — FD returns TOTAL/HOME/AWAY causing 3x dupes */
+          const rows = (data.standings || [])
+            .filter(g => g.type === 'TOTAL')
+            .flatMap(g =>
+              (g.table || [])
+                .filter(t => {
+                  if (seen.has(t.team.id)) return false;
+                  seen.add(t.team.id);
+                  return true;
+                })
+                .map(t => ({
+                  group:             g.group || '',
+                  strTeam:           t.team.name || '',
+                  teamCrest:         t.team.crest || null,
+                  intPlayed:         t.playedGames || 0,
+                  intWin:            t.won || 0,
+                  intDraw:           t.draw || 0,
+                  intLoss:           t.lost || 0,
+                  intGoalsFor:       t.goalsFor || 0,
+                  intGoalsAgainst:   t.goalsAgainst || 0,
+                  intGoalDifference: t.goalDifference || 0,
+                  intPoints:         t.points || 0,
+                  strForm:           t.form || '',
+                  position:          t.position || 0,
+                }))
+            );
+
+          console.log('[data] standings rows:', rows.length);
+          return ok(rows, 'football-data.org');
+        } catch(e) {
+          console.warn('[data] FD standings failed:', e.message);
+        }
       }
+
+      for (const lid of ['102711','4980','4443']) {
+        try {
+          const data = await fetchTSDB('lookuptable.php?l='+lid+'&s=2025-2026');
+          const table = data.table || [];
+          if (table.length > 0) return ok(table, 'thesportsdb.com');
+        } catch(e) {}
+      }
+      return ok([], 'none');
     }
 
-    /* FALLBACK: TSDB */
-    for (const lid of ['102711','4980','4443']) {
-      try {
-        const data = await fetchTSDB(`lookuptable.php?l=${lid}&s=2025-2026`);
-        const table = data.table || [];
-        if (table.length > 0) return ok(table, 'thesportsdb.com');
-      } catch(e) {}
-    }
-    return ok([], 'none');
-  }
-
-  /* ── MATCH DETAIL ── */
+    /* ── MATCH DETAIL ── */
   if (type === 'match' && id) {
     /* Try football-data.org first */
     if (FD_KEY) {
