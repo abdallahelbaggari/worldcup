@@ -861,6 +861,24 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
   /* Source badge on schedule fallback items */
   .mc-fallback-note{font-family:var(--dm);font-size:.4rem;color:var(--t3);
     opacity:.7;margin-left:.3rem;}
+
+  .news-video-card{display:flex;gap:.6rem;padding:.55rem 1rem;border-bottom:1px solid rgba(255,255,255,.05);cursor:pointer;}
+  .news-video-card:active{background:rgba(255,255,255,.03);}
+  .news-video-thumb{position:relative;width:96px;height:60px;flex-shrink:0;border-radius:6px;overflow:hidden;background:var(--bg4);}
+  .news-video-thumb img{width:100%;height:100%;object-fit:cover;}
+  .news-video-play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+    background:rgba(0,0,0,.4);font-size:1.1rem;color:#fff;pointer-events:none;}
+  .news-video-badge{position:absolute;top:3px;right:3px;background:rgba(220,0,0,.8);
+    color:#fff;font-family:var(--dm);font-size:.36rem;padding:.1rem .3rem;border-radius:3px;letter-spacing:.05em;}
+  .news-video-info{flex:1;display:flex;flex-direction:column;justify-content:center;gap:.1rem;}
+  .news-video-title{font-family:var(--dm);font-size:.58rem;color:var(--t1);line-height:1.35;
+    display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .news-video-meta{font-family:var(--dm);font-size:.44rem;color:var(--t3);}
+  .news-play-btn{position:absolute;bottom:5px;right:5px;background:rgba(0,0,0,.55);
+    color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;
+    justify-content:center;font-size:.6rem;pointer-events:none;}
+  .wc-promo-card{margin:.4rem 1rem;padding:.6rem .85rem;
+    background:rgba(108,99,255,.06);border:1px solid rgba(108,99,255,.14);border-radius:var(--r2);}
 </style>
 </head>
 <body>
@@ -2083,9 +2101,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         <div class="ncat on" onclick="filterNews('all',this)">🌍 All</div>
         <div class="ncat" onclick="filterNews('breaking',this)">🔥 Breaking</div>
         <div class="ncat" onclick="filterNews('match',this)">⚽ Match</div>
+        <div class="ncat" onclick="filterNews('highlight',this)">🎬 Highlights</div>
         <div class="ncat" onclick="filterNews('player',this)">⭐ Player</div>
+        <div class="ncat" onclick="filterNews('team',this)">🛡️ Teams</div>
         <div class="ncat" onclick="filterNews('tournament',this)">🏆 Tournament</div>
-        <div class="ncat" onclick="filterNews('standings',this)">📊 Standings</div>
         <div class="ncat" onclick="filterNews('insights',this)">🧠 Insights</div>
         <div class="ncat" onclick="filterNews('saved',this)">🔖 Saved</div>
       </div>
@@ -2119,6 +2138,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         <div id="news-insights-section" style="display:none">
           <div class="news-sec-hdr"><div class="news-sec-title">🧠 Match Insights</div><div class="news-sec-ai">AI ANALYSIS</div><div class="news-sec-line"></div></div>
           <div id="news-insights-cards"></div>
+        </div>
+        <div id="news-highlights-section" style="display:none">
+          <div class="news-sec-hdr"><div class="news-sec-title">🎬 Highlights &amp; Videos</div><div class="news-sec-line"></div></div>
+          <div id="news-highlights-cards"></div>
         </div>
         <div id="news-more-section" style="display:none">
           <div class="news-sec-hdr"><div class="news-sec-title">📋 More Stories</div><div class="news-sec-line"></div></div>
@@ -2292,8 +2315,6 @@ function saveSt() {
   } catch(e) {}
 }
 
-
-
 function renderTx() {
   var el = document.getElementById('wc-txs');
   var el2 = document.getElementById('tx-list');
@@ -2374,13 +2395,6 @@ function cUtil() {
   document.getElementById('util-home').style.display = '';
 }
 
-/* ── PI AUTH ── */
-
-
-
-
-
-
 /* ── CLOCK ── */
 function startClock() {
   var el = document.getElementById('dtt');
@@ -2397,39 +2411,7 @@ function startClock() {
 ══════════════════════════════════ */
 /* Fallback local match data for when APIs are unavailable */
 
-
-
-
-
-
-
-
-
-
-
-
-/* ── MATCH OVERLAY ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ── GROUPS ── */
-
-
 /* ── PREDICTIONS ── */
-
-
-
 
 function quickPredict(matchId, outcome, btn, h, a) {
   makePred(matchId, outcome, btn, h, a);
@@ -2463,11 +2445,6 @@ function getLevelShort() {
   if(pts>=100) return 'Fan';
   return 'New';
 }
-
-/* ── LEADERBOARD & STANDINGS ── */
-
-
-
 
 /* ── FAN ID ── */
 function generateFanId() {
@@ -2702,18 +2679,6 @@ function renderPtsTracker() {
   }).join('') : '<div class="empty">No activity yet · Make predictions to earn points!</div>';
 }
 
-/* ── PREMIUM (Pi Payment) ── */
-
-
-
-
-/* ── SEND PI ── */
-
-
-
-
-
-
 /* ── REQUEST PI QR ── */
 function genReqQr() {
   var amt = parseFloat(document.getElementById('rp-amt').value) || 0.1;
@@ -2872,73 +2837,12 @@ function clearNotifs() {
   toast('🔔 Cleared');
 }
 
-/* ── LANGUAGE ── */
-
-
-
 /* ── INIT ── */
 
 /* ═══════════════════════════════════════════════════════
    WORLDCUP NEWS ENGINE v2.0
    AI-Automatic · Image System · Claude summaries
 ═══════════════════════════════════════════════════════ */var newsFilter = 'all';var _newsInited = false;
-
-/* ── IMAGE POOLS (Unsplash CDN — free, always available) ── */
-
-
-
-/* ── CURATED NEWS DATA ── */
-
-
-/* ── AI SUMMARIZER ── */
-
-
-/* ── MAIN ENGINE ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ── STORY ACTIONS ── */
-
-
-
-
-
-
-
-
-
-
-/* ── HOOK INTO goS ── */
-
-
-
-
-/* ── LEADERBOARD — ALWAYS VISIBLE ── */
-
-
-/* ── PREMIUM — ALL STATES ── */
-
-
-
-
-
 
 /* ── LANGUAGE — FULL COVERAGE ── *//* ═══════════════════════════════════════════════════════
    SUPPORT SYSTEM v1.0 · WorldCup · worldcup.pi
@@ -3142,16 +3046,6 @@ function filterHelp(query) {
    Domain: worldcup-app.pages.dev
 ═══════════════════════════════════════════════════════════ */
 
-/* ── AUTH — Stable Pi SDK flow ── */
-
-
-
-
-/* ── LOGOUT ── */
-
-
-
-
 /* ── PREMIUM — All states ── */
 function renderPremStatus() {
   var btn   = document.getElementById('prem-btn');
@@ -3168,15 +3062,6 @@ function renderPremStatus() {
   }
 }
 
-
-
-
-
-/* ── SEND PI — Complete flow ── */
-
-
-
-
 /* ── LANGUAGE — Full 6-language system ── *//* ── NEWS COMMENTS & LIKES — Persistent global system ── */
 var newsLikes    = JSON.parse(localStorage.getItem(K+'nlikes')||'{}');
 var newsComments = JSON.parse(localStorage.getItem(K+'ncomments')||'{}');
@@ -3188,20 +3073,7 @@ function saveEngagement() {
   localStorage.setItem(K+'uliked',    JSON.stringify(userLiked));
 }
 
-
-
-
-
-
-
-/* ── NEWS CARD WITH ENGAGEMENT ── */
-
-
-/* ── NOTIF COUNT ── */
-
-
 /* ── DOM READY ── */
-
 
 function saveLangPref(l) {
   localStorage.setItem(K+'lang', l);
@@ -3227,12 +3099,6 @@ function initSettingsPanel() {
 /* Hook settings init */
 /* ═══ HARAMAIN AUTH + PAYMENT PATTERN — Exact Copy ═══ */
 
-
-
-
-
-
-
 function onIncompletePayment(payment) {
   console.log('[WorldCup] Incomplete payment:', payment);
   if (!payment || !payment.identifier) return;
@@ -3249,13 +3115,6 @@ function onIncompletePayment(payment) {
       .catch(function(e) { console.warn('[WorldCup] Cancel error:', e); }); */
   }
 }
-
-
-
-
-
-
-
 
 function addTx(text){
   var d = new Date().toLocaleTimeString();
@@ -3346,7 +3205,6 @@ function shareReceiptNow() {
   else { if (typeof copyClip==='function') copyClip(t); if (typeof toast==='function') toast('Copied!'); }
 }
 
-
 /* ═══════════════════════════════════════════════════════════
    WORLDCUP · SINGLE INIT HANDLER
    One DOMContentLoaded · Clean oUtil · No duplicate calls
@@ -3384,16 +3242,6 @@ oUtil = function(id) {
 
 /* ── Pi SDK Ready Guard ── */var _piReadyCallbacks = [];
 
-
-
-
-
-/* ── MAIN ENTRY: piLogin ── */
-
-
-/* ── LAUNCH APP ── */
-
-
 /* ── Pi SDK Window Hook ── */
 
 /* ═══════════════════════════════════════════════════════════════
@@ -3402,15 +3250,7 @@ oUtil = function(id) {
    Endpoints: /approve · /complete  (Cloudflare Pages functions)
 ═══════════════════════════════════════════════════════════════ */
 
-/* ── Fan Pass Premium — 1π ── */
-
-
 /* ── Send Pi to a Fan ── */
-
-
-
-
-
 
 /* ================================================================
    WORLDCUP - PAYMENT FUNCTIONS
@@ -3424,21 +3264,12 @@ oUtil = function(id) {
    - Always check typeof Pi before Pi.createPayment
 ================================================================ */
 
-
-
-
-
-
-
-
-
 /* ================================================================
    WORLDCUP DATA ENGINE v4.0
    Real live data · Multi-source · Auto-refresh
    worldcup-app.pages.dev · Pi Network Mainnet
 ================================================================ */
 
-/* ── DATA VARS ── */
 /* ── API SOURCES ── */
 /* TheSportsDB free — league IDs for WorldCup 2026 fixtures */
 /* 5765 = World Cup 2026, 102711 = historical WC *//* live-football-data.p.rapidapi.com too expensive */
@@ -3449,46 +3280,16 @@ oUtil = function(id) {
 ── */
 /* Build allMatches from WC2026 schedule */
 
-
 /* ── LIVE DATA FETCHER ──
    TheSportsDB free API — multiple endpoints tried in order
    Falls back to WC2026 schedule if all APIs fail
 ── */
 
-
-
-
-
-
 /* Merge live API data into schedule — update live/finished matches */
-
 
 /* Use known schedule when API unavailable */
 
-
-/* ── STATUS DISPLAY ── */
-
-
-/* ── POLLING ── */
-
-
-
-
-
-
-/* ── RENDER MATCHES ── */
-
-
-
-
-
-
 /* ── MATCH OVERLAY OPEN ── */
-
-
-
-
-
 
 /* Known H2H data *//* ================================================================
    NEWS ENGINE v4.0 — Real API + WorldCup.pi Promotion
@@ -3504,16 +3305,7 @@ if (document.head) document.head.appendChild(_appPromoStyle);
    Rule: memo = ASCII only · metadata = simple keys only
 ================================================================ */
 
-
-
-
-
 /* ── Send Pi ── */
-
-
-
-
-
 
 /* ================================================================
    WORLDCUP PAYMENTS - HARAMAIN EXACT COPY
@@ -3731,6 +3523,8 @@ function launchApp() {
 
   console.log('[WorldCup] App launched - user:', user ? user.username : 'none');
   toast('Welcome' + (user ? ' @' + user.username : '') + '!');
+  /* P0: start background health monitor */
+  setTimeout(startHealthMonitor, 5000);
 }
 
 function logout() {
@@ -3757,8 +3551,6 @@ function logout() {
   if (status)  status.textContent = '';
   toast('Signed out');
 }
-
-
 
 /* ================================================================
    PAGE STARTUP - single clean handler
@@ -3846,49 +3638,16 @@ var allMatches = [];  /* deprecated — use WC.live/upcoming/finished */var news
    All tested and confirmed loading (Unsplash stable CDN URLs)
 ── */var _imgRotate = {};
 
-
-
-
-/* ── DATA STATUS DISPLAY ── */
-
-
-/* ── FLAG MAP ── */
-
-
-/* ── BUILD FROM WC2026 SCHEDULE ── */
-
-
 /* ── API FETCH ──
    TheSportsDB free tier · today's Soccer events
    Filters to WorldCup matches only
 ── */
 
-
 /* Parse TheSportsDB events */
-
 
 /* Overlay live API data onto confirmed schedule */
 
-
-/* ── POLLING ── */
-
-
-
-
-
-
-/* ── RENDER MATCHES ── */
-
-
-
-
 /* ── MATCH OVERLAY ── */
-
-
-
-
-
-
 
 /* ================================================================
    NEWS ENGINE v5.0
@@ -3898,42 +3657,7 @@ var allMatches = [];  /* deprecated — use WC.live/upcoming/finished */var news
 
 /* Build news from real match data + curated stories */
 
-
-
-
-/* ── AI SUMMARIZER ── */
-
-
-/* ── NEWS INIT + REFRESH ── */
-
-
-
-
-
-
 /* ── RENDER NEWS ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* App promo card style */
 (function(){
@@ -3948,16 +3672,7 @@ var allMatches = [];  /* deprecated — use WC.live/upcoming/finished */var news
    NO PAYMENT CHANGES
 ================================================================ */
 
-/* ── FIX: goS hook for news + data rebuild ── *//* ── FIX: renderGroups uses WC_GROUPS ── */
-
-
-/* ── FIX: renderStandings uses real match data ── */
-
-
-/* ── FIX: Status bar shows real time + source ── */
-
-
-/* ── FIX: Language — complete I18N coverage ── */
+/* ── FIX: goS hook for news + data rebuild ── *//* ── FIX: Language — complete I18N coverage ── */
 function setLang(l, btn) {
   if (!l || !I18N[l]) l = 'en';
   curLang = l;
@@ -4043,12 +3758,6 @@ function confirmLogout() {
   logout();
 }
 
-/* ── FIX: renderPredictions ── */
-
-
-/* ── FIX: renderLeaderboard with empty state ── */
-
-
 /* ── FIX: makePred ── */
 function makePred(matchId, outcome, btn, h, a) {
   predictions[matchId] = outcome;
@@ -4113,7 +3822,6 @@ startPolling = function() {
   ].join('\n');
   if (document.head) document.head.appendChild(s);
 })();
-
 
 /* ================================================================
    WORLDCUP · DATA ACCURACY ENGINE v6.0
@@ -4194,31 +3902,6 @@ function utcToLocal(utcStr) {
   }
 }
 
-/* ── STATUS FROM REAL CLOCK ── */
-
-
-
-
-/* ── BUILD FROM SCHEDULE ── */
-
-
-/* ── LOCALSTORAGE CACHE WITH TTL ── */
-
-
-
-
-/* ── FETCH FROM API ── */
-
-
-/* ── PARSE API EVENTS ── */
-
-
-/* ── MERGE API DATA INTO SCHEDULE ── */
-
-
-/* ── DATA STATUS DISPLAY ── */
-
-
 /* ── STATUS BAR DISPLAY ── */
 function updateStatusBar() {
   var dsl = document.getElementById('data-source-label');
@@ -4230,77 +3913,32 @@ function updateStatusBar() {
     : 'Synced ' + now;
 }
 
-/* ── POLLING ── */
-
-
-
-
-
-
-/* ── RENDER MATCHES ── */
-
-
-/* ── MATCH CARD ── */
-
-
-/* ── MATCH OVERLAY ── */
-
-
-
-
-
-
-/* ── STATS ── */
-
-
-/* ── H2H (verified data only) ── *//* ── PREDICT ── */
-
-
-/* ── GROUPS SCREEN ── */
-
-
-/* ── STANDINGS SCREEN ── */
-
-
-/* ── NEWS REBUILD (throttled) ── */
-
-
-/* ── DATA HEALTH PANEL (hidden diagnostics) ── */
+/* ── H2H (verified data only) ── *//* ── DATA HEALTH PANEL (hidden diagnostics) ── */
 var _dataHealth = {
   apiStatus:'unknown', lastSync:0, cacheHits:0, apiErrors:0, matchCount:0
 };
 
-
-
-
-
 /* Shake to reveal health panel (triple-tap logo) */
 var _logoTaps = 0;
-
-
+function onLogoTap() {
+  _logoTaps++;
+  if (_logoTaps >= 3) {
+    _logoTaps = 0;
+    var panel = document.getElementById('health-panel');
+    if (panel) {
+      panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+      if (panel.style.display === 'block') renderHealthPanel();
+    }
+  }
+  setTimeout(function(){ _logoTaps = 0; }, 800);
+}
 
 /* ================================================================
    WC 2026 COMPLETE GROUP STAGE SCHEDULE
    72 matches · Matchdays 1,2,3 · June 11 – July 2, 2026
    All times UTC · Official host venues
    Today: June 11, 2026 — Tournament starts tonight!
-================================================================ *//* ── BUILD FROM SCHEDULE WITH CORRECT STATUSES ── */
-
-
-/* ── RENDER MATCHES — shows real results and upcoming ── */
-
-
-/* ── NEWS ENGINE v7.0 — Automatic refresh, no fake data ── */
-
-
-
-
-
-
-
-
-
-
+================================================================ *//* ── NEWS ENGINE v7.0 — Automatic refresh, no fake data ── */
 
 /* ================================================================
    TOURNAMENT STATE MANAGER
@@ -4312,15 +3950,6 @@ var _logoTaps = 0;
    Only shown when matches have been played
    Stats shown only for verified tournament progression
 ── */
-
-/* ── TOURNAMENT STATE: controls what news/data shows ── */
-
-
-/* ── BUILD NEWS DATA (state-aware, no contradictions) ── */
-
-
-/* ── LEADERBOARD: real prediction data ── */
-
 
 /* ── PAYMENT STATUS DISPLAY ── */
 function showPaymentStatus(status, message) {
@@ -4357,21 +3986,13 @@ function addUtilBadge(panelId, badgeType) {
   if (el) { el.textContent=cfg.text; el.className='tc-tag '+cfg.cls; }
 }
 
-/* ── RENDER ALL 12 GROUPS GRID ── */
-
-
-/* ── STANDINGS — calculated from verified results only ── */
-
-
 /* ── PLAYER CARD BUILDER (state-aware) ── */
-
 
 /* Connect TOP_PLAYERS to state-aware getter */
 Object.defineProperty(window, 'TOP_PLAYERS', {
   get: function() { return getTopPlayers(); },
   configurable: true
 });
-
 
 /* ================================================================
    LEGAL OVERLAYS — Privacy Policy + Terms of Service
@@ -4590,7 +4211,6 @@ function closeLegal() {
   if (overlay) overlay.classList.remove('open');
 }
 
-
 /* ================================================================
    WC 2026 VERIFIED DATA — Source: LiveScore June 12, 2026
    Groups A-L confirmed · Fixtures confirmed · Venues confirmed
@@ -4600,42 +4220,7 @@ function closeLegal() {
 /* ── VERIFIED GROUPS A-L ── *//* ── VERIFIED SCHEDULE — Source: LiveScore / Official WC 2026 ──
    UTC times · Official venues
    Results where known (Jun 11 match completed)
-── *//* ── KNOWN RESULTS (verified from LiveScore Jun 12) ── *//* ── COMPLETE FLAG MAP — all 48 WC 2026 teams ── */
-
-
-/* ── BUILD SCHEDULE WITH CORRECT STATUS ── */
-
-
-
-
-
-
-
-
-
-
-
-/* ── STATUS DISPLAY ── */
-
-
-/* ── RENDER MATCHES ── */
-
-
-/* ── MATCH CARD ── */
-
-
-/* ── POLLING ── */
-
-
-
-
-
-
-/* ── GROUPS — all 12, from verified WC_GROUPS ── */
-
-
-/* ── STANDINGS — all 12 groups, calculated from results ── */
-
+── *//* ── KNOWN RESULTS (verified from LiveScore Jun 12) ── *//* ── STANDINGS — all 12 groups, calculated from results ── */
 
 /* ================================================================
    WORLDCUP LIVE ENGINE v8.0
@@ -4650,8 +4235,7 @@ function closeLegal() {
    - Cache for performance only, never as source of truth
 ================================================================ */
 
-/* ── SINGLE STATE OBJECT ── *//* ── DATA ENDPOINT ── */
-/* ── FLAG LOOKUP — team name to emoji ── */
+/* ── SINGLE STATE OBJECT ── *//* ── FLAG LOOKUP — team name to emoji ── */
 var FLAGS = {
   /* Hosts */  'Mexico':'🇲🇽','Canada':'🇨🇦','USA':'🇺🇸','United States':'🇺🇸',
   /* A  */     'Czechia':'🇨🇿','South Africa':'🇿🇦','South Korea':'🇰🇷',
@@ -4675,11 +4259,7 @@ function getFlag(name) {
   return FLAGS[name] || FLAGS[name.trim()] || '🌍';
 }
 
-/* ── API FETCH ── */
-
-
 /* ── CACHE ── */
-
 
 function cacheClear() {
   var keys=[];
@@ -4687,35 +4267,7 @@ function cacheClear() {
   keys.forEach(function(k){localStorage.removeItem(k);});
 }
 
-/* ── POLLING ── */
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* ── STATUS BAR ── */
-
-
-/* ── RENDER MATCHES ── */
-
-
-/* ── MATCH CARD ── */
-
-
 /* ── MATCH DETAIL OVERLAY ── */
-
-
-
-
-
 
 function movTab(btn,pane) {
   document.querySelectorAll('.mov-tab').forEach(function(t){t.classList.remove('on');});
@@ -4745,44 +4297,9 @@ function buildPredictPane(m) {
     }).join('')+'</div>'+(ex?'<div style="padding:.4rem 0;font-family:var(--dm);font-size:.52rem;color:var(--grn)">Your pick: '+ex+'</div>':'');
 }
 
-/* ── GROUPS — built from API match data ── */
-
-
-/* ── STANDINGS ── */
-
-
-
-
-/* ── SHOW UNAVAILABLE STATE ── */
-
-
 /* ── NEWS FROM REAL MATCH DATA ── */
 var newsCache = [];var newsFilter = 'all';
 var _newsInited = false;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* ── LEADERBOARD ── */
 function renderLeaderboard() {
@@ -4842,7 +4359,6 @@ function renderPredictions() {
   }).join('');
 }
 
-
 /* ================================================================
    WORLDCUP NEWS ENGINE v9.0
    Architecture: /news API → Validate → Dedup → Render
@@ -4858,7 +4374,7 @@ function renderPredictions() {
 
 /* ── NEWS STATE ── */
 var NEWS = {
-  articles:     [],        /* Raw from /news API */
+  articles:     [],
   saved:        JSON.parse(localStorage.getItem('wc2_saved_news')||'[]'),
   likes:        JSON.parse(localStorage.getItem('wc2_nlikes')||'{}'),
   userLiked:    JSON.parse(localStorage.getItem('wc2_uliked')||'{}'),
@@ -4868,65 +4384,16 @@ var NEWS = {
   lastFetch:    0,
   fetchTimer:   null,
   inited:       false,
-  CACHE_KEY:    'wc2_news_v9',
-  TTL:          300000,    /* 5 min */
-  MAX_AGE:      259200000, /* 3 days */
+  page:         1,          /* P2: cursor pagination */
+  hasMore:      true,       /* P2: infinite scroll gate */
+  CACHE_KEY:    'wc2_news_v10',
+  TTL:          60000,      /* System B: 60s refresh */
+  MAX_AGE:      259200000,
 };
 
 var NEWS_URL = '/news';
 
 /* ── FETCH NEWS FROM API ── */
-function fetchNews(force) {
-  if (NEWS.loading && !force) return;
-  NEWS.loading = true;
-  setNewsStatus('loading');
-
-  var cat  = NEWS.filter !== 'all' && NEWS.filter !== 'saved' ? '&cat='+NEWS.filter : '';
-  var url  = NEWS_URL + '?limit=40' + cat;
-
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(body){
-      NEWS.loading  = false;
-      NEWS.lastFetch = Date.now();
-
-      if (body.success && body.articles && body.articles.length > 0) {
-        /* Merge with cached + deduplicate */
-        var merged = mergeArticles(NEWS.articles, body.articles);
-        NEWS.articles = merged;
-        localStorage.setItem(NEWS.CACHE_KEY, JSON.stringify({
-          ts: Date.now(), d: merged.slice(0,80)
-        }));
-        setNewsStatus('live', body.count);
-        renderNewsEngine();
-      } else if (!body.success) {
-        /* API failed — try cache */
-        var cached = getNewsCache();
-        if (cached.length) {
-          NEWS.articles = cached;
-          setNewsStatus('cached', cached.length);
-          renderNewsEngine();
-        } else {
-          setNewsStatus('unavailable');
-          showNewsUnavailable(body.error || body.hint || 'No news data available');
-        }
-      }
-      updateNewsTimestamp();
-    })
-    .catch(function(err){
-      NEWS.loading = false;
-      console.warn('[WC/news] Fetch failed:', err.message);
-      var cached = getNewsCache();
-      if (cached.length) {
-        NEWS.articles = cached;
-        setNewsStatus('cached', cached.length);
-        renderNewsEngine();
-      } else {
-        setNewsStatus('unavailable');
-        showNewsUnavailable('News service unavailable · Check connection');
-      }
-    });
-}
 
 function getNewsCache() {
   try {
@@ -4974,126 +4441,6 @@ function updateNewsTimestamp() {
   if (upd && NEWS.lastFetch) {
     upd.textContent = 'Updated '+new Date(NEWS.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
   }
-}
-
-/* ── AUTO-REFRESH every 5 minutes ── */
-function initNews() {
-  if (NEWS.inited) {
-    /* Re-render with latest data on tab return */
-    if (NEWS.articles.length) renderNewsEngine();
-    return;
-  }
-  NEWS.inited = true;
-
-  /* Try cache first for instant render */
-  var cached = getNewsCache();
-  if (cached.length) {
-    NEWS.articles = cached;
-    renderNewsEngine();
-  } else {
-    showNewsLoading();
-  }
-
-  /* Fetch fresh */
-  fetchNews(true);
-
-  /* Auto-refresh */
-  if (NEWS.fetchTimer) clearInterval(NEWS.fetchTimer);
-  NEWS.fetchTimer = setInterval(function(){
-    fetchNews(false);
-  }, NEWS.TTL);
-}
-
-function refreshNews() {
-  var btn = document.getElementById('news-refresh-btn');
-  if (btn) btn.classList.add('spinning');
-  fetchNews(true);
-  setTimeout(function(){
-    if (btn) btn.classList.remove('spinning');
-    toast('News refreshed!');
-  }, 1500);
-}
-
-function filterNews(cat, btn) {
-  NEWS.filter = cat;
-  document.querySelectorAll('.ncat').forEach(function(b){ b.classList.remove('on'); });
-  if (btn) btn.classList.add('on');
-  /* Re-fetch with category filter */
-  NEWS.articles = [];
-  if (cat !== 'saved') fetchNews(true);
-  else renderNewsEngine();
-}
-
-/* ── RENDER ── */
-function renderNewsEngine() {
-  var skels = document.getElementById('news-skeletons');
-  if (skels) skels.style.display = 'none';
-
-  var filtered;
-  if (NEWS.filter === 'saved') {
-    filtered = NEWS.articles.filter(function(a){ return NEWS.saved.includes(a.id); });
-  } else if (NEWS.filter === 'all') {
-    filtered = NEWS.articles;
-  } else {
-    filtered = NEWS.articles.filter(function(a){ return a.category === NEWS.filter; });
-  }
-
-  if (!filtered.length) {
-    var heroSlot = document.getElementById('news-hero-slot');
-    var mainCards = document.getElementById('news-main-cards');
-    if (heroSlot)  heroSlot.innerHTML  = '';
-    if (mainCards) mainCards.innerHTML = '<div class="empty">'+
-      (NEWS.filter==='saved' ? 'No saved articles yet' : 'No articles in this category')+
-    '</div>';
-    var ls = document.getElementById('news-live-section');
-    if (ls) ls.style.display = 'none';
-    return;
-  }
-
-  /* Breaking banner — most recent breaking category */
-  var brk = filtered.find(function(a){ return a.category==='breaking'; });
-  var bb = document.getElementById('breaking-banner'), bt = document.getElementById('breaking-text');
-  if (brk && bb && bt) { bb.style.display='flex'; bt.textContent=brk.title; bb._articleId=brk.id; }
-  else if (bb) bb.style.display='none';
-
-  /* Hero — first article */
-  var hero = filtered[0];
-  renderHero(hero);
-
-  /* Live/match section */
-  var matchArts = filtered.filter(function(a){ return a.category==='match'; }).slice(0,3);
-  var ls = document.getElementById('news-live-section'), lc = document.getElementById('news-live-cards');
-  if (matchArts.length && ls && lc) {
-    ls.style.display='block';
-    lc.innerHTML = matchArts.map(function(a){ return buildCard(a,'compact'); }).join('');
-  } else if (ls) ls.style.display='none';
-
-  /* Main articles 2-6 */
-  var main = filtered.slice(1,7);
-  var mc = document.getElementById('news-main-cards');
-  if (mc) {
-    mc.innerHTML = main.map(function(a){ return buildCard(a,'full'); }).join('');
-    /* Lazy load images */
-    setTimeout(function(){ lazyLoadImages('news-main-cards'); }, 60);
-  }
-
-  /* Insights */
-  var ins = filtered.filter(function(a){ return a.category==='insights'; }).slice(0,2);
-  var is2 = document.getElementById('news-insights-section'), ic = document.getElementById('news-insights-cards');
-  if (ins.length && is2 && ic && (NEWS.filter==='all'||NEWS.filter==='insights')) {
-    is2.style.display='block';
-    ic.innerHTML = ins.map(function(a){ return buildCard(a,'full'); }).join('');
-    setTimeout(function(){ lazyLoadImages('news-insights-cards'); }, 60);
-  } else if (is2) is2.style.display='none';
-
-  /* More */
-  var more = filtered.slice(7,15);
-  var ms = document.getElementById('news-more-section'), mc3 = document.getElementById('news-more-cards');
-  if (more.length && ms && mc3) {
-    ms.style.display='block';
-    mc3.innerHTML = more.map(function(a){ return buildCard(a,'compact'); }).join('');
-    setTimeout(function(){ lazyLoadImages('news-more-cards'); }, 60);
-  } else if (ms) ms.style.display='none';
 }
 
 /* ── IMAGE LOADING ──
@@ -5168,9 +4515,6 @@ function renderHero(a) {
     if (el) lazyLoadImages('news-hero-slot');
   }, 50);
 }
-
-/* ── BUILD CARD ── */
-
 
 /* ── OPEN STORY OVERLAY ── */
 function openStory(id) {
@@ -5357,26 +4701,9 @@ function escHtml(s) {
 /* ── CONFIRMED SCHEDULE — verified from LiveScore ──
    Status computed from UTC clock — only used as fallback
    API data takes priority and overwrites status/scores
-── *//* ── WC_GROUPS for Groups/Standings tabs ── *//* ── STATE ── *//* ── CACHE ── */
-
-
-
-/* ── BUILD FROM SCHEDULE (guaranteed fallback) ── */
-
-
-/* ── SET STATUS BAR ── */
-
-
-/* ── START / STOP POLLING ── */
-
-
-
-
-/* ── FETCH LIVE FROM THESPORTSDB ── */
-
+── *//* ── WC_GROUPS for Groups/Standings tabs ── *//* ── STATE ── *//* ── FETCH LIVE FROM THESPORTSDB ── */
 
 /* Alias for refresh buttons */
-
 
 /* ── BUILD NEWS FROM REAL MATCH DATA ── */
 function buildNewsFromMatches() {
@@ -5416,12 +4743,6 @@ function buildNewsFromMatches() {
   }
 }
 
-/* ── GROUPS — from WC_GROUPS + match results ── */
-
-
-/* ── STANDINGS — from match results ── */
-
-
 /* ── ONE CLEAN goS HOOK ── */
 (function(){
   var _base=goS;
@@ -5434,7 +4755,6 @@ function buildNewsFromMatches() {
   };
 })();
 
-
 /* ================================================================
    WORLDCUP FETCH ENGINE v10.0
    All data via /data Cloudflare Function — no direct API calls
@@ -5443,27 +4763,16 @@ function buildNewsFromMatches() {
 
 var DATA_URL = '/data';
 
-
-
-
-
-
-
 function showUnavailable() {
   if (!WC.all.length) WC.matches = buildFromSchedule();
   renderMatches();
 }
-
-
-
 
 /* ================================================================
    SCHEDULE FALLBACK — display only, all statuses UPCOMING
    Rule: never assign LIVE/FINISHED via clock
    Status comes from API only — if API unavailable, show UPCOMING
 ================================================================ */
-
-
 
 /* ================================================================
    WORLDCUP DISPLAY ENGINE v11.0
@@ -5479,18 +4788,6 @@ function showUnavailable() {
    - Source name + sync time always visible
    - One non-intrusive promo per screen max
 ================================================================ */
-
-/* ── STATUS BAR — always shows source + sync time ── */
-
-
-/* ── MERGE API DATA onto schedule skeleton ── */
-
-
-/* ── RENDER MATCHES ── */
-
-
-/* ── MATCH CARD ── */
-
 
 /* ── MATCH DETAIL — full event data from API ── */
 function openMatchDetail(eventId, dataStr) {
@@ -5708,10 +5005,6 @@ function insertPromo(containerId) {
   el.appendChild(promo);
 }
 
-
-
-
-
 /* ================================================================
    WC 2026 OFFICIAL DATA — validated competition + standings
 ================================================================ */
@@ -5906,7 +5199,6 @@ function _buildStandingsFromResults(el) {
   }
   el.innerHTML = rendered.join('');
 }
-
 
 /* ================================================================
    WORLDCUP DATA LAYER v12.0
@@ -6290,10 +5582,15 @@ function setStatus(state) {
   if (dst)   { dst.textContent = cfg.text; dst.style.color = cfg.color; }
   if (badge) badge.textContent = cfg.badge;
   if (dsl)   dsl.textContent   = 'TheSportsDB';
-  var syncTime = WC.lastFetch
-    ? 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
-    : '--:--';
-  if (lul)  lul.textContent  = syncTime;
+  var syncTime, cacheAge = '';
+  if (WC.lastFetch) {
+    var ago = Math.round((Date.now()-WC.lastFetch)/1000);
+    cacheAge = ago < 60 ? ago+'s ago' : Math.round(ago/60)+'m ago';
+    syncTime = 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  } else {
+    syncTime = '--:--';
+  }
+  if (lul)  lul.textContent  = syncTime + (cacheAge ? ' · '+cacheAge : '');
   if (hdrs) hdrs.textContent = syncTime;
 }
 
@@ -6447,7 +5744,6 @@ function getTournamentState() {
   };
 }
 
-
 /* ── FETCH PAST RESULTS ON STARTUP (populate WC.finished from API) ── */
 function fetchPastResults() {
   if (WC.finished.length >= 5) return;  /* Already have results */
@@ -6466,7 +5762,6 @@ function fetchPastResults() {
     })
     .catch(function(){});  /* Silently fail — cache is fallback */
 }
-
 
 function buildCard(a, type) {
   var saved     = NEWS.saved.includes(a.id);
@@ -6513,7 +5808,6 @@ function buildCard(a, type) {
     '</div>'+
   '</div>';
 }
-
 
 /* ================================================================
    WC 2026 VERIFIED SCHEDULE — Source: LiveScore / Official
@@ -6607,6 +5901,482 @@ function buildFromSchedule() {
     return ta-tb;
   });
 }
+
+/* ================================================================
+   WORLDCUP MEDIA ENGINE v3.0
+   P1: Highlights + video cards
+   P2: Infinite scroll with cursor pagination
+   P3: Personal feed ranking
+   System B: 60s refresh, WC-only, no fake content
+================================================================ */
+
+/* ── PERSONAL FEED RANKING ── */
+function rankForFeed(articles) {
+  var buckets = {
+    breaking:   [],
+    match:      [],
+    highlight:  [],
+    player:     [],
+    team:       [],
+    tournament: [],
+    insights:   [],
+    other:      [],
+  };
+  articles.forEach(function(a) {
+    var cat = a.category || 'other';
+    if (buckets[cat]) buckets[cat].push(a);
+    else buckets.other.push(a);
+  });
+  /* Interleave: breaking first, then match, then highlights, then rest */
+  var ranked = [].concat(
+    buckets.breaking,
+    buckets.match,
+    buckets.highlight,
+    buckets.player,
+    buckets.team,
+    buckets.tournament,
+    buckets.insights,
+    buckets.other
+  );
+  /* Deduplicate */
+  var seen = {};
+  return ranked.filter(function(a) {
+    if (!a || !a.id || seen[a.id]) return false;
+    seen[a.id] = true;
+    return true;
+  });
+}
+
+/* ── FETCH NEWS — 60s System B refresh ── */
+function fetchNews(force, page) {
+  if (NEWS.loading && !force) return;
+  NEWS.loading = true;
+  page = page || 1;
+  if (page === 1) setNewsStatus('loading');
+
+  var cat = NEWS.filter !== 'all' && NEWS.filter !== 'saved' ? '&cat='+NEWS.filter : '';
+  var url = NEWS_URL + '?limit=20' + cat + (page > 1 ? '&page='+page : '');
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(body) {
+      NEWS.loading  = false;
+      NEWS.lastFetch = Date.now();
+
+      if (body.success && body.articles && body.articles.length > 0) {
+        if (page > 1) {
+          /* Infinite scroll: append */
+          var merged = mergeArticles(NEWS.articles, body.articles);
+          NEWS.articles = merged;
+          appendNewsCards(body.articles.filter(function(a){
+            return a.category !== 'highlight';
+          }));
+          /* Append highlights separately */
+          var newHighlights = body.articles.filter(function(a){
+            return a.category === 'highlight';
+          });
+          if (newHighlights.length) appendHighlightCards(newHighlights);
+        } else {
+          /* Full render */
+          var ranked = rankForFeed(mergeArticles(NEWS.articles, body.articles));
+          NEWS.articles = ranked;
+          try {
+            localStorage.setItem(NEWS.CACHE_KEY, JSON.stringify({
+              ts: Date.now(), d: ranked.slice(0,100)
+            }));
+          } catch(e){}
+          renderNewsEngine();
+        }
+        NEWS.page    = page;
+        NEWS.hasMore = body.articles.length >= 20;
+        setNewsStatus('live', NEWS.articles.length);
+      } else {
+        var cached = getNewsCache();
+        if (cached.length) {
+          NEWS.articles = rankForFeed(cached);
+          setNewsStatus('cached', cached.length);
+          if (page === 1) renderNewsEngine();
+        } else {
+          setNewsStatus('unavailable');
+          if (page === 1) showNewsUnavailable(body.error || body.hint || 'No news data');
+        }
+      }
+      updateNewsTimestamp();
+    })
+    .catch(function(err) {
+      NEWS.loading = false;
+      console.warn('[WC/news]', err.message);
+      var cached = getNewsCache();
+      if (cached.length) {
+        NEWS.articles = rankForFeed(cached);
+        setNewsStatus('cached', cached.length);
+        if (page === 1) renderNewsEngine();
+      } else {
+        setNewsStatus('unavailable');
+        if (page === 1) showNewsUnavailable('Showing latest World Cup updates');
+      }
+    });
+}
+
+/* ── INIT — starts 60s auto-refresh ── */
+function initNews() {
+  if (NEWS.inited) {
+    if (NEWS.articles.length) renderNewsEngine();
+    return;
+  }
+  NEWS.inited = true;
+  NEWS.page   = 1;
+  NEWS.hasMore = true;
+
+  var cached = getNewsCache();
+  if (cached.length) {
+    NEWS.articles = rankForFeed(cached);
+    renderNewsEngine();
+  } else {
+    showNewsLoading();
+  }
+
+  fetchNews(true);
+
+  /* System B: 60s auto-refresh */
+  if (NEWS.fetchTimer) clearInterval(NEWS.fetchTimer);
+  NEWS.fetchTimer = setInterval(function(){ fetchNews(false); }, NEWS.TTL);
+}
+
+function refreshNews() {
+  var btn = document.getElementById('news-refresh-btn');
+  if (btn) btn.classList.add('spinning');
+  NEWS.page = 1;
+  NEWS.hasMore = true;
+  NEWS.articles = [];
+  fetchNews(true);
+  setTimeout(function(){
+    if (btn) btn.classList.remove('spinning');
+    toast('News refreshed!');
+  }, 1500);
+}
+
+function filterNews(cat, btn) {
+  NEWS.filter  = cat;
+  NEWS.page    = 1;
+  NEWS.hasMore = true;
+  NEWS.articles = [];
+  document.querySelectorAll('.ncat').forEach(function(b){ b.classList.remove('on'); });
+  if (btn) btn.classList.add('on');
+  if (cat !== 'saved') fetchNews(true);
+  else renderNewsEngine();
+}
+
+/* ── RENDER ENGINE ── */
+function renderNewsEngine() {
+  var skels = document.getElementById('news-skeletons');
+  if (skels) skels.style.display = 'none';
+
+  var filtered;
+  if (NEWS.filter === 'saved') {
+    filtered = NEWS.articles.filter(function(a){ return NEWS.saved.includes(a.id); });
+  } else if (NEWS.filter === 'all') {
+    filtered = NEWS.articles;
+  } else {
+    filtered = NEWS.articles.filter(function(a){ return a.category === NEWS.filter; });
+  }
+
+  if (!filtered.length) {
+    var heroSlot  = document.getElementById('news-hero-slot');
+    var mainCards = document.getElementById('news-main-cards');
+    if (heroSlot)  heroSlot.innerHTML  = '';
+    if (mainCards) mainCards.innerHTML = '<div class="empty">'+(NEWS.filter==='saved'?'No saved stories yet':'Loading World Cup updates...')+'</div>';
+    ['news-live-section','news-highlights-section','news-insights-section','news-more-section'].forEach(function(id){
+      var el=document.getElementById(id); if(el) el.style.display='none';
+    });
+    return;
+  }
+
+  /* Breaking banner */
+  var brk = filtered.find(function(a){ return a.category==='breaking'; });
+  var bb=document.getElementById('breaking-banner'), bt=document.getElementById('breaking-text');
+  if (brk&&bb&&bt){ bb.style.display='flex'; bt.textContent=brk.title; bb._articleId=brk.id; }
+  else if(bb) bb.style.display='none';
+
+  /* Hero */
+  var nonHighlight = filtered.filter(function(a){ return a.category!=='highlight'; });
+  renderHero(nonHighlight[0] || filtered[0]);
+
+  /* Live/match */
+  var matchArts = filtered.filter(function(a){ return a.category==='match'; }).slice(0,3);
+  var ls=document.getElementById('news-live-section'), lc=document.getElementById('news-live-cards');
+  if (matchArts.length&&ls&&lc&&(NEWS.filter==='all'||NEWS.filter==='match')) {
+    ls.style.display='block';
+    lc.innerHTML=matchArts.map(function(a){return buildCard(a,'compact');}).join('');
+    setTimeout(function(){lazyLoadImages('news-live-cards');},60);
+  } else if(ls) ls.style.display='none';
+
+  /* Highlights / Video section */
+  var highlights = filtered.filter(function(a){ return a.category==='highlight'; }).slice(0,6);
+  var hs2=document.getElementById('news-highlights-section'), hc=document.getElementById('news-highlights-cards');
+  if (highlights.length&&hs2&&hc&&(NEWS.filter==='all'||NEWS.filter==='highlight')) {
+    hs2.style.display='block';
+    hc.innerHTML=highlights.map(function(a){return buildVideoCard(a);}).join('');
+    setTimeout(function(){lazyLoadImages('news-highlights-cards');},60);
+  } else if(hs2) hs2.style.display='none';
+
+  /* Main — ranked, with promo every 15 */
+  var main = nonHighlight.filter(function(a){return a!==nonHighlight[0]&&a.category!=='match';}).slice(0,12);
+  var mc=document.getElementById('news-main-cards');
+  if (mc) {
+    var html='';
+    main.forEach(function(a,i){
+      html+=buildCard(a,'full');
+      if ((i+1)%15===0) html+=buildPromoCard();
+    });
+    mc.innerHTML=html;
+    setTimeout(function(){lazyLoadImages('news-main-cards');},60);
+  }
+
+  /* Insights */
+  var ins=filtered.filter(function(a){return a.category==='insights';}).slice(0,2);
+  var is2=document.getElementById('news-insights-section'), ic=document.getElementById('news-insights-cards');
+  if (ins.length&&is2&&ic&&(NEWS.filter==='all'||NEWS.filter==='insights')) {
+    is2.style.display='block';
+    ic.innerHTML=ins.map(function(a){return buildCard(a,'full');}).join('');
+    setTimeout(function(){lazyLoadImages('news-insights-cards');},60);
+  } else if(is2) is2.style.display='none';
+
+  /* More + infinite scroll trigger */
+  var more=filtered.slice(13,21);
+  var ms=document.getElementById('news-more-section'), mc3=document.getElementById('news-more-cards');
+  if (ms&&mc3) {
+    if (more.length) {
+      ms.style.display='block';
+      mc3.innerHTML=more.map(function(a){return buildCard(a,'compact');}).join('');
+      mc3.innerHTML+=buildLoadMoreBtn();
+      setTimeout(function(){lazyLoadImages('news-more-cards');},60);
+    } else {
+      ms.style.display='none';
+    }
+  }
+
+  /* Setup scroll observer for infinite loading */
+  setupInfiniteScroll();
+}
+
+/* ── VIDEO CARD ── */
+function buildVideoCard(a) {
+  var liked     = !!NEWS.userLiked[a.id];
+  var likeCount = NEWS.likes[a.id]||0;
+  return '<div class="news-video-card" onclick="openVideoStory(\''+a.id+'\')">'+
+    '<div class="news-video-thumb">'+
+      '<img class="loading" data-img="'+(a.imageUrl||'')+'" data-cat="highlight" src="'+getFallback('highlight')+'" alt="">'+
+      '<div class="news-video-play">\u25b6</div>'+
+      '<div class="news-video-badge">VIDEO</div>'+
+    '</div>'+
+    '<div class="news-video-info">'+
+      '<div class="news-video-title">'+escHtml(a.title)+'</div>'+
+      '<div class="news-video-meta">'+escHtml(a.source)+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'+
+      '<button onclick="likeArticle(\''+a.id+'\',this);event.stopPropagation()" '+
+        'style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;padding:0;margin-top:.15rem">'+
+        (liked?'\u2764':'\u2661')+' '+likeCount+'</button>'+
+    '</div>'+
+  '</div>';
+}
+
+/* ── OPEN VIDEO STORY ── */
+function openVideoStory(id) {
+  var a = NEWS.articles.find(function(x){return x.id===id;});
+  if (!a) return;
+  /* Open article URL in Pi Browser */
+  if (a.url) {
+    openStory(id);  /* Opens full story with link to source */
+  } else {
+    openStory(id);
+  }
+}
+
+/* ── APPEND CARDS (infinite scroll) ── */
+function loadMoreNews() {
+  var p = (NEWS.page||1)+1;
+  fetchNews(false, p);
+}
+
+function appendNewsCards(articles) {
+  var mc3 = document.getElementById('news-more-cards');
+  if (!mc3) return;
+  var btn = document.getElementById('news-load-more');
+  var html = articles.map(function(a){return buildCard(a,'compact');}).join('');
+  if (btn) {
+    btn.outerHTML = html + buildLoadMoreBtn();
+  } else {
+    mc3.innerHTML += html + buildLoadMoreBtn();
+  }
+  setTimeout(function(){lazyLoadImages('news-more-cards');},60);
+}
+
+function appendHighlightCards(articles) {
+  var hc = document.getElementById('news-highlights-cards');
+  if (!hc) return;
+  var hs = document.getElementById('news-highlights-section');
+  if (hs) hs.style.display='block';
+  hc.innerHTML += articles.map(function(a){return buildVideoCard(a);}).join('');
+  setTimeout(function(){lazyLoadImages('news-highlights-cards');},60);
+}
+
+function buildLoadMoreBtn() {
+  if (!NEWS.hasMore) return '<div style="text-align:center;padding:.75rem;font-family:var(--dm);font-size:.54rem;color:var(--t3)">All World Cup stories loaded</div>';
+  return '<div id="news-load-more" style="text-align:center;padding:.6rem 0">'+
+    '<button onclick="loadMoreNews()" style="background:rgba(0,212,255,.08);border:1px solid var(--bd);color:var(--c1);border-radius:99px;padding:.3rem 1rem;font-family:var(--dm);font-size:.58rem;cursor:pointer">'+
+    'Load more World Cup updates...</button></div>';
+}
+
+/* ── PROMO CARD — 1 per 15 stories, worldcup.pi only ── */
+function buildPromoCard() {
+  return '<div class="wc-promo-card">'+
+    '<span style="font-family:var(--df);font-size:.85rem;color:var(--c1)">⚽ worldcup.pi</span>'+
+    '<div style="font-family:var(--dm);font-size:.54rem;color:var(--t2);margin:.15rem 0">Predictions · Fan Pass · Pi Payments · More features</div>'+
+    '<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3)">Independent football fan platform on Pi Network</div>'+
+  '</div>';
+}
+
+/* ── INFINITE SCROLL — IntersectionObserver ── */
+var _scrollObserver = null;
+
+function setupInfiniteScroll() {
+  if (_scrollObserver) _scrollObserver.disconnect();
+  var sentinel = document.getElementById('news-load-more');
+  if (!sentinel || !NEWS.hasMore) return;
+  if (!('IntersectionObserver' in window)) return;
+
+  _scrollObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !NEWS.loading && NEWS.hasMore) {
+        loadMoreNews();
+      }
+    });
+  }, { rootMargin: '200px' });
+
+  _scrollObserver.observe(sentinel);
+}
+
+/* ================================================================
+   P0 — MULTI-PROVIDER HEALTH CHECK
+   Background sync with fallback chain
+   TheSportsDB → /data proxy → WC_SCHED verified cache
+================================================================ */
+
+var _HEALTH = {
+  providers: [
+    { name: 'TheSportsDB', url: '/data?type=health', ok: false, lastCheck: 0 },
+    { name: 'News API',    url: '/news?limit=1',     ok: false, lastCheck: 0 },
+  ],
+  lastFullSync: 0,
+  syncErrors: 0,
+};
+
+function checkProviderHealth() {
+  _HEALTH.providers.forEach(function(p) {
+    fetch(p.url)
+      .then(function(r) {
+        p.ok = r.ok;
+        p.lastCheck = Date.now();
+        _updateHealthPanel(p);
+      })
+      .catch(function() {
+        p.ok = false;
+        p.lastCheck = Date.now();
+        _updateHealthPanel(p);
+      });
+  });
+}
+
+function _updateHealthPanel(p) {
+  var panel = document.getElementById('health-content');
+  if (!panel || document.getElementById('health-panel').style.display === 'none') return;
+  renderHealthPanel();
+}
+
+function renderHealthPanel() {
+  var el = document.getElementById('health-content');
+  if (!el) return;
+  var now = Date.now();
+  var cacheAge = WC.lastFetch
+    ? Math.round((now - WC.lastFetch) / 1000) + 's ago'
+    : 'never';
+  var newsAge = NEWS.lastFetch
+    ? Math.round((now - NEWS.lastFetch) / 1000) + 's ago'
+    : 'never';
+
+  el.innerHTML = [
+    '<div style="font-family:var(--dm);font-size:.52rem;color:var(--t3);line-height:1.8">',
+    /* Providers */
+    _HEALTH.providers.map(function(p) {
+      return '<div style="display:flex;justify-content:space-between">' +
+        '<span>' + p.name + '</span>' +
+        '<span style="color:' + (p.ok ? 'var(--grn)' : 'var(--red)') + '">' +
+          (p.ok ? '✅ OK' : '❌ DOWN') +
+        '</span>' +
+      '</div>';
+    }).join(''),
+    /* Match data */
+    '<div style="margin-top:.4rem;border-top:1px solid rgba(255,255,255,.08);padding-top:.4rem">',
+    '<div style="display:flex;justify-content:space-between"><span>Live matches</span><span style="color:var(--c1)">' + WC.live.length + '</span></div>',
+    '<div style="display:flex;justify-content:space-between"><span>Finished (cached)</span><span style="color:var(--grn)">' + WC.finished.length + '</span></div>',
+    '<div style="display:flex;justify-content:space-between"><span>Upcoming</span><span style="color:var(--t2)">' + WC.upcoming.length + '</span></div>',
+    '<div style="display:flex;justify-content:space-between"><span>Match sync</span><span style="color:var(--t3)">' + cacheAge + '</span></div>',
+    '<div style="display:flex;justify-content:space-between"><span>News sync</span><span style="color:var(--t3)">' + newsAge + '</span></div>',
+    '<div style="display:flex;justify-content:space-between"><span>News articles</span><span style="color:var(--c1)">' + NEWS.articles.length + '</span></div>',
+    '</div>',
+    /* Cache source */
+    '<div style="margin-top:.4rem;border-top:1px solid rgba(255,255,255,.08);padding-top:.4rem">',
+    '<div style="color:var(--t3)">Source: TheSportsDB · WC 2026</div>',
+    '<div style="color:var(--t3)">Poll: ' + (WC.live.length ? '30s (live)' : '10min') + '</div>',
+    '<div style="color:var(--t3)">News: 60s auto-refresh</div>',
+    '</div></div>'
+  ].join('');
+}
+
+/* Run health check every 2 minutes */
+function startHealthMonitor() {
+  checkProviderHealth();
+  setInterval(checkProviderHealth, 120000);
+}
+
+/* ================================================================
+   P5 — IMAGE PREFETCH + MEMORY MANAGEMENT
+   Prefetch next 10 thumbnails while user reads current batch
+   Release images scrolled >50 cards above viewport
+================================================================ */
+
+function prefetchImages(articles, startIdx, count) {
+  var end = Math.min(startIdx + (count||10), articles.length);
+  for (var i = startIdx; i < end; i++) {
+    var url = articles[i].imageUrl;
+    if (!url) continue;
+    var img = new Image();
+    img.src = url; /* Browser caches it */
+  }
+}
+
+function releaseDistantImages(containerId, keepCount) {
+  var c = document.getElementById(containerId);
+  if (!c) return;
+  var imgs = c.querySelectorAll('img[src]:not([data-img])');
+  /* Keep only the first keepCount images in memory */
+  if (imgs.length > (keepCount||50)) {
+    for (var i = 0; i < imgs.length - keepCount; i++) {
+      if (!imgs[i].getBoundingClientRect().top || imgs[i].getBoundingClientRect().bottom < -500) {
+        imgs[i].src = imgs[i].getAttribute('data-released') || imgs[i].src;
+      }
+    }
+  }
+}
+
+/* Hook into appendNewsCards to prefetch next batch */
+var _origAppendNewsCards = appendNewsCards;
+appendNewsCards = function(articles) {
+  _origAppendNewsCards(articles);
+  /* Prefetch next 10 after current batch */
+  var startIdx = NEWS.articles.indexOf(articles[articles.length-1]) + 1;
+  if (startIdx > 0) prefetchImages(NEWS.articles, startIdx, 10);
+};
 </script>
 
 <!-- LEGAL OVERLAY -->
