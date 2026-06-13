@@ -74,6 +74,10 @@ function normalize(article, source) {
     ? 'u-' + btoa(url.slice(-40)).replace(/[^a-zA-Z0-9]/g,'').slice(0,16)
     : 't-' + btoa(title.slice(0,30)).replace(/[^a-zA-Z0-9]/g,'').slice(0,16);
 
+  const videoUrl = article.videoUrl || article.url_video || article.video ||
+                   (article.category === 'highlight' ? article.url : null) || null;
+  const cat = classifyCategory(title+' '+desc);
+
   return {
     id:        id,
     title:     title,
@@ -82,27 +86,35 @@ function normalize(article, source) {
     author:    article.author || null,
     url:       url,
     imageUrl:  imgUrl,
+    videoUrl:  cat === 'highlight' ? (videoUrl || url) : null,
     publishedAt: ts,
     publishedISO: new Date(ts).toISOString(),
-    category:  classifyCategory(title+' '+desc),
+    category:  cat,
+    readTime:  Math.max(1, Math.ceil(desc.split(' ').length / 200)) + ' min read',
   };
 }
 
 /* ── Classify article category from content ── */
 function classifyCategory(text) {
   const t = text.toLowerCase();
+  /* Video/highlight must be checked first */
+  if (t.includes('highlight') || t.includes('video') || t.includes('watch') ||
+      t.includes('footage') || t.includes('goal video') || t.includes('replay') ||
+      t.includes('interview') || t.includes('press conference')) return 'highlight';
+  if (t.includes('transfer') || t.includes('squad') || t.includes('lineup') ||
+      t.includes('formation') || t.includes('team news')) return 'team';
   if (t.includes('goal') || t.includes('score') || t.includes(' vs ') ||
-      t.includes('match') || t.includes('final score')) return 'match';
+      t.includes('match') || t.includes('final score') || t.includes('result')) return 'match';
   if (t.includes('player') || t.includes('hat-trick') || t.includes('goal scorer') ||
       t.includes('penalty') || t.includes('midfielder') || t.includes('striker')) return 'player';
   if (t.includes('group') || t.includes('standings') || t.includes('table') ||
-      t.includes('qualification')) return 'standings';
+      t.includes('qualification') || t.includes('qualify')) return 'standings';
   if (t.includes('stadium') || t.includes('venue') || t.includes('host city') ||
-      t.includes('host nation')) return 'tournament';
+      t.includes('host nation') || t.includes('ceremony')) return 'tournament';
   if (t.includes('breaking') || t.includes('injury') || t.includes('suspend') ||
-      t.includes('red card') || t.includes('ban')) return 'breaking';
+      t.includes('red card') || t.includes('ban') || t.includes('crisis')) return 'breaking';
   if (t.includes('statistic') || t.includes('xg') || t.includes('possession') ||
-      t.includes('analysis') || t.includes('tactical')) return 'insights';
+      t.includes('analysis') || t.includes('tactical') || t.includes('data')) return 'insights';
   return 'tournament';
 }
 
