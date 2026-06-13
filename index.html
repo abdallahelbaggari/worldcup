@@ -5101,39 +5101,7 @@ function renderGroups() {
   }).join('');
 }
 
-function renderStandings() {
-  var el = document.getElementById('st-list');
-  if (!el) return;
 
-  apiFetch('standings')
-    .then(function(table){
-      if (!table||!table.length) { _buildStandingsFromResults(el); return; }
-      var valid = table.filter(function(row){
-        return row.strTeam && WC2026_TEAMS.some(function(t){
-          return t.toLowerCase().slice(0,5)===(row.strTeam||'').toLowerCase().slice(0,5);
-        });
-      });
-      if (!valid.length) { _buildStandingsFromResults(el); return; }
-      el.innerHTML = '<div style="font-family:var(--dm);font-size:.44rem;color:var(--grn);padding:.3rem 1rem">✅ Live standings · TheSportsDB</div>'
-        +'<div class="card card-blue" style="padding:.5rem;overflow-x:auto">'
-        +'<table class="st-table"><thead><tr>'
-        +'<th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th>'
-        +'</tr></thead><tbody>'
-        +valid.map(function(r){
-          return '<tr><td><span class="st-flag">'+getFlag(r.strTeam||'')+'</span>'
-            +' <span class="st-name">'+(r.strTeam||'')+'</span></td>'
-            +'<td>'+(r.intPlayed||0)+'</td><td>'+(r.intWin||0)+'</td>'
-            +'<td>'+(r.intDraw||0)+'</td><td>'+(r.intLoss||0)+'</td>'
-            +'<td>'+(r.intGoalDifference||0)+'</td>'
-            +'<td class="st-pts">'+(r.intPoints||0)+'</td></tr>';
-        }).join('')
-        +'</tbody></table>'
-        +'<div style="font-family:var(--dm);font-size:.42rem;color:var(--t3);margin-top:.3rem">'
-          +'Source: TheSportsDB · Synced '+(WC.lastFetch?new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}):'--')
-        +'</div></div>';
-    })
-    .catch(function(){ _buildStandingsFromResults(el); });
-}
 
 function _buildStandingsFromResults(el) {
   var finished = WC.all.filter(function(m){
@@ -6454,6 +6422,82 @@ function renderTopScorers() {
     .catch(function() {
       el.innerHTML = '<div class="no-data-msg">Scorer data unavailable</div>';
     });
+}
+
+
+function renderStandings() {
+  var el = document.getElementById('st-list');
+  if (!el) return;
+  el.innerHTML = '<div class="api-loading">Loading standings...</div>';
+
+  apiFetch('standings')
+    .then(function(rows) {
+      if (!rows || !rows.length) { _buildStandingsFromResults(el); return; }
+
+      var valid = rows.filter(function(r) {
+        return r.strTeam && WC2026_TEAMS_LOWER.some(function(t){
+          return (r.strTeam||'').toLowerCase().slice(0,6) === t.slice(0,6);
+        });
+      });
+      if (!valid.length) { _buildStandingsFromResults(el); return; }
+
+      /* Group by letter — FD sends GROUP_A, extract A */
+      var groups = {};
+      valid.forEach(function(r) {
+        var g = (r.group||'').replace('GROUP_','').replace('GROUP ','').trim();
+        if (!g) return;
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(r);
+      });
+
+      /* Sort by position then points */
+      Object.keys(groups).forEach(function(g) {
+        groups[g].sort(function(a,b){
+          return (a.position||99)-(b.position||99) || (b.intPoints||0)-(a.intPoints||0);
+        });
+      });
+
+      var rendered = Object.keys(groups).sort().map(function(g) {
+        var teams = groups[g];
+        var hasPlayed = teams.some(function(t){ return t.intPlayed > 0; });
+        if (!hasPlayed) return null;
+
+        return '<div class="card card-blue" style="margin:.4rem 0;padding:.5rem;overflow-x:auto">'
+          +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'
+          +'<table class="st-table"><thead><tr>'
+            +'<th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th>'
+          +'</tr></thead><tbody>'
+          +teams.map(function(r,i){
+            var gd = r.intGoalDifference||0;
+            var crest = r.teamCrest
+              ? '<img src="'+r.teamCrest+'" style="width:14px;height:14px;object-fit:contain;margin-right:3px;vertical-align:middle" onerror="this.style.display=\'none\'">'
+              : '';
+            return '<tr style="'+(i<2?'border-left:2px solid var(--grn)':'')+'">'
+              +'<td style="white-space:nowrap">'+crest+'<span>'+getFlag(r.strTeam||'')+'</span> <span class="st-name">'+escHtml(r.strTeam||'')+'</span></td>'
+              +'<td>'+(r.intPlayed||0)+'</td>'
+              +'<td>'+(r.intWin||0)+'</td>'
+              +'<td>'+(r.intDraw||0)+'</td>'
+              +'<td>'+(r.intLoss||0)+'</td>'
+              +'<td style="color:'+(gd>=0?'var(--grn)':'var(--red)')+'">'+(gd>0?'+':'')+gd+'</td>'
+              +'<td class="st-pts">'+(r.intPoints||0)+'</td>'
+            +'</tr>';
+          }).join('')
+          +'</tbody></table>'
+          +'<div style="font-family:var(--dm);font-size:.42rem;color:var(--t3);margin-top:.25rem">Top 2 qualify \u00b7 Best 8 third-placed also advance</div>'
+        +'</div>';
+      }).filter(Boolean);
+
+      if (!rendered.length) { _buildStandingsFromResults(el); return; }
+
+      var syncTime = WC.lastFetch
+        ? 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        : '--';
+
+      el.innerHTML = '<div style="font-family:var(--dm);font-size:.44rem;color:var(--grn);padding:.3rem 1rem">'
+        +'\u2705 Live standings \u00b7 football-data.org \u00b7 '+syncTime+'</div>'
+        +rendered.join('');
+    })
+    .catch(function(){ _buildStandingsFromResults(el); });
 }
 </script>
 
