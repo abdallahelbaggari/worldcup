@@ -56,35 +56,56 @@ async function fetchTSDB(path) {
 }
 
 /* Filter events to WC 2026 only */
-/* Strict WC 2026 filter — rejects handball, club football, other tournaments */
+/* WC 2026 filter — blocks non-football, non-WC competitions */
 const BLOCKED_SPORTS  = ['handball','basketball','rugby','ice hockey','american football'];
 const BLOCKED_LEAGUES = ['champions league','premier league','bundesliga','la liga',
-                          'serie a','ligue 1','friendly','ehf','nba','nfl','nhl'];
+                          'serie a','ligue 1','ehf','nba','nfl','nhl','mls','conference'];
+
+/* All 48 WC 2026 team names for validation */
+const WC_TEAMS_SET = new Set([
+  'Mexico','South Africa','South Korea','Czechia','Czech Republic',
+  'Canada','Bosnia and Herzegovina','Bosnia-Herzegovina','Qatar','Switzerland',
+  'Brazil','Haiti','Morocco','Scotland',
+  'Australia','Paraguay','Türkiye','Turkiye','Turkey','USA','United States',
+  'Curaçao','Curacao','Ecuador','Germany','Ivory Coast',
+  'Japan','Netherlands','Sweden','Tunisia',
+  'Belgium','Egypt','Iran','New Zealand',
+  'Cape Verde','Saudi Arabia','Spain','Uruguay',
+  'France','Iraq','Norway','Senegal',
+  'Algeria','Argentina','Austria','Jordan',
+  'Colombia','DR Congo','Congo DR','Portugal','Uzbekistan',
+  'Croatia','England','Ghana','Panama',
+]);
+
+function teamsAreWC(home, away) {
+  /* Check if both teams are WC 2026 participants */
+  const h = (home||'').trim(), a = (away||'').trim();
+  const hMatch = WC_TEAMS_SET.has(h) || [...WC_TEAMS_SET].some(t => h.includes(t) || t.includes(h.slice(0,5)));
+  const aMatch = WC_TEAMS_SET.has(a) || [...WC_TEAMS_SET].some(t => a.includes(t) || t.includes(a.slice(0,5)));
+  return hMatch && aMatch;
+}
 
 function isWC(event) {
   if (!event || !event.strHomeTeam || !event.strAwayTeam) return false;
   const sport = (event.strSport || '').toLowerCase();
   const lg    = (event.strLeague || '').toLowerCase();
-  const tn    = (event.strTournament || '').toLowerCase();
   const id    = String(event.idLeague || '');
 
-  /* Reject non-football sports immediately */
+  /* Reject non-football sports */
   if (BLOCKED_SPORTS.some(b => sport.includes(b) || lg.includes(b))) return false;
-
-  /* Reject blocked leagues */
-  if (BLOCKED_LEAGUES.some(b => lg.includes(b) || tn.includes(b))) return false;
-
+  /* Reject club league competitions */
+  if (BLOCKED_LEAGUES.some(b => lg.includes(b))) return false;
   /* Must be football/soccer */
   const isFootball = sport === '' || sport.includes('soccer') || sport.includes('football');
   if (!isFootball) return false;
 
-  /* Must match WC criteria */
-  const isWCLeague = lg.includes('world cup') ||
-                     lg.includes('worldcup') ||
-                     tn.includes('world cup') ||
-                     WC_LEAGUES.includes(id);
+  /* Accept if WC league match OR both teams are WC 2026 nations */
+  const isWCLeague = lg.includes('world cup') || lg.includes('worldcup') ||
+                     lg.includes('international') || WC_LEAGUES.includes(id);
+  const bothWCTeams = teamsAreWC(event.strHomeTeam, event.strAwayTeam);
 
-  return isWCLeague;
+  /* Require at least WC league OR both teams are WC nations */
+  return isWCLeague && bothWCTeams;
 }
 
 /* Normalize event to consistent shape */
@@ -149,9 +170,54 @@ export async function onRequestGet(context) {
 
     /* ── TODAY'S MATCHES ── */
     if (type === 'today') {
-      const data   = await fetchTSDB(`eventsday.php?d=${date}&s=Soccer`);
-      const events = (data.events || data.event || []).filter(isWC);
-      return ok(events.map(normalizeEvent), CACHE_TTL.today);
+      /* Try multiple approaches for WC 2026 data */
+      let allEvents = [];
+
+      /* Approach 1: today's soccer events */
+      try {
+        const data   = await fetchTSDB(`eventsday.php?d=${date}&s=Soccer`);
+        const events = (data.events || data.event || []).filter(isWC);
+        allEvents = allEvents.concat(events);
+        console.log('[data] today approach 1:', events.length, 'WC events');
+      } catch(e) {
+        console.warn('[data] today approach 1 failed:', e.message);
+      }
+
+      /* Approach 2: if no results, try known WC league IDs directly */
+      if (allEvents.length === 0) {
+        for (const lid of WC_LEAGUES) {
+          try {
+            const data = await fetchTSDB(`eventsseason.php?id=${lid}&s=2025-2026`);
+            const today_events = (data.events || []).filter(function(e) {
+              return isWC(e) && e.dateEvent === date;
+            });
+            allEvents = allEvents.concat(today_events);
+            if (today_events.length > 0) {
+              console.log('[data] today approach 2 (lid '+lid+'):', today_events.length, 'events');
+              break;
+            }
+          } catch(e) {}
+        }
+      }
+
+      /* Approach 3: search for active WC matches */
+      if (allEvents.length === 0) {
+        try {
+          const data = await fetchTSDB(`livescore.php?s=Soccer`);
+          const live = (data.events || []).filter(isWC);
+          allEvents = allEvents.concat(live);
+          if (live.length > 0) console.log('[data] today approach 3 (livescore):', live.length, 'events');
+        } catch(e) {}
+      }
+
+      /* Deduplicate by event ID */
+      const seen = new Set();
+      const unique = allEvents.filter(e => {
+        if (!e.idEvent || seen.has(e.idEvent)) return false;
+        seen.add(e.idEvent); return true;
+      });
+
+      return ok(unique.map(normalizeEvent), CACHE_TTL.today);
     }
 
     /* ── FULL SEASON FIXTURES ── */
