@@ -2655,7 +2655,96 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
       </div>
     </section>
 
-  </main>
+  
+
+  <!-- ═══ WORLD CUP HISTORY SCREEN ═══ -->
+  <section class="scr" id="s-history">
+    <!-- ── HERO BANNER ── -->
+    <div id="wch-hero">
+      <div class="wch-hero-bg">
+        <div class="wch-hero-particles" id="wch-particles"></div>
+      </div>
+      <div class="wch-hero-content">
+        <div class="wch-hero-trophy">🏆</div>
+        <div class="wch-hero-title">WORLD CUP HISTORY</div>
+        <div class="wch-hero-years">1930 → 2026</div>
+        <div class="wch-hero-sub">96 years · 21 tournaments · legends · unforgettable moments</div>
+        <div class="wch-hero-btns">
+          <button class="wch-btn wch-btn-primary" onclick="wchScrollTo('wch-timeline')">▶ Start Journey</button>
+          <button class="wch-btn" onclick="wchScrollTo('wch-songs')">🎵 Songs</button>
+          <button class="wch-btn" onclick="wchScrollTo('wch-ceremonies')">🎬 Ceremonies</button>
+          <button class="wch-btn" onclick="wchScrollTo('wch-legends')">⭐ Legends</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── QUICK STATS ── -->
+    <div class="wch-stats-row">
+      <div class="wch-stat"><div class="wch-stat-n">21</div><div class="wch-stat-l">Tournaments</div></div>
+      <div class="wch-stat"><div class="wch-stat-n">8</div><div class="wch-stat-l">Champions</div></div>
+      <div class="wch-stat"><div class="wch-stat-n">96</div><div class="wch-stat-l">Years</div></div>
+      <div class="wch-stat"><div class="wch-stat-n">2.5B</div><div class="wch-stat-l">Peak viewers</div></div>
+    </div>
+
+    <!-- ── SECTION 1: TIMELINE ── -->
+    <div class="wch-section" id="wch-timeline">
+      <div class="wch-sec-hdr">📅 Timeline · All 21 World Cups</div>
+      <div class="wch-timeline-scroll" id="wch-timeline-rail"></div>
+      <!-- Tournament Detail Panel -->
+      <div class="wch-detail-panel" id="wch-detail" style="display:none">
+        <div id="wch-detail-content"></div>
+      </div>
+    </div>
+
+    <!-- ── SECTION 2: OPENING CEREMONIES ── -->
+    <div class="wch-section" id="wch-ceremonies">
+      <div class="wch-sec-hdr">🎬 Opening Ceremonies</div>
+      <div class="wch-cards-scroll" id="wch-ceremonies-rail"></div>
+    </div>
+
+    <!-- ── SECTION 3: WC SONGS ── -->
+    <div class="wch-section" id="wch-songs">
+      <div class="wch-sec-hdr">🎵 Official World Cup Songs</div>
+      <div class="wch-songs-grid" id="wch-songs-grid"></div>
+    </div>
+
+    <!-- ── SECTION 4: ICONIC MOMENTS ── -->
+    <div class="wch-section" id="wch-moments">
+      <div class="wch-sec-hdr">⚡ Iconic Moments</div>
+      <div class="wch-moments-grid" id="wch-moments-grid"></div>
+    </div>
+
+    <!-- ── SECTION 5: LEGENDS ── -->
+    <div class="wch-section" id="wch-legends">
+      <div class="wch-sec-hdr">⭐ World Cup Legends</div>
+      <div class="wch-legend-tabs">
+        <button class="wch-ltab on" onclick="wchLegendTab('scorers',this)">Top Scorers</button>
+        <button class="wch-ltab" onclick="wchLegendTab('titles',this)">Most Titles</button>
+        <button class="wch-ltab" onclick="wchLegendTab('hosts',this)">Host Nations</button>
+      </div>
+      <div id="wch-legends-content"></div>
+    </div>
+
+    <!-- ── SECTION 6: RECORDS ── -->
+    <div class="wch-section" id="wch-records">
+      <div class="wch-sec-hdr">📊 All-Time Records</div>
+      <div id="wch-records-grid"></div>
+    </div>
+
+    <!-- ── SECTION 7: BEST MATCHES ── -->
+    <div class="wch-section" id="wch-best-matches">
+      <div class="wch-sec-hdr">🔥 Greatest Matches Ever</div>
+      <div id="wch-best-matches-list"></div>
+    </div>
+
+    <!-- ── SECTION 8: FUTURE ── -->
+    <div class="wch-section" id="wch-future">
+      <div class="wch-sec-hdr">🌍 Future World Cups</div>
+      <div id="wch-future-grid"></div>
+    </div>
+  </section>
+
+</main>
 
   <!-- BOTTOM NAV -->
   <nav id="bnav">
@@ -7879,9 +7968,7 @@ function _renderFuture() {
     +'</div>';
   }).join('');
 }
-</script>
-
-<!-- LEGAL OVERLAY -->
+</script><!-- LEGAL OVERLAY -->
 <div id="legal-overlay" class="legal-overlay">
   <div class="legal-hdr">
     <span class="legal-hdr-title" id="legal-title">Privacy Policy</span>
@@ -7893,90 +7980,5 @@ function _renderFuture() {
     &copy; 2026 WorldCup App Operators. All rights reserved.
   </div>
 </div>
-
-  <!-- ═══ WORLD CUP HISTORY SCREEN ═══ -->
-  <section class="scr" id="s-history">
-    <!-- ── HERO BANNER ── -->
-    <div id="wch-hero">
-      <div class="wch-hero-bg">
-        <div class="wch-hero-particles" id="wch-particles"></div>
-      </div>
-      <div class="wch-hero-content">
-        <div class="wch-hero-trophy">🏆</div>
-        <div class="wch-hero-title">WORLD CUP HISTORY</div>
-        <div class="wch-hero-years">1930 → 2026</div>
-        <div class="wch-hero-sub">96 years · 21 tournaments · legends · unforgettable moments</div>
-        <div class="wch-hero-btns">
-          <button class="wch-btn wch-btn-primary" onclick="wchScrollTo('wch-timeline')">▶ Start Journey</button>
-          <button class="wch-btn" onclick="wchScrollTo('wch-songs')">🎵 Songs</button>
-          <button class="wch-btn" onclick="wchScrollTo('wch-ceremonies')">🎬 Ceremonies</button>
-          <button class="wch-btn" onclick="wchScrollTo('wch-legends')">⭐ Legends</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- ── QUICK STATS ── -->
-    <div class="wch-stats-row">
-      <div class="wch-stat"><div class="wch-stat-n">21</div><div class="wch-stat-l">Tournaments</div></div>
-      <div class="wch-stat"><div class="wch-stat-n">8</div><div class="wch-stat-l">Champions</div></div>
-      <div class="wch-stat"><div class="wch-stat-n">96</div><div class="wch-stat-l">Years</div></div>
-      <div class="wch-stat"><div class="wch-stat-n">2.5B</div><div class="wch-stat-l">Peak viewers</div></div>
-    </div>
-
-    <!-- ── SECTION 1: TIMELINE ── -->
-    <div class="wch-section" id="wch-timeline">
-      <div class="wch-sec-hdr">📅 Timeline · All 21 World Cups</div>
-      <div class="wch-timeline-scroll" id="wch-timeline-rail"></div>
-      <!-- Tournament Detail Panel -->
-      <div class="wch-detail-panel" id="wch-detail" style="display:none">
-        <div id="wch-detail-content"></div>
-      </div>
-    </div>
-
-    <!-- ── SECTION 2: OPENING CEREMONIES ── -->
-    <div class="wch-section" id="wch-ceremonies">
-      <div class="wch-sec-hdr">🎬 Opening Ceremonies</div>
-      <div class="wch-cards-scroll" id="wch-ceremonies-rail"></div>
-    </div>
-
-    <!-- ── SECTION 3: WC SONGS ── -->
-    <div class="wch-section" id="wch-songs">
-      <div class="wch-sec-hdr">🎵 Official World Cup Songs</div>
-      <div class="wch-songs-grid" id="wch-songs-grid"></div>
-    </div>
-
-    <!-- ── SECTION 4: ICONIC MOMENTS ── -->
-    <div class="wch-section" id="wch-moments">
-      <div class="wch-sec-hdr">⚡ Iconic Moments</div>
-      <div class="wch-moments-grid" id="wch-moments-grid"></div>
-    </div>
-
-    <!-- ── SECTION 5: LEGENDS ── -->
-    <div class="wch-section" id="wch-legends">
-      <div class="wch-sec-hdr">⭐ World Cup Legends</div>
-      <div class="wch-legend-tabs">
-        <button class="wch-ltab on" onclick="wchLegendTab('scorers',this)">Top Scorers</button>
-        <button class="wch-ltab" onclick="wchLegendTab('titles',this)">Most Titles</button>
-        <button class="wch-ltab" onclick="wchLegendTab('hosts',this)">Host Nations</button>
-      </div>
-      <div id="wch-legends-content"></div>
-    </div>
-
-    <!-- ── SECTION 6: RECORDS ── -->
-    <div class="wch-section" id="wch-records">
-      <div class="wch-sec-hdr">📊 All-Time Records</div>
-      <div id="wch-records-grid"></div>
-    </div>
-
-    <!-- ── SECTION 7: BEST MATCHES ── -->
-    <div class="wch-section" id="wch-best-matches">
-      <div class="wch-sec-hdr">🔥 Greatest Matches Ever</div>
-      <div id="wch-best-matches-list"></div>
-    </div>
-
-    <!-- ── SECTION 8: FUTURE ── -->
-    <div class="wch-section" id="wch-future">
-      <div class="wch-sec-hdr">🌍 Future World Cups</div>
-      <div id="wch-future-grid"></div>
-    </div>
-  </section>
+</body>
+</html>
