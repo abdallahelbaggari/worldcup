@@ -4634,11 +4634,16 @@ function updateNewsTimestamp() {
    Fallback: category-based neutral placeholder (no fake football images)
 ── */
 var IMG_FALLBACKS = {
-  match:      'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"%3E%3Crect width="600" height="300" fill="%23111827"/%3E%3Ctext x="300" y="155" text-anchor="middle" fill="%236B7280" font-size="48" font-family="sans-serif"%3E⚽%3C/text%3E%3C/svg%3E',
-  player:     'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"%3E%3Crect width="600" height="300" fill="%23111827"/%3E%3Ctext x="300" y="155" text-anchor="middle" fill="%236B7280" font-size="48" font-family="sans-serif"%3E👤%3C/text%3E%3C/svg%3E',
-  tournament: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"%3E%3Crect width="600" height="300" fill="%23111827"/%3E%3Ctext x="300" y="155" text-anchor="middle" fill="%236B7280" font-size="48" font-family="sans-serif"%3E🏆%3C/text%3E%3C/svg%3E',
-  breaking:   'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"%3E%3Crect width="600" height="300" fill="%23111827"/%3E%3Ctext x="300" y="155" text-anchor="middle" fill="%236B7280" font-size="48" font-family="sans-serif"%3E🔴%3C/text%3E%3C/svg%3E',
-  default:    'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="600" height="300" viewBox="0 0 600 300"%3E%3Crect width="600" height="300" fill="%23111827"/%3E%3Ctext x="300" y="155" text-anchor="middle" fill="%236B7280" font-size="48" font-family="sans-serif"%3E📰%3C/text%3E%3C/svg%3E',
+  /* Rich gradient SVGs — shown when no real image available */
+  breaking:   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%23e63946'/%3E%3Ccircle cx='200' cy='100' r='50' fill='rgba(255,255,255,.15)'/%3E%3Ctext x='200' y='108' text-anchor='middle' fill='white' font-size='40' font-family='sans-serif'%3E🔴%3C/text%3E%3Ctext x='200' y='175' text-anchor='middle' fill='rgba(255,255,255,.8)' font-size='16' font-family='sans-serif'%3EBREAKING%3C/text%3E%3C/svg%3E",
+  match:      "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%231a3a5c'/%3E%3Ccircle cx='200' cy='100' r='50' fill='rgba(255,255,255,.1)'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='white' font-size='50' font-family='sans-serif'%3E⚽%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.7)' font-size='15' font-family='sans-serif'%3EMATCH REPORT%3C/text%3E%3C/svg%3E",
+  highlight:  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%230d0d1a'/%3E%3Ccircle cx='200' cy='100' r='55' fill='%23ff0000' opacity='.85'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='white' font-size='40' font-family='sans-serif'%3E▶%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.7)' font-size='15' font-family='sans-serif'%3EVIDEO HIGHLIGHT%3C/text%3E%3C/svg%3E",
+  player:     "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%23b8860b'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='white' font-size='55' font-family='sans-serif'%3E⭐%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.8)' font-size='15' font-family='sans-serif'%3EPLAYER STORY%3C/text%3E%3C/svg%3E",
+  team:       "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%23155724'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='white' font-size='55' font-family='sans-serif'%3E🛡️%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.8)' font-size='15' font-family='sans-serif'%3ETEAM NEWS%3C/text%3E%3C/svg%3E",
+  tournament: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%23003566'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='%23ffd700' font-size='55' font-family='sans-serif'%3E🏆%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.8)' font-size='15' font-family='sans-serif'%3EWORLD CUP 2026%3C/text%3E%3C/svg%3E",
+  standings:  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%231a1a2e'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='white' font-size='55' font-family='sans-serif'%3E📊%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.7)' font-size='15' font-family='sans-serif'%3ESTANDINGS%3C/text%3E%3C/svg%3E",
+  insights:   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%23553c9a'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='white' font-size='55' font-family='sans-serif'%3E🧠%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.8)' font-size='15' font-family='sans-serif'%3EANALYSIS%3C/text%3E%3C/svg%3E",
+  default:    "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='225'%3E%3Crect width='400' height='225' fill='%23003566'/%3E%3Ctext x='200' y='115' text-anchor='middle' fill='%23ffd700' font-size='55' font-family='sans-serif'%3E⚽%3C/text%3E%3Ctext x='200' y='180' text-anchor='middle' fill='rgba(255,255,255,.8)' font-size='15' font-family='sans-serif'%3EWORLD CUP 2026%3C/text%3E%3C/svg%3E",
 };
 
 function getFallback(cat) {
@@ -6219,121 +6224,10 @@ function renderTopScorers() {
 ================================================================ */
 
 /* ── HERO CARD — top story, full bleed image ── */
-function renderHero(a) {
-  var slot = document.getElementById('news-hero-slot');
-  if (!slot || !a) return;
-  var saved = NEWS.saved.includes(a.id);
-  var liked = !!NEWS.userLiked[a.id];
-  var likes = NEWS.likes[a.id] || 0;
-  var hasImg = !!(a.imageUrl);
 
-  slot.innerHTML =
-    '<div class="feed-hero" onclick="openStory(\''+a.id+'\')">'+
-      (hasImg
-        ? '<div class="feed-hero-img"><img data-img="'+a.imageUrl+'" src="" alt="" class="loading" '
-            +'onerror="this.parentNode.style.display=\'none\'">'
-            +(a.videoUrl ? '<div class="feed-video-play">\u25b6</div>' : '')
-          +'</div>'
-        : '<div class="feed-hero-color" style="background:'+catGrad(a.category)+'"><span style="font-size:2.5rem">'+catEmoji(a.category)+'</span></div>'
-      )+
-      '<div class="feed-hero-body">'+
-        '<div class="feed-cat-pill feed-cat-'+a.category+'">'+catLabel(a.category).toUpperCase()+'</div>'+
-        '<div class="feed-hero-title">'+escHtml(a.title)+'</div>'+
-        '<div class="feed-hero-meta">'+
-          '<span class="feed-source-dot" style="background:'+catColor(a.category)+'"></span>'+
-          '<span class="feed-source">'+escHtml(a.source)+'</span>'+
-          '<span class="feed-sep">\u00b7</span>'+
-          '<span class="feed-time">'+timeAgo(a.publishedAt)+'</span>'+
-        '</div>'+
-        '<div class="feed-actions">'+
-          '<button class="feed-act'+(liked?' feed-act-on':'')+'" onclick="likeArticle(\''+a.id+'\',this);event.stopPropagation()">'+
-            (liked?'\u2764':'\u2661')+' '+likes+'</button>'+
-          '<button class="feed-act" onclick="openComments(\''+a.id+'\',event)">'+
-            '\ud83d\udcac '+(NEWS.comments[a.id]||[]).length+'</button>'+
-          '<button class="feed-act'+(saved?' feed-act-saved':'')+'" id="save-btn-'+a.id+'" onclick="toggleSave(\''+a.id+'\');event.stopPropagation()">'+
-            (saved?'\ud83d\udd16 Saved':'\ud83d\udd16 Save')+'</button>'+
-          '<button class="feed-act" onclick="shareArticle(\''+a.id+'\');event.stopPropagation()">\ud83d\udd17</button>'+
-        '</div>'+
-      '</div>'+
-    '</div>';
-
-  setTimeout(function(){
-    var img = slot.querySelector('[data-img]');
-    if (img && img.dataset.img) { img.src = img.dataset.img; img.removeAttribute('data-img'); }
-  }, 50);
-}
 
 /* ── FULL STORY CARD (X-style) ── */
-function buildCard(a, type) {
-  if (!a) return '';
-  var saved = NEWS.saved.includes(a.id);
-  var liked = !!NEWS.userLiked[a.id];
-  var likes = NEWS.likes[a.id] || 0;
-  var cmts  = (NEWS.comments[a.id]||[]).length;
-  var aid   = a.id;
-  var hasImg = !!(a.imageUrl);
-  var isVid  = a.category === 'highlight' || !!(a.videoUrl);
 
-  if (type === 'compact') {
-    return '<div class="feed-compact" onclick="openStory(\''+aid+'\')">'
-      +'<div class="feed-compact-left">'
-        +'<div class="feed-compact-cat-dot" style="background:'+catColor(a.category)+'"></div>'
-        +'<div class="feed-compact-body">'
-          +'<div class="feed-compact-title">'+escHtml(a.title)+'</div>'
-          +'<div class="feed-compact-meta">'+escHtml(a.source)+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'
-        +'</div>'
-      +'</div>'
-      +(hasImg
-        ? '<div class="feed-compact-img">'
-            +'<img data-img="'+a.imageUrl+'" src="" class="loading" alt="" onerror="this.parentNode.style.display=\'none\'">'
-            +(isVid ? '<div class="feed-vid-badge">\u25b6</div>' : '')
-          +'</div>'
-        : ''
-      )
-    +'</div>';
-  }
-
-  /* Full card */
-  return '<div class="feed-card" onclick="openStory(\''+aid+'\')">'+
-    /* Source header — like X */
-    '<div class="feed-card-hdr">'+
-      '<div class="feed-src-avatar" style="background:'+catGrad(a.category)+'">'+catEmoji(a.category)+'</div>'+
-      '<div class="feed-src-info">'+
-        '<div class="feed-src-name">'+escHtml(a.source)+'</div>'+
-        '<div class="feed-src-time">'+timeAgo(a.publishedAt)+'</div>'+
-      '</div>'+
-      '<div class="feed-cat-pill feed-cat-'+a.category+'">'+catLabel(a.category)+'</div>'+
-    '</div>'+
-    /* Headline */
-    '<div class="feed-card-title">'+escHtml(a.title)+'</div>'+
-    /* Image / video */
-    (hasImg
-      ? '<div class="feed-card-img">'
-          +'<img data-img="'+a.imageUrl+'" src="" class="loading" alt="" onerror="this.parentNode.style.display=\'none\'">'
-          +(isVid ? '<div class="feed-video-play">\u25b6</div>' : '')
-        +'</div>'
-      : ''
-    )+
-    /* AI summary */
-    (a.summary
-      ? '<div class="feed-ai-summary"><span class="feed-ai-badge">AI</span>'+escHtml(a.summary.slice(0,180))+'</div>'
-      : ''
-    )+
-    /* Actions — X-style */
-    '<div class="feed-card-actions" onclick="event.stopPropagation()">'+
-      '<button class="feed-act'+(liked?' feed-act-on':'')+'" onclick="likeArticle(\''+aid+'\',this)">'+
-        (liked?'\u2764':'\u2661')+' '+likes+'</button>'+
-      '<button class="feed-act" onclick="openComments(\''+aid+'\',event)">'+
-        '\ud83d\udcac '+cmts+'</button>'+
-      '<button class="feed-act'+(saved?' feed-act-saved':'')+'" id="save-btn-'+aid+'" onclick="toggleSave(\''+aid+'\')">'+
-        (saved?'\ud83d\udd16':'\ud83d\udd16')+(saved?' Saved':' Save')+'</button>'+
-      '<button class="feed-act" onclick="shareArticle(\''+aid+'\')">'+
-        '\ud83d\udd17</button>'+
-      '<a class="feed-act" href="'+a.url+'" target="_blank" onclick="event.stopPropagation()" style="text-decoration:none">'+
-        '\ud83d\udd17 Read</a>'+
-    '</div>'+
-  '</div>';
-}
 
 /* ── VIDEO CARD — YouTube thumbnail style ── */
 
@@ -7160,32 +7054,7 @@ function renderStandings() {
 }
 
 
-function buildVideoCard(a) {
-  if (!a) return '';
-  var liked  = !!NEWS.userLiked[a.id];
-  var likes  = NEWS.likes[a.id] || 0;
-  var aid    = a.id;
-  /* YouTube search URL from videoUrl or generated */
-  var vidUrl = a.videoUrl || ('https://www.youtube.com/results?search_query='+encodeURIComponent((a.title||'').slice(0,60)+' World Cup 2026'));
 
-  return '<div class="feed-video-card" onclick="openVideoCard(\''+aid+'\',\''+encodeURIComponent(vidUrl)+'\')">'
-    +'<div class="feed-video-thumb">'
-      +(a.imageUrl
-        ? '<img src="'+a.imageUrl+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.background=\'var(--bg4)\'">'
-        : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#e63946);display:flex;align-items:center;justify-content:center;font-size:2rem">\u26bd</div>'
-      )
-      +'<div class="feed-video-play-btn">\u25b6</div>'
-      +'<div class="feed-video-label">VIDEO</div>'
-    +'</div>'
-    +'<div class="feed-video-info">'
-      +'<div class="feed-video-title">'+escHtml(a.title||'')+'</div>'
-      +'<div class="feed-video-meta">'+escHtml(a.source||'')+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'
-      +'<button onclick="event.stopPropagation();likeArticle(\''+aid+'\',this)" '
-        +'style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;padding:.2rem 0">'
-        +(liked?'\u2764':'\u2661')+' '+likes+'</button>'
-    +'</div>'
-  +'</div>';
-}
 
 /* ── OPEN VIDEO — one-click, embedded player ── */
 function openVideoCard(articleId, encodedUrl) {
@@ -7377,6 +7246,128 @@ function appendNewsCards(articles) {
     mc3.innerHTML += htm + buildLoadMoreBtn();
   }
   setTimeout(function(){ lazyLoadImages('news-more-cards'); }, 60);
+}
+
+
+function buildCard(a, type) {
+  if (!a) return '';
+  var saved  = NEWS.saved.includes(a.id);
+  var liked  = !!NEWS.userLiked[a.id];
+  var likes  = NEWS.likes[a.id] || 0;
+  var cmts   = (NEWS.comments[a.id]||[]).length;
+  var aid    = a.id;
+  var imgSrc = a.imageUrl || getFallback(a.category || 'default');
+  var isVid  = a.category === 'highlight' || !!(a.videoUrl);
+  var saveId = 'save-btn-'+aid;
+
+  if (type === 'compact') {
+    return '<div class="feed-compact" onclick="openStory(\''+aid+'\')">'+
+      '<div class="feed-compact-left">'+
+        '<div class="feed-compact-cat-dot" style="background:'+catColor(a.category)+'"></div>'+
+        '<div class="feed-compact-body">'+
+          '<div class="feed-compact-title">'+escHtml(a.title||'')+'</div>'+
+          '<div class="feed-compact-meta">'+escHtml(a.source||'')+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'+
+        '</div>'+
+      '</div>'+
+      /* Always show image — real or SVG fallback */
+      '<div class="feed-compact-img">'+
+        '<img src="'+imgSrc+'" alt="" onerror="this.src=\''+getFallback(a.category||'default')+'\'">'+(isVid ? '<div class="feed-vid-badge">\u25b6</div>' : '')+
+      '</div>'+
+    '</div>';
+  }
+
+  /* Full card */
+  return '<div class="feed-card" onclick="openStory(\''+aid+'\')">'+
+    /* Source header */
+    '<div class="feed-card-hdr">'+
+      '<div class="feed-src-avatar" style="background:'+catGrad(a.category||'tournament')+'">'+catEmoji(a.category||'tournament')+'</div>'+
+      '<div class="feed-src-info">'+
+        '<div class="feed-src-name">'+escHtml(a.source||'')+'</div>'+
+        '<div class="feed-src-time">'+timeAgo(a.publishedAt)+'</div>'+
+      '</div>'+
+      '<div class="feed-cat-pill feed-cat-'+(a.category||'tournament')+'">'+catLabel(a.category||'tournament')+'</div>'+
+    '</div>'+
+    /* Title */
+    '<div class="feed-card-title">'+escHtml(a.title||'')+'</div>'+
+    /* Image — ALWAYS shown (real image or category SVG) */
+    '<div class="feed-card-img" style="height:180px">'+
+      '<img src="'+imgSrc+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.src=\''+getFallback(a.category||'default')+'\'">'+
+      (isVid ? '<div class="feed-video-play">\u25b6</div>' : '')+
+    '</div>'+
+    /* AI summary */
+    (a.summary
+      ? '<div class="feed-ai-summary"><span class="feed-ai-badge">AI</span>'+escHtml(a.summary.slice(0,180))+'</div>'
+      : ''
+    )+
+    /* Actions */
+    '<div class="feed-card-actions" onclick="event.stopPropagation()">'+
+      '<button class="feed-act'+(liked?' feed-act-on':'')+'" onclick="likeArticle(\''+aid+'\',this)">'+(liked?'\u2764':'\u2661')+' '+likes+'</button>'+
+      '<button class="feed-act" onclick="openComments(\''+aid+'\',event)">\ud83d\udcac '+cmts+'</button>'+
+      '<div class="feed-act'+(saved?' feed-act-saved':'')+'" id="'+saveId+'" onclick="toggleSave(\''+aid+'\')">'+(saved?'\ud83d\udd16 Saved':'\ud83d\udd16 Save')+'</div>'+
+      '<a class="feed-act" href="'+a.url+'" target="_blank" onclick="event.stopPropagation()" style="text-decoration:none">\ud83d\udd17 Read</a>'+
+    '</div>'+
+  '</div>';
+}
+
+
+function renderHero(a) {
+  var slot = document.getElementById('news-hero-slot');
+  if (!slot || !a) return;
+  var saved  = NEWS.saved.includes(a.id);
+  var liked  = !!NEWS.userLiked[a.id];
+  var likes  = NEWS.likes[a.id] || 0;
+  var imgSrc = a.imageUrl || getFallback(a.category || 'default');
+  var isVid  = a.category === 'highlight' || !!(a.videoUrl);
+
+  slot.innerHTML =
+    '<div class="feed-hero" onclick="openStory(\''+a.id+'\')">'+
+      '<div class="feed-hero-img" style="height:220px">'+
+        '<img src="'+imgSrc+'" alt="" style="width:100%;height:100%;object-fit:cover" '
+          +'onerror="this.src=\''+getFallback(a.category||'default')+'\'">'+
+        (isVid ? '<div class="feed-video-play">\u25b6</div>' : '')+
+      '</div>'+
+      '<div class="feed-hero-body">'+
+        '<div class="feed-cat-pill feed-cat-'+(a.category||'tournament')+'">'+catLabel(a.category)+(isVid?' \u00b7 VIDEO':'')+'</div>'+
+        '<div class="feed-hero-title">'+escHtml(a.title)+'</div>'+
+        '<div class="feed-hero-meta">'+
+          '<span class="feed-source-dot" style="background:'+catColor(a.category)+'"></span>'+
+          '<span class="feed-source">'+escHtml(a.source)+'</span>'+
+          '<span class="feed-sep">\u00b7</span>'+
+          '<span class="feed-time">'+timeAgo(a.publishedAt)+'</span>'+
+        '</div>'+
+        '<div class="feed-actions">'+
+          '<button class="feed-act'+(liked?' feed-act-on':'')+'" onclick="event.stopPropagation();likeArticle(\''+a.id+'\',this)">'+(liked?'\u2764':'\u2661')+' '+likes+'</button>'+
+          '<div class="feed-act'+(saved?' feed-act-saved':'')+'" id="save-btn-'+a.id+'" onclick="event.stopPropagation();toggleSave(\''+a.id+'\')">'+(saved?'\ud83d\udd16 Saved':'\ud83d\udd16 Save')+'</div>'+
+          '<div class="feed-act" onclick="event.stopPropagation();shareArticle(\''+a.id+'\')">\ud83d\udd17 Share</div>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
+}
+
+
+function buildVideoCard(a) {
+  if (!a) return '';
+  var liked  = !!NEWS.userLiked[a.id];
+  var likes  = NEWS.likes[a.id] || 0;
+  var aid    = a.id;
+  var imgSrc = a.imageUrl || getFallback('highlight');
+  var vidUrl = a.videoUrl || ('https://www.youtube.com/results?search_query='+encodeURIComponent((a.title||'').slice(0,60)+' World Cup 2026'));
+
+  return '<div class="feed-video-card" onclick="openVideoCard(\''+aid+'\',\''+encodeURIComponent(vidUrl)+'\')">'+
+    '<div class="feed-video-thumb">'+
+      '<img src="'+imgSrc+'" alt="" style="width:100%;height:100%;object-fit:cover" '
+        +'onerror="this.src=\''+getFallback('highlight')+'\'">'+
+      '<div class="feed-video-play-btn">\u25b6</div>'+
+      '<div class="feed-video-label">VIDEO</div>'+
+    '</div>'+
+    '<div class="feed-video-info">'+
+      '<div class="feed-video-title">'+escHtml(a.title||'')+'</div>'+
+      '<div class="feed-video-meta">'+escHtml(a.source||'')+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'+
+      '<button onclick="event.stopPropagation();likeArticle(\''+aid+'\',this)" '
+        +'style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;padding:.2rem 0">'
+        +(liked?'\u2764':'\u2661')+' '+likes+'</button>'+
+    '</div>'+
+  '</div>';
 }
 </script>
 
