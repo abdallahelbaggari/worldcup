@@ -542,6 +542,23 @@ export async function onRequestGet(context) {
     return ok([], 'none');
   }
 
+  /* COMMENTARY — goals, cards, subs timeline */
+    if (type === 'commentary' && id) {
+      if (id.startsWith('s-')) return ok([], 'none');
+      if (FD_KEY) {
+        try {
+          const d2 = await fetchFD('matches/'+id);
+          const evs = [];
+          (d2.goals||[]).forEach(g => evs.push({intMinute:g.minute,strType:g.type==='OWN_GOAL'?'Own Goal':g.type==='PENALTY'?'Penalty':'Goal',strPlayer:g.scorer?.name||'',strAssist:g.assist?.name||null,strTeam:g.team?.name||''}));
+          (d2.bookings||[]).forEach(c => evs.push({intMinute:c.minute,strType:c.card==='RED_CARD'?'Red Card':'Yellow Card',strPlayer:c.player?.name||'',strTeam:c.team?.name||''}));
+          (d2.substitutions||[]).forEach(s => evs.push({intMinute:s.minute,strType:'Substitution',strPlayer:s.playerIn?.name||'',strAssist:s.playerOut?.name||null,strTeam:s.team?.name||''}));
+          evs.sort((a,b)=>(parseInt(a.intMinute)||0)-(parseInt(b.intMinute)||0));
+          return ok(evs, 'football-data.org');
+        } catch(e) { return ok([], 'none'); }
+      }
+      return ok([], 'none');
+    }
+
   return err('Unknown type: ' + type);
 }
 
