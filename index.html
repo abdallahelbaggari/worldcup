@@ -988,6 +988,118 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
   .news-skeleton{animation:shimmer 1.5s infinite linear;background:linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);background-size:200% 100%;border-radius:var(--r2);margin:.4rem .85rem;}
   @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
 
+
+  /* ═══════════════════════════════════════
+     PERFORMANCE ANIMATIONS
+  ═══════════════════════════════════════ */
+
+  /* Live pulse */
+  @keyframes pulse-live {
+    0%,100% { opacity:1; transform:scale(1); }
+    50%      { opacity:.6; transform:scale(1.15); }
+  }
+  .mc-live-dot { animation: pulse-live 1.4s ease-in-out infinite; }
+
+  /* Card tap feedback */
+  .match-card, .feed-card, .feed-compact, .news-video-card {
+    transition: transform .12s ease, opacity .12s ease;
+  }
+  .match-card:active, .feed-card:active, .feed-compact:active {
+    transform: scale(.985);
+    opacity: .9;
+  }
+
+  /* Screen slide-in transition */
+  .scr { animation: screenFadeIn .18s ease; }
+  @keyframes screenFadeIn {
+    from { opacity:0; transform:translateY(6px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  /* Feed hero hover */
+  .feed-hero { transition: transform .15s ease; }
+  .feed-hero:active { transform: scale(.99); }
+
+  /* Image loading shimmer */
+  .loading {
+    background: linear-gradient(90deg,var(--bg3) 25%,var(--bg4) 50%,var(--bg3) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+  }
+  .loading[src]:not([src=""]) { animation: none; background: transparent; }
+
+  /* Breaking banner pulse */
+  #breaking-banner { animation: breakingPulse 2s ease-in-out infinite; }
+  @keyframes breakingPulse {
+    0%,100% { border-color:rgba(229,62,62,.3); }
+    50%     { border-color:rgba(229,62,62,.7); }
+  }
+
+  /* Action button ripple */
+  .feed-act { position:relative; overflow:hidden; }
+  .feed-act:after {
+    content:'';position:absolute;inset:0;background:rgba(255,255,255,.1);
+    border-radius:inherit;opacity:0;transition:opacity .15s;
+  }
+  .feed-act:active:after { opacity:1; }
+
+  /* Overlay slide up */
+  #mov.open, #story-overlay.open {
+    animation: slideUp .2s cubic-bezier(.4,0,.2,1);
+  }
+  @keyframes slideUp {
+    from { transform:translateY(30px); opacity:0; }
+    to   { transform:translateY(0); opacity:1; }
+  }
+
+  /* Toast notification */
+  #toast { animation: toastIn .2s ease; }
+  @keyframes toastIn {
+    from { transform:translateX(-50%) translateY(20px); opacity:0; }
+    to   { transform:translateX(-50%) translateY(0); opacity:1; }
+  }
+
+
+  /* ══ VIDEO OVERLAY ══ */
+  #video-overlay {
+    display: none;
+    animation: slideUp .2s cubic-bezier(.4,0,.2,1);
+  }
+  #vo-close:hover { background: rgba(255,255,255,.2) !important; }
+  
+  /* Video card play button — make it very obvious */
+  .feed-video-play-btn {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0,0,0,.45);
+    font-size: 1.8rem; color: #fff;
+    transition: background .15s;
+  }
+  .feed-video-card:active .feed-video-play-btn,
+  .feed-video-card:hover .feed-video-play-btn {
+    background: rgba(220,0,0,.6);
+  }
+  .feed-video-label {
+    position: absolute; top: 4px; right: 4px;
+    background: rgba(220,0,0,.9); color: #fff;
+    font-family: var(--dm); font-size: .36rem; font-weight: 700;
+    padding: .1rem .3rem; border-radius: 3px; letter-spacing: .05em;
+  }
+  /* Story reel grid */
+  .video-reel { display: flex; gap: .5rem; overflow-x: auto; padding: .3rem .85rem;
+    scrollbar-width: none; -ms-overflow-style: none; }
+  .video-reel::-webkit-scrollbar { display: none; }
+  .video-reel-card { flex-shrink: 0; width: 130px; cursor: pointer; }
+  .video-reel-card:active { opacity: .85; }
+  .video-reel-thumb { position: relative; width: 130px; height: 80px;
+    border-radius: 8px; overflow: hidden; background: var(--bg4); }
+  .video-reel-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .video-reel-play { position: absolute; inset: 0; display: flex; align-items: center;
+    justify-content: center; background: rgba(0,0,0,.35); font-size: 1.4rem; color: #fff; }
+  .video-reel-title { font-family: var(--dm); font-size: .46rem; color: var(--t1);
+    margin-top: .3rem; line-height: 1.3;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
 </style>
 </head>
 <body>
@@ -2261,6 +2373,7 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         </div>
         <div id="news-highlights-section" style="display:none">
           <div class="news-sec-hdr"><div class="news-sec-title">🎬 Highlights &amp; Videos</div><div class="news-sec-line"></div></div>
+          <div class="video-reel" id="news-video-reel"></div>
           <div id="news-highlights-cards"></div>
         </div>
         <div id="news-more-section" style="display:none">
@@ -4532,22 +4645,7 @@ function getFallback(cat) {
   return IMG_FALLBACKS[cat] || IMG_FALLBACKS.default;
 }
 
-function lazyLoadImages(containerId) {
-  var c = document.getElementById(containerId);
-  if (!c) return;
-  c.querySelectorAll('[data-img]').forEach(function(el){
-    var src = el.getAttribute('data-img');
-    var cat = el.getAttribute('data-cat') || 'default';
-    el.removeAttribute('data-img');
-    el.removeAttribute('data-cat');
-    if (!src) { el.src = getFallback(cat); return; }
-    var img = new Image();
-    img.onload  = function(){ el.src=src; el.classList.remove('loading'); el.classList.add('loaded'); };
-    img.onerror = function(){ el.src=getFallback(cat); el.classList.remove('loading'); };
-    el.classList.add('loading');
-    img.src = src;
-  });
-}
+
 
 /* ── FORMAT PUBLISH TIME ── */
 function timeAgo(ts) {
@@ -4820,7 +4918,8 @@ function openMatchDetail(eventId, dataStr) {
     +'<div class="mov-pane" id="mpane-lineup"><div id="lineup-content">'
       +'<div class="api-loading">Loading lineups...</div>'
     +'</div></div>'
-    +'<div class="mov-pane" id="mpane-predict">'+buildPredictPane({
+    +'<div class="mov-pane" id="mpane-commentary"><div id="commentary-content"><div class="api-loading">Loading commentary...</div></div></div>'+
+      +'<div class="mov-pane" id="mpane-predict">'+buildPredictPane({
         id: eventId,
         homeTeam: base.h||'Home',
         awayTeam: base.a||'Away',
@@ -5043,56 +5142,7 @@ function isWC2026Match(m) {
   return inWC(m.homeTeam) && inWC(m.awayTeam);
 }
 
-function renderGroups() {
-  var el = document.getElementById('ggrid');
-  if (!el) return;
 
-  var finished = WC.all.filter(function(m){
-    return m.status==='FINISHED' && m.homeScore!==null &&
-           m.awayScore!==null && !m.fromSchedule && isWC2026Match(m);
-  });
-
-  /* Build standings per group */
-  var standings = {};
-  Object.keys(WC2026_GROUPS).forEach(function(g){
-    standings[g] = {};
-    WC2026_GROUPS[g].forEach(function(t){ standings[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0}; });
-  });
-
-  finished.forEach(function(m){
-    var grp = null;
-    Object.keys(WC2026_GROUPS).forEach(function(g){
-      var tms = WC2026_GROUPS[g];
-      var hIn = tms.some(function(t){ return t.toLowerCase().slice(0,6)===m.homeTeam.toLowerCase().slice(0,6); });
-      var aIn = tms.some(function(t){ return t.toLowerCase().slice(0,6)===m.awayTeam.toLowerCase().slice(0,6); });
-      if (hIn&&aIn) grp=g;
-    });
-    if (!grp) return;
-    var hT = WC2026_GROUPS[grp].find(function(t){ return t.toLowerCase().slice(0,6)===m.homeTeam.toLowerCase().slice(0,6); });
-    var aT = WC2026_GROUPS[grp].find(function(t){ return t.toLowerCase().slice(0,6)===m.awayTeam.toLowerCase().slice(0,6); });
-    if (!hT||!aT) return;
-    var hs=m.homeScore, as=m.awayScore;
-    var h=standings[grp][hT], a=standings[grp][aT];
-    h.p++;a.p++;h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;
-    if(hs>as){h.w++;a.l++;}else if(hs<as){a.w++;h.l++;}else{h.d++;a.d++;}
-  });
-
-  el.innerHTML = Object.keys(WC2026_GROUPS).map(function(g){
-    var teams = WC2026_GROUPS[g].map(function(t){
-      var s=standings[g][t]||{p:0,w:0,d:0,l:0,gf:0,ga:0};
-      return {name:t,pts:s.w*3+s.d,p:s.p,gd:s.gf-s.ga};
-    }).sort(function(a,b){ return b.pts-a.pts||b.gd-a.gd; });
-    return '<div class="gc"><div class="gc-hdr">GROUP '+g+'</div>'
-      +teams.map(function(r,i){
-        return '<div class="gc-team" style="'+(i<2?'border-left:2px solid var(--grn);padding-left:.25rem':'')+'">'
-          +'<span class="gc-flag">'+getFlag(r.name)+'</span>'
-          +'<span class="gc-name">'+r.name+'</span>'
-          +'<span class="gc-pts">'+r.pts+'</span>'
-        +'</div>';
-      }).join('')
-    +'</div>';
-  }).join('');
-}
 
 
 
@@ -5672,48 +5722,7 @@ function renderMatches() {
 }
 
 /* ── MATCH CARD ── */
-function buildMC(m) {
-  var hf = getFlag(m.homeTeam), hn = m.homeTeam || '—';
-  var af = getFlag(m.awayTeam), an = m.awayTeam || '—';
-  var isLive = m.status==='LIVE', isHT = m.status==='HT';
-  var isFin  = m.status==='FINISHED';
-  var isDel  = m.status==='POSTPONED' || m.status==='CANCELLED';
 
-  /* Rule 4: only show score when API confirmed it */
-  var hasScore = m.homeScore !== null && m.awayScore !== null && (m.fromAPI || m.verified);
-  var scoreHtml = (isLive||isHT||isFin) && hasScore
-    ? '<div class="mc-score">'+m.homeScore+'<span class="mc-score-sep"> – </span>'+m.awayScore+'</div>'
-    : '<div class="mc-score" style="font-size:.85rem;color:var(--t3)">vs</div>';
-
-  var st = isHT
-    ? '<span class="mc-status live" style="background:rgba(255,215,0,.12);color:var(--gold)">HT</span>'
-    : isLive
-    ? '<span class="mc-status live">LIVE '+(m.progress||'')+'</span>'
-    : isFin
-    ? '<span class="mc-status finished">FT'+(hasScore?' · '+m.homeScore+'-'+m.awayScore:'')+'</span>'
-    : isDel
-    ? '<span class="mc-status" style="color:var(--orange);border:1px solid rgba(255,107,53,.25);border-radius:99px;padding:.12rem .45rem;font-family:var(--dm);font-size:.48rem;">'+m.status+'</span>'
-    : '<span class="mc-status upcoming">'+(m.dispTime||'TBD')+'</span>';
-
-  var enc = '';
-  try { enc = encodeURIComponent(JSON.stringify({
-    h:m.homeTeam,a:m.awayTeam,v:m.venue,l:m.league,
-    d:m.dispTime,hs:m.homeScore,as:m.awayScore,st:m.status,pr:m.progress
-  })); } catch(x){}
-
-  return '<div class="match-card" onclick="openMatchDetail(\''+(m.apiId||m.id)+'\',\''+enc+'\')">'
-    +'<div class="mc-header">'
-      +'<span class="mc-comp">'+(m.league||'WorldCup 2026')+'</span>'
-      +((isLive||isHT)?'<div class="mc-live-dot"></div>':'<span class="mc-time">'+(m.dispTime||'TBD')+'</span>')
-    +'</div>'
-    +'<div class="mc-body">'
-      +'<div class="mc-team"><span class="mc-flag">'+hf+'</span><div class="mc-tname">'+hn+'</div></div>'
-      +scoreHtml
-      +'<div class="mc-team"><span class="mc-flag">'+af+'</span><div class="mc-tname">'+an+'</div></div>'
-    +'</div>'
-    +'<div class="mc-footer"><span class="mc-venue">'+(m.venue||'')+'</span>'+st+'</div>'
-  +'</div>';
-}
 
 /* ── getTournamentState — uses real WC arrays ── */
 function getTournamentState() {
@@ -5761,7 +5770,7 @@ var WC_SCHED = [
   {id:'s003',h:'Canada',        a:'Bosnia and Herzegovina', g:'B',hg:1, ag:1, st:'FINISHED', v:'BMO Field, Toronto',                 utc:'2026-06-13T00:00:00Z', verified:true},
   {id:'s004',h:'USA',           a:'Paraguay',               g:'D',hg:4,   ag:1,   st:'FINISHED', v:'SoFi Stadium, Los Angeles',      utc:'2026-06-13T05:00:00Z', verified:true},
   /* UPCOMING */
-  {id:'s005',h:'Qatar',         a:'Switzerland',            g:'B',hg:null,ag:null,st:'UPCOMING',v:"Levi's Stadium, San Francisco",   utc:'2026-06-13T23:00:00Z'},
+  {id:'s005',h:'Qatar',         a:'Switzerland',            g:'B',hg:1,   ag:1,   st:'FINISHED', v:"Levi's Stadium, San Francisco",   utc:'2026-06-13T23:00:00Z', verified:true},
   {id:'s006',h:'Brazil',        a:'Morocco',                g:'C',hg:null,ag:null,st:'UPCOMING',v:'MetLife Stadium, New York',       utc:'2026-06-14T02:00:00Z'},
   {id:'s007',h:'Haiti',         a:'Scotland',               g:'C',hg:null,ag:null,st:'UPCOMING',v:'Gillette Stadium, Boston',        utc:'2026-06-14T05:00:00Z'},
   {id:'s008',h:'Australia',     a:'Türkiye',                g:'D',hg:null,ag:null,st:'UPCOMING',v:'BC Place, Vancouver',             utc:'2026-06-14T08:00:00Z'},
@@ -5886,75 +5895,7 @@ function rankForFeed(articles) {
 }
 
 /* ── FETCH NEWS — 60s System B refresh ── */
-function fetchNews(force, page) {
-  if (NEWS.loading && !force) return;
-  NEWS.loading = true;
-  page = page || 1;
-  if (page === 1) setNewsStatus('loading');
 
-  var cat = NEWS.filter !== 'all' && NEWS.filter !== 'saved' ? '&cat='+NEWS.filter : '';
-  var url = NEWS_URL + '?limit=20' + cat + (page > 1 ? '&page='+page : '');
-
-  fetch(url)
-    .then(function(r){ return r.json(); })
-    .then(function(body) {
-      NEWS.loading  = false;
-      NEWS.lastFetch = Date.now();
-
-      if (body.success && body.articles && body.articles.length > 0) {
-        if (page > 1) {
-          /* Infinite scroll: append */
-          var merged = mergeArticles(NEWS.articles, body.articles);
-          NEWS.articles = merged;
-          appendNewsCards(body.articles.filter(function(a){
-            return a.category !== 'highlight';
-          }));
-          /* Append highlights separately */
-          var newHighlights = body.articles.filter(function(a){
-            return a.category === 'highlight';
-          });
-          if (newHighlights.length) appendHighlightCards(newHighlights);
-        } else {
-          /* Full render */
-          var ranked = rankForFeed(mergeArticles(NEWS.articles, body.articles));
-          NEWS.articles = ranked;
-          try {
-            localStorage.setItem(NEWS.CACHE_KEY, JSON.stringify({
-              ts: Date.now(), d: ranked.slice(0,100)
-            }));
-          } catch(e){}
-          renderNewsEngine();
-        }
-        NEWS.page    = page;
-        NEWS.hasMore = body.articles.length >= 20;
-        setNewsStatus('live', NEWS.articles.length);
-      } else {
-        var cached = getNewsCache();
-        if (cached.length) {
-          NEWS.articles = rankForFeed(cached);
-          setNewsStatus('cached', cached.length);
-          if (page === 1) renderNewsEngine();
-        } else {
-          setNewsStatus('unavailable');
-          if (page === 1) showNewsUnavailable(body.error || body.hint || 'No news data');
-        }
-      }
-      updateNewsTimestamp();
-    })
-    .catch(function(err) {
-      NEWS.loading = false;
-      console.warn('[WC/news]', err.message);
-      var cached = getNewsCache();
-      if (cached.length) {
-        NEWS.articles = rankForFeed(cached);
-        setNewsStatus('cached', cached.length);
-        if (page === 1) renderNewsEngine();
-      } else {
-        setNewsStatus('unavailable');
-        if (page === 1) showNewsUnavailable('Showing latest World Cup updates');
-      }
-    });
-}
 
 /* ── INIT — starts 60s auto-refresh ── */
 function initNews() {
@@ -6029,18 +5970,7 @@ function loadMoreNews() {
   fetchNews(false, p);
 }
 
-function appendNewsCards(articles) {
-  var mc3 = document.getElementById('news-more-cards');
-  if (!mc3) return;
-  var btn = document.getElementById('news-load-more');
-  var html = articles.map(function(a){return buildCard(a,'compact');}).join('');
-  if (btn) {
-    btn.outerHTML = html + buildLoadMoreBtn();
-  } else {
-    mc3.innerHTML += html + buildLoadMoreBtn();
-  }
-  setTimeout(function(){lazyLoadImages('news-more-cards');},60);
-}
+
 
 function appendHighlightCards(articles) {
   var hc = document.getElementById('news-highlights-cards');
@@ -6278,80 +6208,7 @@ function renderTopScorers() {
 }
 
 
-function renderStandings() {
-  var el = document.getElementById('st-list');
-  if (!el) return;
-  el.innerHTML = '<div class="api-loading">Loading standings...</div>';
 
-  apiFetch('standings')
-    .then(function(rows) {
-      if (!rows || !rows.length) { _buildStandingsFromResults(el); return; }
-
-      var valid = rows.filter(function(r) {
-        return r.strTeam && WC2026_TEAMS_LOWER.some(function(t){
-          return (r.strTeam||'').toLowerCase().slice(0,6) === t.slice(0,6);
-        });
-      });
-      if (!valid.length) { _buildStandingsFromResults(el); return; }
-
-      /* Group by letter — FD sends GROUP_A, extract A */
-      var groups = {};
-      valid.forEach(function(r) {
-        var g = (r.group||'').replace('GROUP_','').replace('GROUP ','').trim();
-        if (!g) return;
-        if (!groups[g]) groups[g] = [];
-        groups[g].push(r);
-      });
-
-      /* Sort by position then points */
-      Object.keys(groups).forEach(function(g) {
-        groups[g].sort(function(a,b){
-          return (a.position||99)-(b.position||99) || (b.intPoints||0)-(a.intPoints||0);
-        });
-      });
-
-      var rendered = Object.keys(groups).sort().map(function(g) {
-        var teams = groups[g];
-        var hasPlayed = teams.some(function(t){ return t.intPlayed > 0; });
-        if (!hasPlayed) return null;
-
-        return '<div class="card card-blue" style="margin:.4rem 0;padding:.5rem;overflow-x:auto">'
-          +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.4rem">GROUP '+g+'</div>'
-          +'<table class="st-table"><thead><tr>'
-            +'<th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th>'
-          +'</tr></thead><tbody>'
-          +teams.map(function(r,i){
-            var gd = r.intGoalDifference||0;
-            var crest = r.teamCrest
-              ? '<img src="'+r.teamCrest+'" style="width:14px;height:14px;object-fit:contain;margin-right:3px;vertical-align:middle" onerror="this.style.display=\'none\'">'
-              : '';
-            return '<tr style="'+(i<2?'border-left:2px solid var(--grn)':'')+'">'
-              +'<td style="white-space:nowrap">'+crest+'<span>'+getFlag(r.strTeam||'')+'</span> <span class="st-name">'+escHtml(r.strTeam||'')+'</span></td>'
-              +'<td>'+(r.intPlayed||0)+'</td>'
-              +'<td>'+(r.intWin||0)+'</td>'
-              +'<td>'+(r.intDraw||0)+'</td>'
-              +'<td>'+(r.intLoss||0)+'</td>'
-              +'<td style="color:'+(gd>=0?'var(--grn)':'var(--red)')+'">'+(gd>0?'+':'')+gd+'</td>'
-              +'<td class="st-pts">'+(r.intPoints||0)+'</td>'
-            +'</tr>';
-          }).join('')
-          +'</tbody></table>'
-          +'<div style="font-family:var(--dm);font-size:.42rem;color:var(--t3);margin-top:.25rem">Top 2 qualify \u00b7 Best 8 third-placed also advance</div>'
-        +'</div>';
-      }).filter(Boolean);
-
-      if (!rendered.length) { _buildStandingsFromResults(el); return; }
-
-      var syncTime = WC.lastFetch
-        ? 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
-        : '--';
-
-      el.innerHTML = '<div style="font-family:var(--dm);font-size:.44rem;color:var(--grn);padding:.3rem 1rem">'
-        +'\u2705 Live standings \u00b7 football-data.org \u00b7 '+syncTime+'</div>'
-        +rendered.join('');
-    })
-    .catch(function(){ _buildStandingsFromResults(el); });
-}
 
 
 /* ================================================================
@@ -6479,26 +6336,7 @@ function buildCard(a, type) {
 }
 
 /* ── VIDEO CARD — YouTube thumbnail style ── */
-function buildVideoCard(a) {
-  var liked = !!NEWS.userLiked[a.id];
-  var likes = NEWS.likes[a.id] || 0;
-  return '<div class="feed-video-card" onclick="openStory(\''+a.id+'\')">'
-    +'<div class="feed-video-thumb">'
-      +(a.imageUrl
-        ? '<img data-img="'+a.imageUrl+'" src="" class="loading" alt="" onerror="this.src=\'\'">'
-        : '<div style="width:100%;height:100%;background:'+catGrad('highlight')+';display:flex;align-items:center;justify-content:center;font-size:2rem">\u26bd</div>'
-      )
-      +'<div class="feed-video-play-btn">\u25b6</div>'
-      +'<div class="feed-video-label">VIDEO</div>'
-    +'</div>'
-    +'<div class="feed-video-info">'
-      +'<div class="feed-video-title">'+escHtml(a.title)+'</div>'
-      +'<div class="feed-video-meta">'+escHtml(a.source)+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'
-      +'<button onclick="likeArticle(\''+a.id+'\',this);event.stopPropagation()" class="feed-act" style="margin-top:.2rem">'
-        +(liked?'\u2764':'\u2661')+' '+likes+'</button>'
-    +'</div>'
-  +'</div>';
-}
+
 
 /* ── RENDER ENTIRE NEWS ENGINE ── */
 function renderNewsEngine() {
@@ -6540,6 +6378,15 @@ function renderNewsEngine() {
     lc.innerHTML=matchArr.map(function(a){return buildCard(a,'compact');}).join('');
     setTimeout(function(){lazyLoadImages('news-live-cards');},60);
   } else if(ls) ls.style.display='none';
+
+  /* Player stories */
+  var plrs=filtered.filter(function(a){return a.category==='player';}).slice(0,3);
+  var pls=document.getElementById('news-player-section'), plc=document.getElementById('news-player-cards');
+  if (plrs.length&&pls&&plc&&(NEWS.filter==='all'||NEWS.filter==='player')) {
+    pls.style.display='block';
+    plc.innerHTML=plrs.map(function(a){return buildCard(a,'compact');}).join('');
+    setTimeout(function(){lazyLoadImages('news-player-cards');},60);
+  } else if(pls) pls.style.display='none';
 
   /* Highlights / Video shelf */
   var hs=document.getElementById('news-highlights-section'), hc=document.getElementById('news-highlights-cards');
@@ -6757,23 +6604,7 @@ function renderTx() {
 }
 
 
-function renderFanId() {
-  var el = document.getElementById('fan-id-card');
-  if (!el || !piUser) return;
-  var serial = 'WC26-' + (piUser.uid||'').slice(-4).toUpperCase() + '-' + Date.now().toString(36).toUpperCase().slice(-4);
-  el.innerHTML = '<div style="background:linear-gradient(135deg,var(--c1),var(--c2));border-radius:12px;padding:1rem;color:#000;font-family:var(--dm)">'
-    +'<div style="font-size:.5rem;font-weight:700;letter-spacing:.1em;opacity:.7">FIFA WORLD CUP 2026</div>'
-    +'<div style="font-size:1.1rem;font-weight:700;margin:.3rem 0">@'+escHtml(piUser.username||'Fan')+'</div>'
-    +'<div style="font-size:.46rem;opacity:.7;margin-bottom:.6rem">Fan ID \u00b7 '+serial+'</div>'
-    +'<div id="fan-qr-'+piUser.uid+'" style="background:#fff;padding:.3rem;border-radius:6px;display:inline-block">'
-      +'<div style="font-size:.42rem;color:#000;font-family:monospace">'+serial+'</div>'
-    +'</div>'
-    +'<div style="margin-top:.5rem;font-size:.44rem;opacity:.6">worldcup.pi \u00b7 Pi Network Mainnet</div>'
-  +'</div>';
-  if (typeof QRCode !== 'undefined') {
-    try { new QRCode(document.getElementById('fan-qr-'+piUser.uid), {text: serial, width:80, height:80}); } catch(e){}
-  }
-}
+
 
 function renderAnalytics() {
   var el = document.getElementById('analytics-content');
@@ -7006,6 +6837,546 @@ function openWCTournament(year) {
         +'border-radius:var(--r2);font-family:var(--dm);font-size:.62rem;color:#fc8181;text-decoration:none;margin-bottom:.5rem">'
         +'\u25b6 Watch '+t.year+' Highlights on YouTube</a>'
     +'</div>';
+}
+
+
+function renderFanId() {
+  var el = document.getElementById('fan-id-card');
+  if (!el) return;
+  var u = user || { username: 'Pioneer', uid: 'GUEST' };
+  var serial = 'WC26-' + (u.uid||'GUEST').slice(-4).toUpperCase()
+             + '-' + Date.now().toString(36).toUpperCase().slice(-4);
+  el.innerHTML =
+    '<div style="background:linear-gradient(135deg,#00d4ff,#6c63ff);border-radius:14px;padding:1.1rem;color:#000;font-family:var(--dm)">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start">'
+        +'<div>'
+          +'<div style="font-size:.44rem;font-weight:700;letter-spacing:.12em;opacity:.65">FIFA WORLD CUP 2026</div>'
+          +'<div style="font-family:var(--df);font-size:1.2rem;font-weight:700;margin:.2rem 0">'
+            +'@'+escHtml(u.username||'Pioneer')
+          +'</div>'
+          +'<div style="font-size:.44rem;opacity:.6">Fan ID \u00b7 '+serial+'</div>'
+        +'</div>'
+        +'<div style="font-size:1.8rem">\ud83c\udfc6</div>'
+      +'</div>'
+      +'<div style="margin:.75rem 0;padding:.5rem;background:rgba(0,0,0,.12);border-radius:8px;text-align:center">'
+        +'<div style="font-family:monospace;font-size:.56rem;letter-spacing:.08em">'+serial+'</div>'
+      +'</div>'
+      +'<div style="display:flex;justify-content:space-between;align-items:center">'
+        +'<div style="font-size:.42rem;opacity:.6">worldcup.pi \u00b7 Pi Network Mainnet</div>'
+        +'<div style="font-size:.44rem;background:rgba(0,0,0,.15);padding:.2rem .5rem;border-radius:99px">'
+          +(isPrem ? '\u2b50 PREMIUM' : 'FREE TIER')
+        +'</div>'
+      +'</div>'
+    +'</div>';
+}
+
+
+function lazyLoadImages(containerId) {
+  var c = document.getElementById(containerId);
+  if (!c) return;
+  var imgs = c.querySelectorAll('[data-img]');
+  if (!imgs.length) return;
+
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function(entries) {
+      entries.forEach(function(e) {
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        var src = el.getAttribute('data-img');
+        var cat = el.getAttribute('data-cat') || 'default';
+        el.removeAttribute('data-img');
+        el.removeAttribute('data-cat');
+        if (!src) { el.src = getFallback(cat); return; }
+        el.src = src;
+        el.onerror = function() { this.src = getFallback(cat); };
+        el.onload  = function() { this.classList.remove('loading'); };
+        obs.unobserve(el);
+      });
+    }, { rootMargin: '200px' });
+    imgs.forEach(function(img) { obs.observe(img); });
+  } else {
+    /* Fallback: load all immediately */
+    imgs.forEach(function(el) {
+      var src = el.getAttribute('data-img');
+      var cat = el.getAttribute('data-cat') || 'default';
+      el.removeAttribute('data-img');
+      el.removeAttribute('data-cat');
+      if (src) {
+        el.src = src;
+        el.onerror = function() { this.src = getFallback(cat); };
+        el.onload  = function() { this.classList.remove('loading'); };
+      } else {
+        el.src = getFallback(cat);
+      }
+    });
+  }
+}
+
+
+function buildMC(m) {
+  var hf = getFlag(m.homeTeam), hn = m.homeTeam || '\u2014';
+  var af = getFlag(m.awayTeam), an = m.awayTeam || '\u2014';
+  var isLive = m.status==='LIVE', isHT = m.status==='HT';
+  var isFin  = m.status==='FINISHED';
+  var isDel  = m.status==='POSTPONED' || m.status==='CANCELLED';
+
+  /* Score: only from API-confirmed data */
+  var hasScore = m.homeScore !== null && m.awayScore !== null && (m.fromAPI || m.verified);
+  var scoreHtml = (isLive||isHT||isFin) && hasScore
+    ? '<div class="mc-score">'+m.homeScore+'<span class="mc-score-sep"> \u2013 </span>'+m.awayScore+'</div>'
+    : '<div class="mc-score" style="font-size:.85rem;color:var(--t3)">vs</div>';
+
+  /* Team display: crest badge if available, else flag emoji */
+  function teamDisplay(flag, name, crest) {
+    var badge = crest
+      ? '<img src="'+crest+'" style="width:22px;height:22px;object-fit:contain" onerror="this.style.display=\'none\'">'
+      : '<span class="mc-flag">'+flag+'</span>';
+    return '<div class="mc-team">'+badge+'<div class="mc-tname">'+escHtml(name)+'</div></div>';
+  }
+
+  var st = isHT
+    ? '<span class="mc-status live" style="background:rgba(255,215,0,.12);color:var(--gold)">HT</span>'
+    : isLive
+    ? '<span class="mc-status live">\ud83d\udd34 LIVE '+(m.progress||'')+'</span>'
+    : isFin
+    ? '<span class="mc-status finished">FT'+(hasScore?' \u00b7 '+m.homeScore+'-'+m.awayScore:'')+'</span>'
+    : isDel
+    ? '<span class="mc-status" style="color:var(--orange)">'+m.status+'</span>'
+    : '<span class="mc-status upcoming">'+(m.dispTime||'TBD')+'</span>';
+
+  var enc = '';
+  try {
+    enc = encodeURIComponent(JSON.stringify({
+      h:m.homeTeam, a:m.awayTeam, v:m.venue, l:m.league,
+      d:m.dispTime, hs:m.homeScore, as:m.awayScore,
+      st:m.status, pr:m.progress,
+      hc:m.homeCrest||null, ac:m.awayCrest||null
+    }));
+  } catch(x){}
+
+  return '<div class="match-card" onclick="openMatchDetail(\''+(m.apiId||m.id)+'\',\''+enc+'\')">'+
+    '<div class="mc-header">'+
+      '<span class="mc-comp">'+(m.league||'WorldCup 2026')+'</span>'+
+      ((isLive||isHT)
+        ? '<div class="mc-live-dot"></div><span style="font-family:var(--dm);font-size:.44rem;color:var(--red)">'+(m.progress||'LIVE')+'</span>'
+        : '<span class="mc-time">'+(m.dispTime||'TBD')+'</span>'
+      )+
+    '</div>'+
+    '<div class="mc-body">'+
+      teamDisplay(hf, hn, m.homeCrest||null)+
+      scoreHtml+
+      teamDisplay(af, an, m.awayCrest||null)+
+    '</div>'+
+    '<div class="mc-footer"><span class="mc-venue">'+(m.venue||'')+'</span>'+st+'</div>'+
+  '</div>';
+}
+
+
+function renderGroups() {
+  var el = document.getElementById('ggrid');
+  if (!el) return;
+
+  /* Try API standings first */
+  apiFetch('standings')
+    .then(function(rows) {
+      if (rows && rows.length) {
+        /* Group rows by group letter */
+        var groups = {};
+        rows.forEach(function(r) {
+          var g = (r.group||'').replace('GROUP_','').replace('GROUP ','').trim();
+          if (!g) return;
+          if (!groups[g]) groups[g] = [];
+          groups[g].push(r);
+        });
+        /* Sort each group by position */
+        Object.keys(groups).forEach(function(g) {
+          groups[g].sort(function(a,b){ return (a.position||99)-(b.position||99)||(b.intPoints||0)-(a.intPoints||0); });
+        });
+        /* Render */
+        el.innerHTML = Object.keys(groups).sort().map(function(g) {
+          return '<div class="gc"><div class="gc-hdr">GROUP '+g+'</div>'
+            +groups[g].map(function(r, i) {
+              return '<div class="gc-team" style="'+(i<2?'border-left:2px solid var(--grn);padding-left:.25rem':'')+'">'
+                +(r.teamCrest
+                  ? '<img src="'+r.teamCrest+'" style="width:14px;height:14px;object-fit:contain" onerror="this.style.display=\'none\'">'
+                  : '<span class="gc-flag">'+getFlag(r.strTeam||'')+'</span>'
+                )
+                +'<span class="gc-name">'+escHtml(r.strTeam||'')+'</span>'
+                +'<span class="gc-pts">'+(r.intPoints||0)+'</span>'
+              +'</div>';
+            }).join('')
+          +'</div>';
+        }).join('');
+        return;
+      }
+      /* Fallback: local calculation */
+      _renderGroupsFromLocal(el);
+    })
+    .catch(function() { _renderGroupsFromLocal(el); });
+}
+
+function _renderGroupsFromLocal(el) {
+  /* Calculate standings from WC.finished matches */
+  var finished = WC.finished.filter(function(m) {
+    return m.homeScore!==null && m.awayScore!==null && (m.fromAPI||m.verified);
+  });
+  var standings = {};
+  Object.keys(WC2026_GROUPS).forEach(function(g) {
+    standings[g] = {};
+    WC2026_GROUPS[g].forEach(function(t) { standings[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0}; });
+  });
+  finished.forEach(function(m) {
+    var grp = null;
+    Object.keys(WC2026_GROUPS).forEach(function(g) {
+      var ts=WC2026_GROUPS[g];
+      var hIn=ts.some(function(t){return t.toLowerCase().slice(0,6)===m.homeTeam.toLowerCase().slice(0,6);});
+      var aIn=ts.some(function(t){return t.toLowerCase().slice(0,6)===m.awayTeam.toLowerCase().slice(0,6);});
+      if(hIn&&aIn) grp=g;
+    });
+    if(!grp) return;
+    var hT=WC2026_GROUPS[grp].find(function(t){return t.toLowerCase().slice(0,6)===m.homeTeam.toLowerCase().slice(0,6);});
+    var aT=WC2026_GROUPS[grp].find(function(t){return t.toLowerCase().slice(0,6)===m.awayTeam.toLowerCase().slice(0,6);});
+    if(!hT||!aT) return;
+    var hs=m.homeScore,as=m.awayScore;
+    var h=standings[grp][hT],a=standings[grp][aT];
+    h.p++;a.p++;h.gf+=hs;h.ga+=as;a.gf+=as;a.ga+=hs;
+    if(hs>as){h.w++;a.l++;}else if(hs<as){a.w++;h.l++;}else{h.d++;a.d++;}
+  });
+  el.innerHTML = Object.keys(WC2026_GROUPS).map(function(g) {
+    var teams = WC2026_GROUPS[g].map(function(t) {
+      var s=standings[g][t]||{p:0,w:0,d:0,l:0,gf:0,ga:0};
+      return {name:t,pts:s.w*3+s.d,p:s.p,gd:s.gf-s.ga};
+    }).sort(function(a,b){return b.pts-a.pts||b.gd-a.gd;});
+    return '<div class="gc"><div class="gc-hdr">GROUP '+g+'</div>'
+      +teams.map(function(r,i) {
+        return '<div class="gc-team" style="'+(i<2?'border-left:2px solid var(--grn);padding-left:.25rem':'')+'">'
+          +'<span class="gc-flag">'+getFlag(r.name)+'</span>'
+          +'<span class="gc-name">'+r.name+'</span>'
+          +'<span class="gc-pts">'+r.pts+'</span>'
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }).join('');
+}
+
+
+function renderStandings() {
+  var el = document.getElementById('st-list');
+  if (!el) return;
+  el.innerHTML = '<div class="api-loading">Loading live standings...</div>';
+
+  apiFetch('standings')
+    .then(function(rows) {
+      if (!rows || !rows.length) { _buildStandingsFromResults(el); return; }
+
+      /* ── CRITICAL: filter TOTAL only, dedup by team name ── */
+      /* FD returns TOTAL + HOME + AWAY tables = 3x duplicates */
+      /* data.js now filters this server-side, but guard here too */
+      var seen = {};
+      var valid = rows.filter(function(r) {
+        if (!r.strTeam) return false;
+        var key = (r.strTeam||'').toLowerCase().slice(0,8) + '|' + (r.group||'');
+        if (seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+
+      if (!valid.length) { _buildStandingsFromResults(el); return; }
+
+      /* Group by group letter */
+      var groups = {};
+      valid.forEach(function(r) {
+        var g = (r.group||'').replace('GROUP_','').replace('GROUP ','').trim();
+        if (!g) return;
+        if (!groups[g]) groups[g] = [];
+        groups[g].push(r);
+      });
+
+      /* Sort each group by position → points */
+      Object.keys(groups).forEach(function(g) {
+        groups[g].sort(function(a,b){
+          return (a.position||99)-(b.position||99) || (b.intPoints||0)-(a.intPoints||0);
+        });
+      });
+
+      /* Render only groups with played matches */
+      var gkeys = Object.keys(groups).sort();
+      var rendered = gkeys.map(function(g) {
+        var teams = groups[g];
+        var hasPlayed = teams.some(function(t){ return (t.intPlayed||0) > 0; });
+        if (!hasPlayed) return null;
+
+        return '<div class="card card-blue" style="margin:.4rem 0;padding:.5rem;overflow-x:auto">'
+          +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.35rem">'
+            +'GROUP '+g
+          +'</div>'
+          +'<table class="st-table"><thead><tr>'
+            +'<th style="text-align:left">Team</th>'
+            +'<th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th>'
+          +'</tr></thead><tbody>'
+          +teams.map(function(r,i){
+            var gd  = r.intGoalDifference || 0;
+            var qual = i < 2;
+            var crest = r.teamCrest
+              ? '<img src="'+r.teamCrest+'" style="width:14px;height:14px;object-fit:contain;margin-right:3px;vertical-align:middle" onerror="this.style.display=\'none\'">'
+              : '';
+            return '<tr style="'+(qual?'border-left:2px solid var(--grn)':'')+'">'
+              +'<td style="white-space:nowrap;display:flex;align-items:center;gap:.2rem">'
+                +crest
+                +'<span>'+getFlag(r.strTeam||'')+'</span> '
+                +'<span class="st-name">'+escHtml(r.strTeam||'')+'</span>'
+              +'</td>'
+              +'<td>'+(r.intPlayed||0)+'</td>'
+              +'<td>'+(r.intWin||0)+'</td>'
+              +'<td>'+(r.intDraw||0)+'</td>'
+              +'<td>'+(r.intLoss||0)+'</td>'
+              +'<td style="color:'+(gd>=0?'var(--grn)':'var(--red)')+'">'+(gd>0?'+':'')+gd+'</td>'
+              +'<td class="st-pts" style="font-weight:700">'+(r.intPoints||0)+'</td>'
+            +'</tr>';
+          }).join('')
+          +'</tbody></table>'
+          +'<div style="font-family:var(--dm);font-size:.42rem;color:var(--t3);margin-top:.3rem;display:flex;justify-content:space-between">'
+            +'<span>\u2713 Top 2 qualify \u00b7 Best 8 third-placed advance</span>'
+            +'<span>football-data.org</span>'
+          +'</div>'
+        +'</div>';
+      }).filter(Boolean);
+
+      if (!rendered.length) { _buildStandingsFromResults(el); return; }
+
+      var syncTime = WC.lastFetch
+        ? 'Synced '+new Date(WC.lastFetch).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})
+        : '--';
+      el.innerHTML = '<div style="font-family:var(--dm);font-size:.44rem;color:var(--grn);'
+        +'padding:.3rem 1rem;margin-bottom:.2rem">'
+        +'\u2705 Live standings \u00b7 football-data.org \u00b7 '+syncTime
+        +'</div>'
+        +rendered.join('');
+    })
+    .catch(function(e) {
+      console.warn('[standings]', e.message);
+      _buildStandingsFromResults(el);
+    });
+}
+
+
+function buildVideoCard(a) {
+  if (!a) return '';
+  var liked  = !!NEWS.userLiked[a.id];
+  var likes  = NEWS.likes[a.id] || 0;
+  var aid    = a.id;
+  /* YouTube search URL from videoUrl or generated */
+  var vidUrl = a.videoUrl || ('https://www.youtube.com/results?search_query='+encodeURIComponent((a.title||'').slice(0,60)+' World Cup 2026'));
+
+  return '<div class="feed-video-card" onclick="openVideoCard(\''+aid+'\',\''+encodeURIComponent(vidUrl)+'\')">'
+    +'<div class="feed-video-thumb">'
+      +(a.imageUrl
+        ? '<img src="'+a.imageUrl+'" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentNode.style.background=\'var(--bg4)\'">'
+        : '<div style="width:100%;height:100%;background:linear-gradient(135deg,#1a1a2e,#e63946);display:flex;align-items:center;justify-content:center;font-size:2rem">\u26bd</div>'
+      )
+      +'<div class="feed-video-play-btn">\u25b6</div>'
+      +'<div class="feed-video-label">VIDEO</div>'
+    +'</div>'
+    +'<div class="feed-video-info">'
+      +'<div class="feed-video-title">'+escHtml(a.title||'')+'</div>'
+      +'<div class="feed-video-meta">'+escHtml(a.source||'')+' \u00b7 '+timeAgo(a.publishedAt)+'</div>'
+      +'<button onclick="event.stopPropagation();likeArticle(\''+aid+'\',this)" '
+        +'style="background:none;border:none;font-family:var(--dm);font-size:.48rem;color:var(--t3);cursor:pointer;padding:.2rem 0">'
+        +(liked?'\u2764':'\u2661')+' '+likes+'</button>'
+    +'</div>'
+  +'</div>';
+}
+
+/* ── OPEN VIDEO — one-click, embedded player ── */
+function openVideoCard(articleId, encodedUrl) {
+  var vidUrl = '';
+  try { vidUrl = decodeURIComponent(encodedUrl); } catch(e) { return; }
+
+  /* Try to find article for context */
+  var a = NEWS.articles.find(function(x){ return x.id===articleId; });
+  var title = a ? a.title : 'World Cup 2026 Video';
+
+  /* Check for embeddable URLs */
+  var ytMatch = vidUrl.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+  var vmMatch = vidUrl.match(/vimeo\.com\/(\d+)/);
+
+  var overlay = document.getElementById('video-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'video-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:9999;'
+      +'display:flex;flex-direction:column;align-items:center;justify-content:center;';
+    overlay.innerHTML =
+      '<div style="position:absolute;top:0;left:0;right:0;padding:.75rem 1rem;display:flex;align-items:center;gap:.75rem">'
+        +'<button id="vo-close" style="background:rgba(255,255,255,.1);border:none;color:#fff;'
+          +'border-radius:50%;width:36px;height:36px;font-size:1.2rem;cursor:pointer">X</button>'
+        +'<div id="vo-title" style="font-family:var(--dm);font-size:.62rem;color:rgba(255,255,255,.85);flex:1"></div>'
+      +'</div>'
+      +'<div id="vo-player" style="width:100%;max-width:480px;padding:.5rem 1rem"></div>'
+      +'<a id="vo-link" href="#" target="_blank" '
+        +'style="margin-top:.75rem;font-family:var(--dm);font-size:.58rem;color:var(--c1);'
+        +'text-decoration:none;padding:.4rem .85rem;background:rgba(0,212,255,.1);'
+        +'border:1px solid var(--bd);border-radius:99px">Open in YouTube \u2197</a>';
+    document.body.appendChild(overlay);
+    document.getElementById('vo-close').onclick = function() { overlay.style.display='none'; };
+  }
+
+  /* Set title + external link */
+  var titleEl = document.getElementById('vo-title');
+  var linkEl  = document.getElementById('vo-link');
+  var player  = document.getElementById('vo-player');
+  if (titleEl) titleEl.textContent = title.slice(0, 80);
+  if (linkEl) { linkEl.href = vidUrl; }
+
+  /* Embed player */
+  if (ytMatch) {
+    player.innerHTML = '<div style="position:relative;width:100%;padding-top:56.25%">'
+      +'<iframe style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:8px" '
+      +'src="https://www.youtube.com/embed/'+ytMatch[1]+'?autoplay=1&rel=0&playsinline=1" '
+      +'allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe></div>';
+  } else if (vmMatch) {
+    player.innerHTML = '<div style="position:relative;width:100%;padding-top:56.25%">'
+      +'<iframe style="position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:8px" '
+      +'src="https://player.vimeo.com/video/'+vmMatch[1]+'?autoplay=1" '
+      +'allow="autoplay;fullscreen" allowfullscreen></iframe></div>';
+  } else {
+    /* YouTube search results — show iframe with search results */
+    player.innerHTML = '<div style="text-align:center;padding:1.5rem 0">'
+      +'<div style="font-size:2.5rem;margin-bottom:.75rem">\u25b6\ufe0f</div>'
+      +'<div style="font-family:var(--dm);font-size:.65rem;color:rgba(255,255,255,.85);margin-bottom:1rem">'+escHtml(title.slice(0,80))+'</div>'
+      +'<a href="'+vidUrl+'" target="_blank" '
+        +'style="display:inline-block;background:#ff0000;color:#fff;padding:.6rem 1.5rem;border-radius:8px;'
+        +'font-family:var(--dm);font-size:.65rem;text-decoration:none;font-weight:700">'
+        +'\u25b6 Search on YouTube</a>'
+    +'</div>';
+  }
+
+  overlay.style.display = 'flex';
+}
+
+
+/* ── NEWS STATE: add cursor support ── */
+if (!NEWS.cursor) NEWS.cursor = null;
+if (!NEWS.prefetchedBatch) NEWS.prefetchedBatch = null;
+
+function fetchNews(force, page, cursor) {
+  if (NEWS.loading && !force) return;
+  NEWS.loading = true;
+  var isAppend = !!(cursor || (page && page > 1));
+  if (!isAppend) setNewsStatus('loading');
+
+  var cat = NEWS.filter !== 'all' && NEWS.filter !== 'saved' ? '&cat='+NEWS.filter : '';
+  var cursorParam = cursor ? '&cursor='+encodeURIComponent(cursor) : '';
+  var pageParam   = (!cursor && page > 1) ? '&page='+page : '';
+  var url = NEWS_URL + '?limit=40' + cat + cursorParam + pageParam;
+
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(body) {
+      NEWS.loading   = false;
+      NEWS.lastFetch = Date.now();
+
+      if (body.success && body.articles && body.articles.length) {
+        NEWS.cursor  = body.nextCursor || null;
+        NEWS.hasMore = !!(body.nextCursor) && body.articles.length >= 20;
+
+        if (isAppend) {
+          /* Append to existing feed */
+          var merged = mergeArticles(NEWS.articles, body.articles);
+          NEWS.articles = merged;
+          appendNewsCards(body.articles.filter(function(a){ return a.category !== 'highlight'; }));
+          var newHighlights = body.articles.filter(function(a){ return a.category === 'highlight'; });
+          if (newHighlights.length) appendHighlightCards(newHighlights);
+        } else {
+          /* Fresh render */
+          var ranked = rankForFeed(mergeArticles(NEWS.articles, body.articles));
+          NEWS.articles = ranked;
+          try { localStorage.setItem(NEWS.CACHE_KEY, JSON.stringify({ ts:Date.now(), d:ranked.slice(0,100) })); } catch(e){}
+          renderNewsEngine();
+        }
+
+        setNewsStatus('live', NEWS.articles.length);
+        /* Background prefetch next batch */
+        if (NEWS.hasMore && NEWS.cursor) {
+          setTimeout(function() { _prefetchNextBatch(NEWS.cursor); }, 5000);
+        }
+      } else {
+        var cached = getNewsCache();
+        if (cached.length && !isAppend) {
+          NEWS.articles = rankForFeed(cached);
+          setNewsStatus('cached', cached.length);
+          renderNewsEngine();
+        } else if (!isAppend) {
+          setNewsStatus('unavailable');
+          showNewsUnavailable(body.error || body.hint || 'No World Cup news');
+        }
+      }
+      updateNewsTimestamp();
+    })
+    .catch(function(err) {
+      NEWS.loading = false;
+      var cached = getNewsCache();
+      if (cached.length && !isAppend) {
+        NEWS.articles = rankForFeed(cached);
+        setNewsStatus('cached', cached.length);
+        renderNewsEngine();
+      } else if (!isAppend) {
+        setNewsStatus('unavailable');
+        showNewsUnavailable('Showing cached World Cup updates');
+      }
+    });
+}
+
+/* ── BACKGROUND PREFETCH ── */
+function _prefetchNextBatch(cursor) {
+  if (NEWS.prefetchedBatch) return; /* Already prefetched */
+  var url = NEWS_URL + '?limit=40&cursor='+encodeURIComponent(cursor);
+  fetch(url)
+    .then(function(r){ return r.json(); })
+    .then(function(body) {
+      if (body.success && body.articles && body.articles.length) {
+        NEWS.prefetchedBatch = { articles: body.articles, cursor: body.nextCursor };
+        console.log('[news] prefetched', body.articles.length, 'articles');
+      }
+    })
+    .catch(function(){});
+}
+
+/* ── LOAD MORE — use prefetch if available ── */
+function loadMoreNews() {
+  /* Use prefetched batch if ready */
+  if (NEWS.prefetchedBatch) {
+    var batch = NEWS.prefetchedBatch;
+    NEWS.prefetchedBatch = null;
+    NEWS.cursor  = batch.cursor;
+    NEWS.hasMore = !!(batch.cursor);
+    NEWS.articles = mergeArticles(NEWS.articles, batch.articles);
+    appendNewsCards(batch.articles.filter(function(a){ return a.category !== 'highlight'; }));
+    var hl = batch.articles.filter(function(a){ return a.category === 'highlight'; });
+    if (hl.length) appendHighlightCards(hl);
+    /* Prefetch next */
+    if (NEWS.cursor) setTimeout(function(){ _prefetchNextBatch(NEWS.cursor); }, 2000);
+    return;
+  }
+  /* Fallback: fetch with cursor */
+  if (NEWS.cursor) {
+    fetchNews(false, 1, NEWS.cursor);
+  } else {
+    fetchNews(false, (NEWS.page||1)+1);
+  }
+}
+
+function appendNewsCards(articles) {
+  var mc3 = document.getElementById('news-more-cards');
+  if (!mc3) return;
+  var btn = document.getElementById('news-load-more');
+  var htm = articles.map(function(a){ return buildCard(a,'compact'); }).join('');
+  if (btn) {
+    btn.outerHTML = htm + buildLoadMoreBtn();
+  } else {
+    mc3.innerHTML += htm + buildLoadMoreBtn();
+  }
+  setTimeout(function(){ lazyLoadImages('news-more-cards'); }, 60);
 }
 </script>
 
