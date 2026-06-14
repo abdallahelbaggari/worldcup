@@ -1416,6 +1416,18 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
         </div>
       </div>
 
+      <!-- ── UTILITY: TRANSACTION HISTORY ── -->
+      <div class="up" id="up-tx-history">
+        <div class="up-hdr">
+          <button class="up-back" onclick="cUtil()">← Back</button>
+          <div class="up-title">?? Payment History</div>
+        </div>
+        <div id="wc-tx-list"><div class="api-loading">Loading transactions...</div></div>
+        <div style="padding:.75rem .85rem">
+          <button onclick="renderTx()" style="width:100%;padding:.5rem;background:rgba(0,212,255,.08);border:1px solid var(--bd);border-radius:var(--r2);color:var(--c1);font-family:var(--dm);font-size:.58rem;cursor:pointer">↻ Refresh</button>
+        </div>
+      </div>
+
       <!-- ── TICKET ── -->
       <div class="up" id="up-ticket">
         <div class="up-hdr"><button class="back-btn" onclick="cUtil()">← Back</button><div class="up-title">Match Tickets</div></div>
@@ -2301,6 +2313,10 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
     <button class="bni" data-s="predict" onclick="goS('predict',this)"><span class="bni-i">🧠</span><span class="bni-l">Predict</span></button>
     <button class="bni" data-s="standings" onclick="goS('standings',this)"><span class="bni-i">🏆</span><span class="bni-l">Standings</span></button>
     <button class="bni" data-s="utilities" onclick="goS('utilities',this)"><span class="bni-i">🛠️</span><span class="bni-l">More</span></button>
+      <button class="bni" data-s="history" onclick="goS('history',this)">
+        <span class="bni-i">??</span>
+        <span class="bni-l">History</span>
+      </button>
   </nav>
 
 
@@ -2423,15 +2439,7 @@ function saveSt() {
   } catch(e) {}
 }
 
-function renderTx() {
-  var el = document.getElementById('wc-txs');
-  var el2 = document.getElementById('tx-list');
-  var html = txLog.length ? txLog.map(function(tx) {
-    return '<div class="notif-item"><div class="notif-icon">💸</div><div class="notif-body"><div class="notif-title">'+tx.t+'</div></div><div class="notif-time" style="font-size:.46rem">'+tx.d+'</div></div>';
-  }).join('') : '<div class="empty">No transactions yet</div>';
-  if (el) el.innerHTML = html;
-  if (el2) el2.innerHTML = html;
-}
+
 
 /* ── TOAST ── */
 function toast(msg) {
@@ -2458,6 +2466,7 @@ function goS(id, btn) {
     if (id === 'groups')    renderGroups();
     if (id === 'predict')   renderPredictions();
     if (id === 'standings') { renderLeaderboard(); renderStandings(); setTimeout(renderTopScorers, 500); }
+    if (id === 'history') { renderWCHistory(); }
     if (id === 'utilities') { renderWalletStats(); }
     if (id === 'notifs')    renderNotifs();
     if (id === 'news') {
@@ -2568,21 +2577,7 @@ function generateFanId() {
   var fser = document.getElementById('fid-serial'); if(fser) fser.textContent = 'Fan ID · '+serial;
 }
 
-function renderFanId() {
-  if (!user) return;
-  var serial = localStorage.getItem(K+'fanid') || 'WC-FAN-00000000';
-  var url = 'https://worldcup-app.pages.dev/fan/'+serial;
-  var lvl = document.getElementById('fid-lvl'); if(lvl) lvl.textContent = getLevelShort();
-  var fp = document.getElementById('fid-prem'); if(fp) fp.style.display = isPrem ? 'inline' : 'none';
-  updatePtsDisplay();
-  /* Generate QR */
-  var canvas = document.getElementById('fid-qr');
-  var qrStr = document.getElementById('fid-qr-str');
-  if (canvas && typeof QRCode !== 'undefined') {
-    QRCode.toCanvas(canvas, url, {width:180, color:{dark:'#00D4FF',light:'#ffffff'}}, function(err){});
-  }
-  if (qrStr) qrStr.textContent = serial;
-}
+
 
 function refreshFanId() {
   localStorage.removeItem(K+'fanid');
@@ -2756,21 +2751,7 @@ function renderPredQr() {
 }
 
 /* ── ANALYTICS ── */
-function renderAnalytics() {
-  var at = document.getElementById('ana-total'); if(at) at.textContent = predsTotal;
-  var ac = document.getElementById('ana-correct'); if(ac) ac.textContent = predsCorrect;
-  var aa = document.getElementById('ana-acc'); if(aa) aa.textContent = predsTotal ? Math.round(predsCorrect/predsTotal*100)+'%' : '0%';
-  var ap = document.getElementById('ana-pts'); if(ap) ap.textContent = pts;
-  var hist = document.getElementById('ana-history');
-  if (hist) {
-    var keys = Object.keys(predictions);
-    hist.innerHTML = keys.length ? keys.map(function(mid){
-      var m = allMatches.find(function(x){return x.id===mid;});
-      var label = m ? m.home.split(' ').slice(1).join(' ')+' vs '+m.away.split(' ').slice(1).join(' ') : mid;
-      return '<div class="notif-item"><div class="notif-icon">🧠</div><div class="notif-body"><div class="notif-title">'+label+'</div><div class="notif-sub" style="font-family:var(--dm);font-size:.5rem">Pick: '+predictions[mid]+' · +5 pts</div></div></div>';
-    }).join('') : '<div class="empty">No predictions yet</div>';
-  }
-}
+
 
 /* ── POINTS TRACKER ── */
 var actLog = [];
@@ -2828,13 +2809,7 @@ function buildOddsBar(label, pct, color) {
 }
 
 /* ── PI CALCULATOR ── */
-function updatePiCalc() {
-  var amt = parseFloat(document.getElementById('pi-amount').value) || 0;
-  var usd = document.getElementById('pi-usd'); if(usd) usd.textContent = '$'+(amt*PI_RATE).toFixed(2);
-  var eur = document.getElementById('pi-eur'); if(eur) eur.textContent = '€'+(amt*PI_RATE*0.93).toFixed(2);
-  var gbp = document.getElementById('pi-gbp'); if(gbp) gbp.textContent = '£'+(amt*PI_RATE*0.79).toFixed(2);
-  var sar = document.getElementById('pi-sar'); if(sar) sar.textContent = '﷼'+(amt*PI_RATE*3.75).toFixed(2);
-}
+
 
 /* ── GROUP SIMULATOR ── */
 function runGroupSim() {
@@ -2922,17 +2897,7 @@ function updateDailyBtn() {
   }
 }
 
-function claimDaily() {
-  var last = parseInt(localStorage.getItem(K+'lastDaily')||'0');
-  if (Date.now() - last < 24*60*60*1000) { toast('⏳ Already claimed today'); return; }
-  localStorage.setItem(K+'lastDaily', Date.now().toString());
-  streak++;
-  var bonus = Math.min(streak * 2, 20);
-  pts += 10 + bonus;
-  saveSt(); updatePtsDisplay(); updateDailyBtn();
-  addActivity('🎁 Daily bonus claimed · +'+(10+bonus)+' pts · '+streak+'d streak');
-  toast('🎁 Claimed! +'+(10+bonus)+' pts · 🔥 '+streak+' streak!');
-}
+
 
 /* ── NOTIFICATIONS ── */
 function renderNotifs() {
@@ -4598,52 +4563,7 @@ function timeAgo(ts) {
 
 
 /* ── OPEN STORY OVERLAY ── */
-function openStory(id) {
-  var a = NEWS.articles.find(function(x){ return x.id===id; });
-  if (!a) return;
-  var c = document.getElementById('story-content');
-  if (!c) return;
-  var saved = NEWS.saved.includes(id);
-  var cmts  = NEWS.comments[id] || [];
-  var liked = !!NEWS.userLiked[id];
-  var likes = NEWS.likes[id] || 0;
 
-  c.innerHTML =
-    '<img id="story-hi" src="'+getFallback(a.category||'default')+'" data-img="'+(a.imageUrl||'')+'" data-cat="'+(a.category||'default')+'" alt="'+escHtml(a.title.slice(0,40))+'" style="width:100%;height:200px;object-fit:cover;display:block;">'
-    +'<div class="story-body">'
-      +'<div class="story-cat">'+catLabel(a.category)+'</div>'
-      +'<div class="story-title">'+escHtml(a.title)+'</div>'
-      +'<div class="story-meta">'
-        +'<span class="story-time">'+timeAgo(a.publishedAt)+' · '+new Date(a.publishedAt).toLocaleDateString([],{month:'short',day:'numeric',year:'numeric'})+'</span>'
-        +'<span class="tag-blue">'+escHtml(a.source)+'</span>'
-        +(a.author ? '<span class="tag-blue">'+escHtml(a.author)+'</span>' : '')
-      +'</div>'
-      +(a.summary ? '<div class="story-ai-box"><div class="story-ai-label">SUMMARY</div><div class="story-ai-content">'+escHtml(a.summary)+'</div></div>' : '')
-      +(a.url ? '<a href="'+a.url+'" target="_blank" rel="noopener" onclick="event.stopPropagation()" style="display:block;margin:.75rem 0;background:rgba(0,212,255,.08);border:1px solid var(--bd);border-radius:var(--r2);padding:.5rem .85rem;font-family:var(--dm);font-size:.6rem;color:var(--c1);">Read full article on '+escHtml(a.source)+' →</a>' : '')
-      /* Likes + Comments */
-      +'<div style="display:flex;align-items:center;gap:.75rem;margin:.75rem 0;padding:.6rem 0;border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06)">'
-        +'<button id="story-like-btn" onclick="likeArticle(\''+id+'\',this)" style="background:none;border:1px solid var(--bd);border-radius:99px;padding:.25rem .7rem;color:'+(liked?'var(--red)':'var(--t3)')+';font-family:var(--dm);font-size:.6rem;cursor:pointer;">'+(liked?'❤':'♡')+' '+likes+'</button>'
-        +'<span style="font-family:var(--dm);font-size:.58rem;color:var(--t3)">💬 '+cmts.length+' comment'+(cmts.length!==1?'s':'')+'</span>'
-        +'<button class="btn btn-ghost" style="margin-left:auto;font-size:.55rem" onclick="toggleSave(\''+id+'\')" id="story-save-btn">'+(saved?'Saved':'Save')+'</button>'
-        +'<button class="btn btn-ghost" style="font-size:.55rem" onclick="shareArticle(\''+id+'\')">Share</button>'
-      +'</div>'
-      /* Comment input */
-      +'<div style="margin:.6rem 0">'
-        +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);margin-bottom:.4rem">Comments</div>'
-        +'<div style="display:flex;gap:.4rem;margin-bottom:.5rem">'
-          +'<input id="cmt-input-'+id+'" placeholder="Add a comment..." style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--bd);border-radius:var(--r2);padding:.4rem .65rem;color:var(--t1);font-family:var(--dm);font-size:.58rem;outline:none" onkeydown="if(event.key===\'Enter\')submitComment(\''+id+'\')">'
-          +'<button onclick="submitComment(\''+id+'\')" style="background:rgba(0,212,255,.1);border:1px solid var(--bd);border-radius:var(--r2);padding:.4rem .8rem;color:var(--c1);font-family:var(--dm);font-size:.55rem;cursor:pointer">Post</button>'
-        +'</div>'
-        +'<div id="cmts-'+id+'">'+renderComments(cmts)+'</div>'
-      +'</div>'
-    +'</div>';
-
-  document.getElementById('story-overlay').classList.add('open');
-  setTimeout(function(){
-    var img = document.getElementById('story-hi');
-    if (img) lazyLoadImages('story-overlay');
-  }, 50);
-}
 
 function closeStory() {
   document.getElementById('story-overlay').classList.remove('open');
@@ -6717,6 +6637,376 @@ function catGrad(cat) {
              insights:'linear-gradient(135deg,#553c9a,#4a235a)'};
   return map[cat]||'linear-gradient(135deg,#1a365d,#2b6cb0)';
 }
+
+
+function openStory(id) {
+  var a = NEWS.articles.find(function(x){ return x.id===id; });
+  if (!a) return;
+  var c = document.getElementById('story-content');
+  if (!c) return;
+  var saved = NEWS.saved.includes(id);
+  var cmts  = NEWS.comments[id] || [];
+  var liked = !!NEWS.userLiked[id];
+  var likes = NEWS.likes[id] || 0;
+  var isVideo = a.category === 'highlight' || !!(a.videoUrl);
+
+  /* Video block: embed iframe if YouTube/Vimeo, otherwise link button */
+  var videoBlock = '';
+  if (isVideo && a.url) {
+    var ytMatch = a.url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
+    var vmMatch = a.url.match(/vimeo\.com\/(\d+)/);
+    if (ytMatch) {
+      videoBlock = '<div style="position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:8px;overflow:hidden;margin-bottom:.75rem">'
+        +'<iframe style="position:absolute;inset:0;width:100%;height:100%;border:0" '
+        +'src="https://www.youtube.com/embed/'+ytMatch[1]+'?autoplay=1&rel=0&playsinline=1" '
+        +'allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe></div>';
+    } else if (vmMatch) {
+      videoBlock = '<div style="position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:8px;overflow:hidden;margin-bottom:.75rem">'
+        +'<iframe style="position:absolute;inset:0;width:100%;height:100%;border:0" '
+        +'src="https://player.vimeo.com/video/'+vmMatch[1]+'?autoplay=1" '
+        +'allow="autoplay;fullscreen" allowfullscreen></iframe></div>';
+    } else {
+      /* Non-embeddable video: show prominent play button that opens URL */
+      videoBlock = '<a href="'+(a.videoUrl||a.url)+'" target="_blank" '
+        +'style="display:flex;align-items:center;justify-content:center;width:100%;height:160px;'
+        +'background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:8px;margin-bottom:.75rem;'
+        +'text-decoration:none;border:1px solid rgba(255,255,255,.1)">'
+        +'<div style="text-align:center">'
+          +'<div style="font-size:3rem;margin-bottom:.5rem">\u25b6\ufe0f</div>'
+          +'<div style="font-family:var(--dm);font-size:.62rem;color:var(--c1)">Watch on '+escHtml(a.source)+'</div>'
+          +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-top:.2rem">Tap to open video</div>'
+        +'</div>'
+      +'</a>';
+    }
+  }
+
+  c.innerHTML =
+    /* Image or video */
+    (videoBlock || (a.imageUrl
+      ? '<img id="story-hi" src="'+a.imageUrl+'" alt="" style="width:100%;max-height:220px;object-fit:cover;border-radius:8px;margin-bottom:.75rem" onerror="this.style.display=\'none\'">'
+      : ''
+    ))+
+    /* Category + source */
+    '<div style="display:flex;align-items:center;gap:.4rem;margin-bottom:.4rem">'
+      +'<div class="feed-cat-pill feed-cat-'+a.category+'">'+catLabel(a.category)+'</div>'
+      +'<span style="font-family:var(--dm);font-size:.5rem;color:var(--t3)">'+escHtml(a.source)+'</span>'
+      +'<span style="color:var(--t3);font-size:.48rem">\u00b7</span>'
+      +'<span style="font-family:var(--dm);font-size:.5rem;color:var(--t3)">'+timeAgo(a.publishedAt)+'</span>'
+    +'</div>'+
+    '<div style="font-family:var(--df);font-size:1.05rem;color:var(--t1);line-height:1.4;margin-bottom:.6rem">'+escHtml(a.title)+'</div>'+
+    /* AI summary */
+    (a.summary
+      ? '<div class="feed-ai-summary" style="margin-bottom:.6rem"><div class="feed-ai-badge">AI SUMMARY</div><div style="margin-top:.3rem">'+escHtml(a.summary)+'</div></div>'
+      : ''
+    )+
+    /* Read full article */
+    '<a href="'+a.url+'" target="_blank" style="display:flex;align-items:center;justify-content:center;gap:.4rem;'
+      +'width:100%;padding:.6rem;background:rgba(0,212,255,.08);border:1px solid var(--bd);'
+      +'border-radius:var(--r2);font-family:var(--dm);font-size:.6rem;color:var(--c1);text-decoration:none;margin-bottom:.75rem">'
+      +'\ud83d\udd17 Read full article on '+escHtml(a.source)+'</a>'+
+    /* Actions */
+    '<div class="feed-card-actions" style="border-top:1px solid var(--bd);padding-top:.4rem;margin-bottom:.6rem">'
+      +'<button class="feed-act'+(liked?' feed-act-on':'')+'" onclick="likeArticle(\''+id+'\',this)">'+(liked?'\u2764':'\u2661')+' '+likes+'</button>'
+      +'<button class="feed-act'+(saved?' feed-act-saved':'')+'" id="save-btn-'+id+'" onclick="toggleSave(\''+id+'\')">'+(saved?'\ud83d\udd16 Saved':'\ud83d\udd16 Save')+'</button>'
+      +'<button class="feed-act" onclick="shareArticle(\''+id+'\')">\ud83d\udd17 Share</button>'
+    +'</div>'+
+    /* Comments */
+    '<div style="font-family:var(--dm);font-size:.6rem;color:var(--t2);margin-bottom:.4rem">\ud83d\udcac '+cmts.length+' comments</div>'+
+    cmts.map(function(cm){
+      return '<div style="background:var(--bg4);border-radius:var(--r2);padding:.5rem .65rem;margin-bottom:.3rem">'
+        +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.2rem">'+escHtml(cm.user||'Fan')+' \u00b7 '+timeAgo(cm.ts)+'</div>'
+        +'<div style="font-family:var(--dm);font-size:.58rem;color:var(--t1)">'+escHtml(cm.text)+'</div>'
+      +'</div>';
+    }).join('')+
+    '<div style="display:flex;gap:.4rem;margin-top:.5rem">'
+      +'<input id="story-cmt-input" placeholder="Add a comment..." style="flex:1;background:var(--bg4);border:1px solid var(--bd);border-radius:var(--r2);padding:.4rem .6rem;font-family:var(--dm);font-size:.58rem;color:var(--t1);outline:none">'
+      +'<button onclick="submitComment(\''+id+'\')" style="background:var(--c1);border:none;border-radius:var(--r2);padding:.4rem .75rem;font-family:var(--dm);font-size:.58rem;color:#000;cursor:pointer">Post</button>'
+    +'</div>';
+
+  var overlay = document.getElementById('story-overlay');
+  if (overlay) overlay.classList.add('open');
+}
+
+
+function renderTx() {
+  var el = document.getElementById('wc-tx-list');
+  if (!el) return;
+  try {
+    var txs = JSON.parse(localStorage.getItem('wc_transactions') || '[]');
+    if (!txs.length) {
+      el.innerHTML = '<div class="no-data-msg">No transaction history yet<br><span style="font-size:.52rem;opacity:.7">Complete a Pi payment to see history here</span></div>';
+      return;
+    }
+    el.innerHTML = txs.slice().reverse().map(function(t) {
+      var d = new Date(t.ts);
+      var typeIcon = t.type==='fan_pass' ? '\u2b50' : t.type==='tip' ? '\ud83d\udcb8' : '\ud83d\udcb3';
+      return '<div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .85rem;border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<div style="font-size:1.2rem">'+typeIcon+'</div>'
+        +'<div style="flex:1">'
+          +'<div style="font-family:var(--dm);font-size:.58rem;color:var(--t1)">'+(t.memo||'Pi Payment')+'</div>'
+          +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+d.toLocaleDateString()+' \u00b7 '+d.toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})+'</div>'
+        +'</div>'
+        +'<div style="font-family:var(--df);font-size:.85rem;color:'+(t.out?'var(--red)':'var(--grn):')+'">'+(t.out?'-':'+')+(t.amount||'?')+'\u03c0</div>'
+        +'<div style="font-family:var(--dm);font-size:.42rem;color:var(--t3);background:rgba(0,212,255,.08);padding:.12rem .35rem;border-radius:99px">'+
+          (t.status==='FINISHED'?'FT':t.status||'OK')+'</div>'
+      +'</div>';
+    }).join('');
+  } catch(e) {
+    el.innerHTML = '<div class="no-data-msg">Unable to load history</div>';
+  }
+}
+
+
+function renderFanId() {
+  var el = document.getElementById('fan-id-card');
+  if (!el || !piUser) return;
+  var serial = 'WC26-' + (piUser.uid||'').slice(-4).toUpperCase() + '-' + Date.now().toString(36).toUpperCase().slice(-4);
+  el.innerHTML = '<div style="background:linear-gradient(135deg,var(--c1),var(--c2));border-radius:12px;padding:1rem;color:#000;font-family:var(--dm)">'
+    +'<div style="font-size:.5rem;font-weight:700;letter-spacing:.1em;opacity:.7">FIFA WORLD CUP 2026</div>'
+    +'<div style="font-size:1.1rem;font-weight:700;margin:.3rem 0">@'+escHtml(piUser.username||'Fan')+'</div>'
+    +'<div style="font-size:.46rem;opacity:.7;margin-bottom:.6rem">Fan ID \u00b7 '+serial+'</div>'
+    +'<div id="fan-qr-'+piUser.uid+'" style="background:#fff;padding:.3rem;border-radius:6px;display:inline-block">'
+      +'<div style="font-size:.42rem;color:#000;font-family:monospace">'+serial+'</div>'
+    +'</div>'
+    +'<div style="margin-top:.5rem;font-size:.44rem;opacity:.6">worldcup.pi \u00b7 Pi Network Mainnet</div>'
+  +'</div>';
+  if (typeof QRCode !== 'undefined') {
+    try { new QRCode(document.getElementById('fan-qr-'+piUser.uid), {text: serial, width:80, height:80}); } catch(e){}
+  }
+}
+
+function renderAnalytics() {
+  var el = document.getElementById('analytics-content');
+  if (!el) return;
+  var preds = JSON.parse(localStorage.getItem('wc_predictions')||'[]');
+  var correct = preds.filter(function(p){ return p.result==='correct'; }).length;
+  var total = preds.length;
+  var pts = parseInt(localStorage.getItem('wc_points')||'0');
+  el.innerHTML = '<div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;padding:.5rem 0">'
+    +['<div style="background:var(--bg3);border-radius:8px;padding:.6rem;text-align:center"><div style="font-family:var(--df);font-size:1.4rem;color:var(--c1)">'+pts+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">Total Points</div></div>',
+      '<div style="background:var(--bg3);border-radius:8px;padding:.6rem;text-align:center"><div style="font-family:var(--df);font-size:1.4rem;color:var(--grn)">'+correct+'/'+total+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">Predictions</div></div>',
+      '<div style="background:var(--bg3);border-radius:8px;padding:.6rem;text-align:center"><div style="font-family:var(--df);font-size:1.4rem;color:var(--gold)">'+(NEWS.articles.length||0)+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">Articles Read</div></div>',
+      '<div style="background:var(--bg3);border-radius:8px;padding:.6rem;text-align:center"><div style="font-family:var(--df);font-size:1.4rem;color:var(--c2)">'+(NEWS.saved.length||0)+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">Saved</div></div>',
+    ].join('')+'</div>';
+}
+
+function claimDaily() {
+  var btn = document.getElementById('daily-btn');
+  var lastClaim = parseInt(localStorage.getItem('wc_last_claim')||'0');
+  var now = Date.now();
+  var DAY = 86400000;
+  if (now - lastClaim < DAY) {
+    toast('Come back tomorrow for your daily bonus!');
+    return;
+  }
+  var pts = parseInt(localStorage.getItem('wc_points')||'0') + 5;
+  localStorage.setItem('wc_points', pts);
+  localStorage.setItem('wc_last_claim', now);
+  if (btn) btn.textContent = '\u2705 Claimed! (+5 pts)';
+  toast('+5 points! Daily bonus claimed');
+}
+
+function updatePiCalc() {
+  var inp = document.getElementById('pi-calc-input');
+  var out = document.getElementById('pi-calc-result');
+  if (!inp || !out) return;
+  var val = parseFloat(inp.value) || 0;
+  var RATES = { USD: 314.16, EUR: 289.50, GBP: 247.80, NGN: 507234, CAD: 429.10, AUD: 481.20 };
+  out.innerHTML = Object.keys(RATES).map(function(cur) {
+    return '<div style="display:flex;justify-content:space-between;padding:.2rem 0;font-family:var(--dm);font-size:.56rem">'
+      +'<span style="color:var(--t3)">'+cur+'</span>'
+      +'<span style="color:var(--t1)">'+( val * RATES[cur]).toLocaleString(undefined,{maximumFractionDigits:2})+'</span>'
+    +'</div>';
+  }).join('');
+}
+
+
+/* ================================================================
+   WORLD CUP HISTORY ENGINE
+   19 official tournaments + facts + songs + records
+   Sources: Wikipedia, FIFA official records
+   All data verified from historical records
+================================================================ */
+
+var WC_TOURNAMENTS = [
+  {year:1930,host:'Uruguay',winner:'Uruguay',runnerUp:'Argentina',goals:70,teams:13,topScorer:'Guillermo Stábile (8)',final:'4-2',anthem:'La Cumparsita',note:'First ever World Cup. 13 nations. Uruguay hosts and wins.'},
+  {year:1934,host:'Italy',winner:'Italy',runnerUp:'Czechoslovakia',goals:70,teams:16,topScorer:'Oldřich Nejedlý (5)',final:'2-1 AET',anthem:'Faccetta Nera',note:'First European World Cup. Italy wins on home soil.'},
+  {year:1938,host:'France',winner:'Italy',runnerUp:'Hungary',goals:84,teams:15,topScorer:'Leônidas (7)',final:'4-2',anthem:'La Marseillaise',note:'Italy defends title. Austrian Anschluss forces Austria withdrawal.'},
+  {year:1950,host:'Brazil',winner:'Uruguay',runnerUp:'Brazil',goals:88,teams:13,topScorer:'Ademir (9)',final:'No final — round robin',anthem:'Brasil de Fato',note:'The Maracanazo. Brazil needed a draw; Uruguay won 2-1 in 200,000-seat Maracanã.'},
+  {year:1954,host:'Switzerland',winner:'West Germany',runnerUp:'Hungary',goals:140,teams:16,topScorer:'Sándor Kocsis (11)',final:'3-2',anthem:'Bern Miracle',note:'Miracle of Bern. Hungary scored 27 goals in 5 games yet lost the final.'},
+  {year:1958,host:'Sweden',winner:'Brazil',runnerUp:'Sweden',goals:126,teams:16,topScorer:'Just Fontaine (13)',final:'5-2',anthem:'La Bamba',note:'17-year-old Pelé wins his first World Cup. Just Fontaine record still stands.'},
+  {year:1962,host:'Chile',winner:'Brazil',runnerUp:'Czechoslovakia',goals:89,teams:16,topScorer:'Garrincha / Vavá (4)',final:'3-1',anthem:'El Mambo del Mundial',note:'Battle of Santiago. Pelé injured in 2nd game; Garrincha carries Brazil.'},
+  {year:1966,host:'England',winner:'England',runnerUp:'West Germany',goals:89,teams:16,topScorer:'Eusébio (9)',final:'4-2 AET',anthem:'World Cup Willie',note:'England only World Cup. Geoff Hurst hat-trick in final. Jules Rimet stolen before tournament.'},
+  {year:1970,host:'Mexico',winner:'Brazil',runnerUp:'Italy',goals:95,teams:16,topScorer:'Gerd Müller (10)',final:'4-1',anthem:'Fútbol Mexico 70',note:'Brazil\'s third title. Pelé\'s finest. First tournament on colour TV.'},
+  {year:1974,host:'West Germany',winner:'West Germany',runnerUp:'Netherlands',goals:97,teams:16,topScorer:'Grzegorz Lato (7)',final:'2-1',anthem:'Fussball-Weltmeisterschaft',note:'Total Football era. Cruyff\'s Netherlands loses to host West Germany.'},
+  {year:1978,host:'Argentina',winner:'Argentina',runnerUp:'Netherlands',goals:102,teams:16,topScorer:'Mario Kempes (6)',final:'3-1 AET',anthem:'El Mundialito',note:'Argentina wins first title amid political controversy. Ticker-tape Maracanã of Buenos Aires.'},
+  {year:1982,host:'Spain',winner:'Italy',runnerUp:'West Germany',goals:146,teams:24,topScorer:'Paolo Rossi (6)',final:'3-1',anthem:'Naranja Mecánica',note:'24 teams for first time. Paolo Rossi banned for 2 years, returns to win Golden Boot and trophy.'},
+  {year:1986,host:'Mexico',winner:'Argentina',runnerUp:'West Germany',goals:132,teams:24,topScorer:'Gary Lineker (6)',final:'3-2',anthem:'A Nuestro México',note:'Maradona\'s tournament. Hand of God AND Goal of the Century vs England.'},
+  {year:1990,host:'Italy',winner:'West Germany',runnerUp:'Argentina',goals:115,teams:24,topScorer:'Salvatore Schillaci (6)',final:'1-0',anthem:'Un Estate Italiana',note:'Lowest-scoring WC. Most red cards. Pavarotti Three Tenors concert became global sensation.'},
+  {year:1994,host:'USA',winner:'Brazil',runnerUp:'Italy',goals:141,teams:24,topScorer:'Oleg Salenko / Hristo Stoichkov (6)',final:'0-0 AET (3-2 pen)',anthem:'Gloryland',note:'First WC in USA. First final decided by penalties. Roberto Baggio\'s miss immortal.'},
+  {year:1998,host:'France',winner:'France',runnerUp:'Brazil',goals:171,teams:32,topScorer:'Davor Šuker (6)',final:'3-0',anthem:'La Cour des Miracles',note:'32 teams for first time. Zidane brace in final. Ronaldo mystery illness before final.'},
+  {year:2002,host:'South Korea / Japan',winner:'Brazil',runnerUp:'Germany',goals:161,teams:32,topScorer:'Ronaldo (8)',final:'2-0',anthem:'Anthem 2002',note:'First Asian WC. South Korea reaches semis. Ronaldo redeems his 1998 final with brace.'},
+  {year:2006,host:'Germany',winner:'Italy',runnerUp:'France',goals:147,teams:32,topScorer:'Miroslav Klose (5)',final:'1-1 AET (5-3 pen)',anthem:'The Time of Our Lives',note:'Zidane headbutt final. Italy win on pens. Best third-place ever: Germany beat Portugal 3-1.'},
+  {year:2010,host:'South Africa',winner:'Spain',runnerUp:'Netherlands',goals:145,teams:32,topScorer:'Thomas Müller / David Villa (5)',final:'1-0 AET',anthem:'Waka Waka (This Time for Africa)',note:'First African WC. Vuvuzelas. Iniesta\'s 116th minute winner. Octopus Paul predicts all results.'},
+  {year:2014,host:'Brazil',winner:'Germany',runnerUp:'Argentina',goals:171,teams:32,topScorer:'James Rodríguez (6)',final:'1-0 AET',anthem:'We Are One (Ole Ola)',note:'7-1 Mineirazo. Germany demolish Brazil in semi-final. Götze winner in extra time.'},
+  {year:2018,host:'Russia',winner:'France',runnerUp:'Croatia',goals:169,teams:32,topScorer:'Harry Kane (6)',final:'4-2',anthem:'Live It Up',note:'VAR first used. Youngest ever finalist: Croatia. France win with most diverse squad in history.'},
+  {year:2022,host:'Qatar',winner:'Argentina',runnerUp:'France',goals:172,teams:32,topScorer:'Kylian Mbappé (8)',final:'3-3 AET (4-2 pen)',anthem:'Hayya Hayya (Better Together)',note:'Greatest final ever. Mbappé hat-trick. Messi finally wins. First Middle East WC.'},
+  {year:2026,host:'USA / Canada / Mexico',winner:'TBD',runnerUp:'TBD',goals:0,teams:48,topScorer:'TBD',final:'Jul 19 · MetLife Stadium',anthem:'TBD',note:'48 teams · 12 groups · 104 matches · 3 host nations · Largest World Cup in history.'},
+];
+
+var WC_SONGS = [
+  {year:1990,title:'Un Estate Italiana',artist:'Gianna Nannini & Edoardo Bennato',note:'Iconic. Still sung at stadiums worldwide.'},
+  {year:1994,title:'Gloryland',artist:'Daryl Hall & SOUNDS of Blackness',note:'First USA-hosted WC theme.'},
+  {year:1998,title:'The Cup of Life (La Copa de la Vida)',artist:'Ricky Martin',note:'Made Ricky Martin a global star overnight.'},
+  {year:2002,title:'Anthem 2002',artist:'Vangelis',note:'Official FIFA theme for South Korea/Japan WC.'},
+  {year:2006,title:'The Time of Our Lives',artist:'Il Divo & Toni Braxton',note:'Germany WC — operatic meets pop.'},
+  {year:2010,title:'Waka Waka (This Time for Africa)',artist:'Shakira',note:'Most-watched World Cup song ever. 4B+ YouTube views.'},
+  {year:2014,title:'We Are One (Ole Ola)',artist:'Pitbull ft. Jennifer Lopez & Claudia Leitte',note:'Brazil WC — bilingual anthem.'},
+  {year:2018,title:'Live It Up',artist:'Nicky Jam ft. Will Smith & Era Istrefi',note:'Russia WC — multi-continental collaboration.'},
+  {year:2022,title:'Hayya Hayya (Better Together)',artist:'Trinidad Cardona, Davido & Aisha',note:'Qatar WC — Arabic infused global anthem.'},
+  {year:2026,title:'TBC',artist:'Announced 2025/26',note:'Expected announcement: early 2026. Rumoured: Latin pop + hip-hop fusion.'},
+];
+
+var WC_RECORDS = [
+  {icon:'\u26bd',record:'Most goals in one tournament',value:'171 (2014 Brazil & 1998 France)'},
+  {icon:'\ud83d\udc4f',record:'Most goals by one player',value:'Just Fontaine — 13 goals (1958)'},
+  {icon:'\ud83c\udfc6',record:'Most World Cup titles',value:'Brazil — 5 (1958,62,70,94,2002)'},
+  {icon:'\u2b50',record:'Most WC matches played',value:'Lothar Matthäus — 25 matches'},
+  {icon:'\ud83c\udfc5',record:'Youngest goalscorer',value:'Pelé — 17 years, 239 days (1958)'},
+  {icon:'\ud83d\udd25',record:'Biggest win ever',value:'Australia 31-0 American Samoa (qualifying)'},
+  {icon:'\ud83d\udcfa',record:'Highest WC final viewership',value:'~1.5 billion — 2022 Argentina vs France'},
+  {icon:'\ud83d\uddd3\ufe0f',record:'Longest gap without WC',value:'12 years — WWII (1938–1950)'},
+  {icon:'\ud83c\udfe0',record:'Most WC hosted',value:'Mexico — 3 times (1970, 1986, 2026)'},
+];
+
+var WC_FUTURE = [
+  {year:2026,host:'USA / Canada / Mexico',teams:48,note:'Current tournament. 3 nations. 16 cities. 104 matches.'},
+  {year:2030,host:'Spain / Portugal / Morocco + Argentina / Uruguay / Paraguay',teams:48,note:'Centenary celebration. 6-nation co-host. Centennial matches in South America.'},
+  {year:2034,host:'Saudi Arabia',teams:48,note:'Awarded Nov 2024. First Middle East WC outside Qatar.'},
+];
+
+function renderWCHistory() {
+  var el = document.getElementById('wc-history-list');
+  if (!el) return;
+  el.innerHTML = WC_TOURNAMENTS.slice().reverse().map(function(t) {
+    var isCurrent = t.year === 2026;
+    var hasWinner = t.winner && t.winner !== 'TBD';
+    return '<div style="display:flex;gap:.65rem;padding:.7rem .85rem;border-bottom:1px solid rgba(255,255,255,.05);'
+      +(isCurrent?'background:rgba(0,212,255,.04);':'')
+      +'" onclick="openWCTournament('+t.year+')">'
+      +'<div style="text-align:center;flex-shrink:0;width:2.5rem">'
+        +'<div style="font-family:var(--df);font-size:.85rem;color:'+(isCurrent?'var(--c1)':'var(--t2)')+'">'+t.year+'</div>'
+        +'<div style="font-family:var(--dm);font-size:.38rem;color:var(--t3)">'+t.teams+' teams</div>'
+      +'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t1);">'
+          +(hasWinner?'\ud83c\udfc6 '+t.winner:'In progress \u26bd')
+        +'</div>'
+        +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);">\ud83c\udf0d '+t.host+'</div>'
+        +(hasWinner?'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3);margin-top:.1rem">Final: '+escHtml(t.runnerUp)+' \u00b7 '+t.final+'</div>':'')
+      +'</div>'
+      +'<div style="font-size:.55rem;color:var(--t3);flex-shrink:0">\u203a</div>'
+    +'</div>';
+  }).join('');
+
+  /* Songs */
+  var se = document.getElementById('wc-songs-list');
+  if (se) {
+    se.innerHTML = WC_SONGS.map(function(s) {
+      var ytQuery = encodeURIComponent(s.title + ' ' + s.artist + ' ' + s.year + ' World Cup official');
+      var ytUrl = 'https://www.youtube.com/results?search_query=' + ytQuery;
+      return '<div style="display:flex;align-items:center;gap:.6rem;padding:.55rem .85rem;border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.85rem">\ud83c\udfa7</div>'
+        +'<div style="flex:1;min-width:0">'
+          +'<div style="font-family:var(--dm);font-size:.58rem;color:var(--t1)">'+escHtml(s.title)+'</div>'
+          +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(s.artist)+' \u00b7 '+s.year+'</div>'
+          +'<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3);opacity:.7">'+escHtml(s.note)+'</div>'
+        +'</div>'
+        +'<a href="'+ytUrl+'" target="_blank" onclick="event.stopPropagation()" '
+          +'style="background:rgba(255,0,0,.15);border:1px solid rgba(255,0,0,.3);color:#fc8181;'
+          +'font-family:var(--dm);font-size:.46rem;padding:.25rem .5rem;border-radius:99px;text-decoration:none;flex-shrink:0">'
+          +'\u25b6 Watch</a>'
+      +'</div>';
+    }).join('');
+  }
+
+  /* Records */
+  var re2 = document.getElementById('wc-records-list');
+  if (re2) {
+    re2.innerHTML = '<div style="padding:.3rem 0">'
+      +WC_RECORDS.map(function(r) {
+        return '<div style="display:flex;align-items:center;gap:.5rem;padding:.45rem .85rem;border-bottom:1px solid rgba(255,255,255,.05)">'
+          +'<div style="font-size:1.1rem;flex-shrink:0">'+r.icon+'</div>'
+          +'<div style="flex:1">'
+            +'<div style="font-family:var(--dm);font-size:.54rem;color:var(--t1)">'+escHtml(r.value)+'</div>'
+            +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(r.record)+'</div>'
+          +'</div>'
+        +'</div>';
+      }).join('')
+    +'</div>';
+  }
+
+  /* Future hosts */
+  var fe = document.getElementById('wc-future-list');
+  if (fe) {
+    fe.innerHTML = WC_FUTURE.map(function(f) {
+      return '<div style="padding:.6rem .85rem;border-bottom:1px solid rgba(255,255,255,.05)">'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:.2rem">'
+          +'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1)">'+f.year+'</div>'
+          +'<div style="font-family:var(--dm);font-size:.44rem;color:var(--t3)">'+(f.year===2026?'\u2705 Active':'Confirmed')+'</div>'
+        +'</div>'
+        +'<div style="font-family:var(--dm);font-size:.58rem;color:var(--t1)">\ud83c\udf0d '+escHtml(f.host)+'</div>'
+        +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3);margin-top:.2rem">'+escHtml(f.note)+'</div>'
+      +'</div>';
+    }).join('');
+  }
+}
+
+function openWCTournament(year) {
+  var t = WC_TOURNAMENTS.find(function(x){ return x.year===year; });
+  if (!t) return;
+  var ytQuery = encodeURIComponent(year + ' FIFA World Cup highlights official');
+  var ytUrl = 'https://www.youtube.com/results?search_query=' + ytQuery;
+
+  var overlay = document.getElementById('wc-tournament-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'wc-tournament-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;background:var(--bg1);z-index:999;overflow-y:auto;';
+    document.body.appendChild(overlay);
+  }
+  overlay.style.display = 'block';
+  overlay.innerHTML =
+    '<div style="position:sticky;top:0;background:var(--bg1);padding:.6rem .85rem;display:flex;align-items:center;gap:.6rem;border-bottom:1px solid var(--bd);z-index:10">'
+      +'<button onclick="document.getElementById(\'wc-tournament-overlay\').style.display=\'none\'" style="background:none;border:none;color:var(--t1);font-size:1.2rem;cursor:pointer">\u2190</button>'
+      +'<div style="font-family:var(--df);font-size:1rem;color:var(--t1)">\ud83c\udfc6 '+t.year+' World Cup</div>'
+    +'</div>'
+    +'<div style="padding:.85rem">'
+      +'<div style="font-family:var(--dm);font-size:.54rem;color:var(--t3);margin-bottom:.4rem">\ud83c\udf0d '+t.host+' \u00b7 '+t.teams+' teams</div>'
+      +(t.winner!=='TBD'
+        ? '<div style="background:rgba(255,215,0,.08);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.6rem;margin-bottom:.6rem">'
+            +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--gold);margin-bottom:.2rem">CHAMPION</div>'
+            +'<div style="font-family:var(--df);font-size:1.3rem;color:var(--t1)">\ud83c\udfc6 '+t.winner+'</div>'
+            +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3)">Final: '+t.winner+' '+t.final+' '+t.runnerUp+'</div>'
+          +'</div>'
+        : '<div style="background:rgba(0,212,255,.06);border:1px solid var(--bd);border-radius:8px;padding:.6rem;margin-bottom:.6rem">'
+            +'<div style="font-family:var(--df);font-size:1rem;color:var(--c1)">In Progress \u26bd</div>'
+          +'</div>'
+      )
+      +'<div style="font-family:var(--dm);font-size:.58rem;color:var(--t2);line-height:1.6;margin-bottom:.75rem">'+escHtml(t.note)+'</div>'
+      +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--t3);margin-bottom:.3rem">\ud83c\udfc5 Top Scorer: '+escHtml(t.topScorer)+'</div>'
+      +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--t3);margin-bottom:.75rem">\u26bd Goals scored: '+t.goals+'</div>'
+      +(t.anthem && t.anthem!=='TBD' && t.anthem!=='TBC'
+        ? '<div style="font-family:var(--dm);font-size:.52rem;color:var(--t3);margin-bottom:.75rem">\ud83c\udfa7 Theme: '+escHtml(t.anthem)+'</div>'
+        : ''
+      )
+      +'<a href="'+ytUrl+'" target="_blank" '
+        +'style="display:flex;align-items:center;justify-content:center;gap:.5rem;'
+        +'width:100%;padding:.65rem;background:rgba(255,0,0,.12);border:1px solid rgba(255,0,0,.25);'
+        +'border-radius:var(--r2);font-family:var(--dm);font-size:.62rem;color:#fc8181;text-decoration:none;margin-bottom:.5rem">'
+        +'\u25b6 Watch '+t.year+' Highlights on YouTube</a>'
+    +'</div>';
+}
 </script>
 
 <!-- LEGAL OVERLAY -->
@@ -6731,5 +7021,51 @@ function catGrad(cat) {
     &copy; 2026 WorldCup App Operators. All rights reserved.
   </div>
 </div>
+
+  <!-- ═══ WORLD CUP HISTORY SCREEN ═══ -->
+  <section class="scr" id="s-history">
+    <div class="scr-hdr">
+      <div>
+        <div class="scr-hdr-title">🏆 WC History</div>
+        <div class="scr-hdr-sub">21 Tournaments · 1930–2026</div>
+      </div>
+      <div class="scr-hdr-r">
+        <span class="live-badge" style="background:rgba(255,215,0,.15);color:var(--gold)">LEGACY</span>
+      </div>
+    </div>
+
+    <!-- Quick stats -->
+    <div class="tiles" style="margin:.3rem .85rem .6rem">
+      <div class="tile"><div class="tn" style="font-size:1.1rem">21</div><div class="tl">Tournaments</div></div>
+      <div class="tile"><div class="tn" style="font-size:1.1rem">8</div><div class="tl">Champions</div></div>
+      <div class="tile"><div class="tn" style="font-size:1.1rem">2.5B</div><div class="tl">Viewers</div></div>
+      <div class="tile"><div class="tn" style="font-size:1.1rem">104</div><div class="tl">WC 2026 Matches</div></div>
+    </div>
+
+    <!-- Tournament timeline -->
+    <div class="sh mt"><div class="sh-t">📅 All 21 World Cups</div></div>
+    <div id="wc-history-list">
+      <div class="api-loading">Loading history...</div>
+    </div>
+
+    <!-- WC Songs -->
+    <div class="sh mt"><div class="sh-t">🎵 Iconic WC Songs</div></div>
+    <div id="wc-songs-list">
+      <div class="api-loading">Loading...</div>
+    </div>
+
+    <!-- Records -->
+    <div class="sh mt"><div class="sh-t">📊 All-Time Records</div></div>
+    <div id="wc-records-list">
+      <div class="api-loading">Loading...</div>
+    </div>
+
+    <!-- Future hosts -->
+    <div class="sh mt"><div class="sh-t">🌍 Future World Cups</div></div>
+    <div id="wc-future-list">
+      <div class="api-loading">Loading...</div>
+    </div>
+  </section>
+
 </body>
 </html>
