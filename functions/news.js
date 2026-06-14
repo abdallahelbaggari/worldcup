@@ -147,6 +147,14 @@ export async function onRequestGet(context) {
 
     if (!title || !url) return null;
 
+    /* Build YouTube search URL for video content */
+    let videoUrl = null;
+    if (cat === 'highlight' || title.toLowerCase().includes('highlight') ||
+        title.toLowerCase().includes('goal') || title.toLowerCase().includes('watch')) {
+      const ytQuery = encodeURIComponent(title.slice(0,80) + ' World Cup 2026');
+      videoUrl = 'https://www.youtube.com/results?search_query=' + ytQuery;
+    }
+
     return {
       id,
       title:       title.slice(0, 200),
@@ -155,11 +163,11 @@ export async function onRequestGet(context) {
       author:      author ? author.slice(0, 80) : null,
       url,
       imageUrl:    imgUrl || null,
-      videoUrl:    cat === 'highlight' ? url : null,
+      videoUrl,
       publishedAt: ts,
       publishedISO: new Date(ts).toISOString(),
       category:    cat,
-      readTime:    Math.max(1, Math.ceil(desc.split(' ').length / 200)) + ' min',
+      readTime:    Math.max(1, Math.ceil((desc||'').split(' ').length / 200)) + ' min',
     };
   }
 
