@@ -9319,99 +9319,10 @@ function _wchHero() {
 /* ────────────────────────────────────────────
    1. TIMELINE — horizontal scroll, tap → detail
 ──────────────────────────────────────────── */
-function _wchTimeline() {
-  var rail = document.getElementById('wch-timeline-rail');
-  if (!rail) return;
-  var flagMap = {
-    Uruguay:'\uD83C\uDDFA\uD83C\uDDFE', Italy:'\uD83C\uDDEE\uD83C\uDDF9',
-    France:'\uD83C\uDDEB\uD83C\uDDF7', Brazil:'\uD83C\uDDE7\uD83C\uDDF7',
-    'West Germany':'\uD83C\uDDE9\uD83C\uDDEA', England:'\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F',
-    Germany:'\uD83C\uDDE9\uD83C\uDDEA', Argentina:'\uD83C\uDDE6\uD83C\uDDF7',
-    Spain:'\uD83C\uDDEA\uD83C\uDDF8', TBD:'\uD83C\uDFC6',
-  };
-  rail.innerHTML = (WC_TOURNAMENTS||[]).map(function(t){
-    var isNow = t.year === 2026;
-    var flag  = flagMap[t.winner] || '\uD83C\uDFC6';
-    var hasW  = t.winner && t.winner !== 'TBD';
-    return '<div class="wch-yr-card'+(isNow?' wch-yr-active':'')+'" onclick="wchOpenTournament('+t.year+')">'
-      + '<div class="wch-yr-num">'+t.year+'</div>'
-      + '<div class="wch-yr-host">'+escHtml(t.host.split('/')[0].split(',')[0].trim())+'</div>'
-      + (hasW ? '<div class="wch-yr-win">'+flag+' '+escHtml(t.winner)+'</div>'
-               : '<div class="wch-yr-win" style="color:var(--c1)">\u26BD Live</div>')
-      + '<div class="wch-yr-teams">'+t.teams+' teams</div>'
-      + '</div>';
-  }).join('');
-}
+
 
 /* ── Tournament detail panel ── */
-function wchOpenTournament(year) {
-  var t = (WC_TOURNAMENTS||[]).find(function(x){ return x.year===year; });
-  if (!t) return;
-  WCH.activeYear = year;
 
-  var panel   = document.getElementById('wch-detail-panel');
-  var content = document.getElementById('wch-detail-content');
-  if (!panel || !content) return;
-
-  var hasW  = t.winner && t.winner !== 'TBD';
-  var img   = WCH_IMAGES[year] || null;
-  var ytHL  = wchYT(year + ' FIFA World Cup best goals highlights');
-  var ytFin = wchYT(year + ' FIFA World Cup final full match');
-  var ytCer = wchYT(year + ' FIFA World Cup opening ceremony');
-
-  content.innerHTML =
-    '<button onclick="document.getElementById(\'wch-detail-panel\').style.display=\'none\'" '
-    +'style="float:right;background:rgba(255,255,255,.1);border:none;color:var(--t1);'
-    +'border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.85rem">✕</button>'
-
-    /* Poster */
-    +(img?'<img data-img="'+img+'" src="" alt="" style="width:100%;max-height:120px;'
-      +'object-fit:contain;border-radius:8px;margin-bottom:.5rem" onerror="this.style.display=\'none\'">':'')
-
-    /* Title */
-    +'<div style="font-family:var(--df);font-size:1.1rem;color:var(--gold);margin-bottom:.15rem">'
-    +'\uD83C\uDFC6 FIFA World Cup '+year+'</div>'
-    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.5rem">'
-    +'\uD83C\uDF0D '+escHtml(t.host)+' \u00B7 '+t.teams+' teams</div>'
-
-    /* Result */
-    +(hasW
-      ?'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.5rem;margin-bottom:.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.4rem">'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--gold)">CHAMPION</div>'
-          +'<div style="font-family:var(--df);font-size:.9rem">\uD83C\uDFC6 '+escHtml(t.winner)+'</div></div>'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">RUNNER-UP</div>'
-          +'<div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">\uD83E\uDD48 '+escHtml(t.runnerUp||'')+'</div>'
-          +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(t.final||'')+'</div>'
-        +'</div>'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">TOP SCORER</div>'
-          +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--t1)">'+escHtml(t.topScorer||'')+'</div>'
-        +'</div>'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">GOALS</div>'
-          +'<div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">'+t.goals+'</div>'
-        +'</div>'
-      +'</div>'
-      :'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.5rem">In Progress \u26BD</div>'
-    )
-
-    /* Story */
-    +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.68;'
-    +'background:var(--bg3);border-radius:8px;padding:.55rem;border-left:3px solid var(--c1);margin-bottom:.55rem">'
-    +escHtml(t.note)+'</div>'
-
-    /* Watch buttons — open YouTube IN Pi Browser */
-    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">'
-    +'<a href="'+ytFin+'" class="wch-watch-btn">\u25B6 Watch Final</a>'
-    +'<a href="'+ytHL+'"  class="wch-watch-btn">\uD83C\uDFA5 Highlights</a>'
-    +'<a href="'+ytCer+'" class="wch-watch-btn">\uD83C\uDF89 Ceremony</a>'
-    +'<div class="wch-watch-btn" style="opacity:.5;cursor:default">'
-    +(t.anthem&&t.anthem!=='TBD'&&t.anthem!=='TBC'?'\uD83C\uDFA7 '+escHtml(t.anthem):'\uD83C\uDFA7 Song TBD')
-    +'</div>'
-    +'</div>';
-
-  panel.style.display = 'block';
-  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  _wchInitLazyLoad();
-}
 
 /* ────────────────────────────────────────────
    2. HOSTS
@@ -9451,35 +9362,7 @@ function _wchChampions() {
 /* ────────────────────────────────────────────
    4. VIDEOS — tab system, YouTube opens in Pi Browser
 ──────────────────────────────────────────── */
-function wchVideoTab(cat, btn) {
-  WCH.videoTab = cat;
-  if (btn) {
-    document.querySelectorAll('.wch-vtab').forEach(function(b){ b.classList.remove('on'); });
-    btn.classList.add('on');
-  }
-  var grid = document.getElementById('wch-video-grid');
-  if (!grid) return;
-  var videos = WCH_VIDEOS[cat] || [];
 
-  grid.innerHTML = videos.map(function(v){
-    var ytUrl = wchYT(v.ytSearch || v.title + ' World Cup');
-    return '<div class="wch-video-card" onclick="wchOpenVideo(\''+v.id+'\')">'
-      +'<div class="wch-video-thumb" style="background:linear-gradient(135deg,'+v.color+'88,'+v.color+'22)">'
-        +(v.thumb
-          ?'<img data-img="'+v.thumb+'" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55" onerror="this.remove()">'
-          :'')
-        +'<div class="wch-video-play-icon">▶</div>'
-        +'<div class="wch-video-year-badge">'+v.year+'</div>'
-      +'</div>'
-      +'<div class="wch-video-meta">'
-        +'<div class="wch-video-title">'+escHtml(v.title)+'</div>'
-        +(v.facts&&v.facts[0]?'<div class="wch-video-fact">'+escHtml(v.facts[0])+'</div>':'')
-      +'</div>'
-    +'</div>';
-  }).join('');
-
-  _wchInitLazyLoad();
-}
 
 function wchOpenVideo(id) {
   /* Find video in any category */
@@ -9588,67 +9471,17 @@ function wchShareMedia() {
 /* ────────────────────────────────────────────
    5. SONGS — story cards only, no audio player
 ──────────────────────────────────────────── */
-function _wchSongs() {
-  var list = document.getElementById('wch-songs-list');
-  if (!list) return;
-  list.innerHTML = (WCH_SONGS||[]).map(function(s){
-    var ytUrl = wchYT(s.title + ' ' + s.artist + ' ' + s.year + ' World Cup official');
-    return '<div class="wch-song-row">'
-      +'<div class="wch-song-dot" style="background:'+s.color+';width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px"></div>'
-      +'<div style="flex:1;min-width:0">'
-        +'<div class="wch-song-title-txt">'+escHtml(s.title)+'</div>'
-        +'<div class="wch-song-artist-txt">'+escHtml(s.artist)+' \u00B7 '+s.year+'</div>'
-        +'<div class="wch-song-note-txt">'+escHtml(s.note)+'</div>'
-      +'</div>'
-      +'<a href="'+ytUrl+'" class="wch-song-watch">\u25B6</a>'
-      +'</div>';
-  }).join('');
-}
+
 
 /* ────────────────────────────────────────────
    6. GREATEST MATCHES
 ──────────────────────────────────────────── */
-function _wchMatches() {
-  var list = document.getElementById('wch-matches-list');
-  if (!list) return;
-  list.innerHTML = (WC_BEST_MATCHES||[]).map(function(m){
-    var ytUrl = wchYT(m.ytQuery || m.teams + ' ' + m.year + ' World Cup highlights');
-    return '<div class="wch-match-card">'
-      +'<div class="wch-match-rank">#'+m.rank+'</div>'
-      +'<div style="flex:1;min-width:0">'
-        +'<div class="wch-match-label">'+escHtml(m.label)+'</div>'
-        +'<div class="wch-match-teams">'+escHtml(m.teams)+' \u00B7 '+m.year+'</div>'
-        +'<div class="wch-match-desc">'+escHtml(m.desc)+'</div>'
-      +'</div>'
-      +'<a href="'+ytUrl+'" class="wch-song-watch">\u25B6</a>'
-      +'</div>';
-  }).join('');
-}
+
 
 /* ────────────────────────────────────────────
    7. ICONIC MOMENTS
 ──────────────────────────────────────────── */
-function _wchMoments() {
-  var list = document.getElementById('wch-moments-list');
-  if (!list) return;
-  list.innerHTML = (WC_MOMENTS||[]).map(function(m){
-    /* Find linked video */
-    var vidData = null;
-    Object.keys(WCH_VIDEOS).forEach(function(cat){
-      if (!vidData) vidData = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===m.year; });
-    });
-    var ytUrl = wchYT(m.ytQuery || m.title + ' World Cup ' + m.year);
-    return '<div class="wch-moment-card" onclick="'+(vidData?'wchOpenVideo(\''+vidData.id+'\')':'void(0)')+'">'
-      +'<div class="wch-moment-icon">'+m.icon+'</div>'
-      +'<div style="flex:1;min-width:0">'
-        +'<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
-        +'<div class="wch-moment-meta">'+m.year+' \u00B7 '+escHtml(m.teams)+'</div>'
-        +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,110))+'...</div>'
-      +'</div>'
-      +'<a href="'+ytUrl+'" class="wch-song-watch" onclick="event.stopPropagation()">\u25B6</a>'
-      +'</div>';
-  }).join('');
-}
+
 
 /* ────────────────────────────────────────────
    8. LEGENDS
@@ -9742,6 +9575,256 @@ function _wchInitLazyLoad() {
 document.addEventListener('keydown', function(e){
   if (e.key==='Escape' && WCH.mediaOpen) wchCloseMedia();
 });
+
+
+/* ── FIXED ONCLICK FORMAT — no broken escaping ── */
+
+function _wchTimeline() {
+  var rail = document.getElementById('wch-timeline-rail');
+  if (!rail) return;
+  var flagMap = {
+    Uruguay:'\uD83C\uDDFA\uD83C\uDDFE', Italy:'\uD83C\uDDEE\uD83C\uDDF9',
+    France:'\uD83C\uDDEB\uD83C\uDDF7', Brazil:'\uD83C\uDDE7\uD83C\uDDF7',
+    'West Germany':'\uD83C\uDDE9\uD83C\uDDEA',
+    England:'\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F',
+    Germany:'\uD83C\uDDE9\uD83C\uDDEA', Argentina:'\uD83C\uDDE6\uD83C\uDDF7',
+    Spain:'\uD83C\uDDEA\uD83C\uDDF8', TBD:'\uD83C\uDFC6',
+  };
+  var cards = (WC_TOURNAMENTS||[]).map(function(t){
+    var isNow = t.year===2026;
+    var flag  = flagMap[t.winner] || '\uD83C\uDFC6';
+    var hasW  = t.winner && t.winner!=='TBD';
+    var el = document.createElement('div');
+    el.className = 'wch-yr-card' + (isNow?' wch-yr-active':'');
+    el.onclick = (function(year){ return function(){ wchOpenTournament(year); }; })(t.year);
+    el.innerHTML =
+      '<div class="wch-yr-num">'+t.year+'</div>'
+      +'<div class="wch-yr-host">'+escHtml(t.host.split('/')[0].split(',')[0].trim())+'</div>'
+      +(hasW?'<div class="wch-yr-win">'+flag+' '+escHtml(t.winner)+'</div>'
+            :'<div class="wch-yr-win" style="color:var(--c1)">\u26BD Live</div>')
+      +'<div class="wch-yr-teams">'+t.teams+' teams</div>';
+    return el;
+  });
+  rail.innerHTML = '';
+  cards.forEach(function(c){ rail.appendChild(c); });
+}
+
+function wchOpenTournament(year) {
+  var t = (WC_TOURNAMENTS||[]).find(function(x){ return x.year===year; });
+  if (!t) return;
+  WCH.activeYear = year;
+  var panel   = document.getElementById('wch-detail-panel');
+  var content = document.getElementById('wch-detail-content');
+  if (!panel || !content) return;
+  var hasW = t.winner && t.winner!=='TBD';
+  var img  = WCH_IMAGES[year] || null;
+  var ytHL  = wchYT(year+' FIFA World Cup best goals highlights');
+  var ytFin = wchYT(year+' FIFA World Cup final full match');
+  var ytCer = wchYT(year+' FIFA World Cup opening ceremony');
+  content.innerHTML = '';
+
+  /* Close button */
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '\u2715';
+  closeBtn.style.cssText = 'float:right;background:rgba(255,255,255,.1);border:none;'
+    +'color:var(--t1);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.85rem';
+  closeBtn.onclick = function(){ panel.style.display='none'; };
+  content.appendChild(closeBtn);
+
+  var info = document.createElement('div');
+  info.innerHTML =
+    (img?'<img data-img="'+img+'" src="" alt="" style="width:100%;max-height:120px;object-fit:contain;border-radius:8px;margin-bottom:.5rem" onerror="this.style.display=\'none\'">':'')
+    +'<div style="font-family:var(--df);font-size:1.1rem;color:var(--gold);margin-bottom:.15rem">\uD83C\uDFC6 FIFA World Cup '+year+'</div>'
+    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.5rem">\uD83C\uDF0D '+escHtml(t.host)+' \u00B7 '+t.teams+' teams</div>'
+    +(hasW
+      ?'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.5rem;margin-bottom:.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.4rem">'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--gold)">CHAMPION</div><div style="font-family:var(--df);font-size:.9rem">\uD83C\uDFC6 '+escHtml(t.winner)+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">RUNNER-UP</div><div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">\uD83E\uDD48 '+escHtml(t.runnerUp||'')+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(t.final||'')+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">TOP SCORER</div><div style="font-family:var(--dm);font-size:.52rem;color:var(--t1)">'+escHtml(t.topScorer||'')+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">GOALS</div><div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">'+t.goals+'</div></div>'
+      +'</div>'
+      :'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.5rem">In Progress \u26BD</div>'
+    )
+    +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.68;background:var(--bg3);border-radius:8px;padding:.55rem;border-left:3px solid var(--c1);margin-bottom:.55rem">'+escHtml(t.note)+'</div>';
+  content.appendChild(info);
+
+  /* Watch buttons — proper <a> elements */
+  var btns = [
+    {label:'\u25B6 Watch Final', url:ytFin},
+    {label:'\uD83C\uDFA5 Highlights', url:ytHL},
+    {label:'\uD83C\uDF89 Ceremony', url:ytCer},
+  ];
+  var btnGrid = document.createElement('div');
+  btnGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:.35rem';
+  btns.forEach(function(b){
+    var a = document.createElement('a');
+    a.href = b.url;
+    a.className = 'wch-watch-btn';
+    a.textContent = b.label;
+    btnGrid.appendChild(a);
+  });
+  content.appendChild(btnGrid);
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  _wchInitLazyLoad();
+}
+
+function wchVideoTab(cat, btn) {
+  WCH.videoTab = cat;
+  if (btn) {
+    document.querySelectorAll('.wch-vtab').forEach(function(b){ b.classList.remove('on'); });
+    btn.classList.add('on');
+  }
+  var grid = document.getElementById('wch-video-grid');
+  if (!grid) return;
+  var videos = WCH_VIDEOS[cat] || [];
+  grid.innerHTML = '';
+
+  videos.forEach(function(v){
+    /* Build card using DOM — no string escaping issues */
+    var card = document.createElement('div');
+    card.className = 'wch-video-card';
+    card.onclick = (function(vid){ return function(){ wchOpenVideo(vid.id); }; })(v);
+
+    var thumb = document.createElement('div');
+    thumb.className = 'wch-video-thumb';
+    thumb.style.cssText = 'background:linear-gradient(135deg,'+v.color+'88,'+v.color+'22)';
+
+    if (v.thumb) {
+      var img = document.createElement('img');
+      img.setAttribute('data-img', v.thumb);
+      img.src = '';
+      img.alt = '';
+      img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55';
+      img.onerror = function(){ this.remove(); };
+      thumb.appendChild(img);
+    }
+
+    var playIcon = document.createElement('div');
+    playIcon.className = 'wch-video-play-icon';
+    playIcon.textContent = '\u25B6';
+    thumb.appendChild(playIcon);
+
+    var yearBadge = document.createElement('div');
+    yearBadge.className = 'wch-video-year-badge';
+    yearBadge.textContent = v.year;
+    thumb.appendChild(yearBadge);
+
+    card.appendChild(thumb);
+
+    var meta = document.createElement('div');
+    meta.className = 'wch-video-meta';
+    meta.innerHTML = '<div class="wch-video-title">'+escHtml(v.title)+'</div>'
+      +(v.facts&&v.facts[0]?'<div class="wch-video-fact">'+escHtml(v.facts[0])+'</div>':'');
+    card.appendChild(meta);
+
+    grid.appendChild(card);
+  });
+
+  _wchInitLazyLoad();
+}
+
+function _wchSongs() {
+  var list = document.getElementById('wch-songs-list');
+  if (!list) return;
+  list.innerHTML = '';
+  (WCH_SONGS||[]).forEach(function(s){
+    var row = document.createElement('div');
+    row.className = 'wch-song-row';
+
+    var dot = document.createElement('div');
+    dot.className = 'wch-song-dot';
+    dot.style.cssText = 'background:'+s.color+';width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px';
+    row.appendChild(dot);
+
+    var body = document.createElement('div');
+    body.style.cssText = 'flex:1;min-width:0';
+    body.innerHTML = '<div class="wch-song-title-txt">'+escHtml(s.title)+'</div>'
+      +'<div class="wch-song-artist-txt">'+escHtml(s.artist)+' \u00B7 '+s.year+'</div>'
+      +'<div class="wch-song-note-txt">'+escHtml(s.note)+'</div>';
+    row.appendChild(body);
+
+    /* Watch button — proper <a> element */
+    var a = document.createElement('a');
+    a.href = wchYT(s.title+' '+s.artist+' '+s.year+' World Cup official');
+    a.className = 'wch-song-watch';
+    a.textContent = '\u25B6';
+    row.appendChild(a);
+
+    list.appendChild(row);
+  });
+}
+
+function _wchMatches() {
+  var list = document.getElementById('wch-matches-list');
+  if (!list) return;
+  list.innerHTML = '';
+  (WC_BEST_MATCHES||[]).forEach(function(m){
+    var card = document.createElement('div');
+    card.className = 'wch-match-card';
+
+    var rank = document.createElement('div');
+    rank.className = 'wch-match-rank';
+    rank.textContent = '#'+m.rank;
+    card.appendChild(rank);
+
+    var body = document.createElement('div');
+    body.style.cssText = 'flex:1;min-width:0';
+    body.innerHTML = '<div class="wch-match-label">'+escHtml(m.label)+'</div>'
+      +'<div class="wch-match-teams">'+escHtml(m.teams)+' \u00B7 '+m.year+'</div>'
+      +'<div class="wch-match-desc">'+escHtml(m.desc)+'</div>';
+    card.appendChild(body);
+
+    var a = document.createElement('a');
+    a.href = wchYT((m.ytQuery||m.teams+' '+m.year+' World Cup highlights'));
+    a.className = 'wch-song-watch';
+    a.textContent = '\u25B6';
+    card.appendChild(a);
+
+    list.appendChild(card);
+  });
+}
+
+function _wchMoments() {
+  var list = document.getElementById('wch-moments-list');
+  if (!list) return;
+  list.innerHTML = '';
+  (WC_MOMENTS||[]).forEach(function(m){
+    var vidData = null;
+    Object.keys(WCH_VIDEOS).forEach(function(cat){
+      if (!vidData) vidData = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===m.year; });
+    });
+
+    var card = document.createElement('div');
+    card.className = 'wch-moment-card';
+    if (vidData) {
+      card.onclick = (function(vid){ return function(){ wchOpenVideo(vid.id); }; })(vidData);
+      card.style.cursor = 'pointer';
+    }
+
+    var icon = document.createElement('div');
+    icon.className = 'wch-moment-icon';
+    icon.textContent = m.icon;
+    card.appendChild(icon);
+
+    var body = document.createElement('div');
+    body.style.cssText = 'flex:1;min-width:0';
+    body.innerHTML = '<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
+      +'<div class="wch-moment-meta">'+m.year+' \u00B7 '+escHtml(m.teams)+'</div>'
+      +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,110))+'...</div>';
+    card.appendChild(body);
+
+    var a = document.createElement('a');
+    a.href = wchYT(m.ytQuery||m.title+' World Cup '+m.year);
+    a.className = 'wch-song-watch';
+    a.textContent = '\u25B6';
+    a.onclick = function(e){ e.stopPropagation(); };
+    card.appendChild(a);
+
+    list.appendChild(card);
+  });
+}
 </script><!-- LEGAL OVERLAY -->
 <div id="legal-overlay" class="legal-overlay">
   <div class="legal-hdr">
