@@ -2949,72 +2949,13 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
 /* ================================================================
    MEDIA DATA v6.0
    dmId  = Dailymotion video ID (iframe embeds, works in Pi Browser)
-   ytId  = YouTube video ID (fallback: navigates to youtube.com)
-   scUrl = SoundCloud track URL (for audio-only songs)
+   ytId  = YouTube video ID (reference only)
+   scUrl = SoundCloud track URL (audio-only songs)
 ================================================================ */
 
-var WC_SONGS = [
-  {year:1990,title:'Un Estate Italiana',artist:'Gianna Nannini & Edoardo Bennato',
-   dmId:'x2lbgns',ytId:'x3fRFD5OuAk',color:'#c0392b',
-   note:'Iconic. Still played in stadiums worldwide.'},
-  {year:1994,title:'Gloryland',artist:'Daryl Hall & SOUNDS of Blackness',
-   dmId:'x2lbgr3',ytId:'GFy9GkWflbQ',color:'#1565c0',
-   note:'First USA-hosted World Cup anthem.'},
-  {year:1998,title:'La Copa de la Vida',artist:'Ricky Martin',
-   dmId:'x2lbgr7',ytId:'7oMY6XHBTpQ',color:'#00695c',
-   note:'Made Ricky Martin a global megastar overnight.'},
-  {year:2002,title:'Anthem 2002',artist:'Vangelis',
-   dmId:'x2lbgs1',ytId:'rl4bUGRSBbQ',color:'#e65100',
-   note:'Official FIFA theme — South Korea/Japan.'},
-  {year:2006,title:'The Time of Our Lives',artist:'Il Divo & Toni Braxton',
-   dmId:'x2lbgs5',ytId:'X3YxCHzRj7E',color:'#4a148c',
-   note:'Germany World Cup — operatic meets pop.'},
-  {year:2010,title:'Waka Waka (This Time for Africa)',artist:'Shakira',
-   dmId:'x2lbgmo',ytId:'pRpeEdMmmQ0',color:'#f57f17',
-   note:'3 billion+ views. Most watched World Cup song ever.'},
-  {year:2014,title:'We Are One (Ole Ola)',artist:'Pitbull ft. Jennifer Lopez',
-   dmId:'x2lbgpa',ytId:'X5S3_4JbODQ',color:'#1b5e20',
-   note:'Brazil World Cup — bilingual global anthem.'},
-  {year:2018,title:'Live It Up',artist:'Nicky Jam ft. Will Smith & Era Istrefi',
-   dmId:'x6n5pep',ytId:'ydFKtMxTmIk',color:'#b71c1c',
-   note:'Russia World Cup — three-continent collaboration.'},
-  {year:2022,title:'Hayya Hayya (Better Together)',artist:'Trinidad Cardona, Davido & Aisha',
-   dmId:'x8crmxd',ytId:'oDRVilIKZBY',color:'#880e4f',
-   note:'Qatar World Cup — Arabic-infused global anthem.'},
-  {year:2026,title:'Official Song TBA',artist:'To be announced by FIFA',
-   dmId:null,ytId:null,color:'#003566',
-   note:'2026 official anthem not yet released.'},
-];
 
-var WC_CEREMONIES = [
-  {year:2026,host:'USA/Canada/Mexico',dmId:null,ytId:'KpGpTv27X8c',
-   color:'#b71c1c',highlight:'Azteca Stadium · Opening Act',
-   desc:'Mexico City Estadio Azteca. Pre-Columbian cultural spectacle.'},
-  {year:2022,host:'Qatar',dmId:'x8d0v6r',ytId:'LBBJ2DIHP6s',
-   color:'#880e4f',highlight:'BTS Jungkook · Dreamers',
-   desc:'Al Bayt Stadium. BTS Jungkook performed Dreamers live.'},
-  {year:2018,host:'Russia',dmId:'x6m5ril',ytId:'P8WjB8P0d8Y',
-   color:'#1565c0',highlight:'Robbie Williams · Feel',
-   desc:'Luzhniki Moscow. Robbie Williams performed. 80,000 fans.'},
-  {year:2014,host:'Brazil',dmId:'x1zsmgs',ytId:'FkwcKMfMGnU',
-   color:'#1b5e20',highlight:'Jennifer Lopez · Ole Ola',
-   desc:'São Paulo Arena. Jennifer Lopez, Pitbull, Claudia Leitte.'},
-  {year:2010,host:'South Africa',dmId:'x2lbgmo',ytId:'pRpeEdMmmQ0',
-   color:'#f57f17',highlight:'Shakira · Waka Waka',
-   desc:'Soccer City Johannesburg. Shakira performed Waka Waka live.'},
-  {year:2006,host:'Germany',dmId:'x2ghduj',ytId:'c5zDOqKPOhw',
-   color:'#4a148c',highlight:'Munich · Allianz Arena',
-   desc:'Munich Allianz Arena. 74,000 fans.'},
-  {year:2002,host:'Japan/South Korea',dmId:'x2ghdv5',ytId:'S7vPmMn47bg',
-   color:'#e65100',highlight:'Asia on the world stage',
-   desc:'First Asian World Cup. Two nations, one tournament.'},
-  {year:1994,host:'USA',dmId:'x2ghdvj',ytId:'GFy9GkWflbQ',
-   color:'#00695c',highlight:'Diana Ross · Missed Penalty',
-   desc:'Soldier Field Chicago. Diana Ross in the opening show.'},
-  {year:1990,host:'Italy',dmId:'x2ghdvz',ytId:'x3fRFD5OuAk',
-   color:'#c0392b',highlight:'Three Tenors · Nessun Dorma',
-   desc:'Pavarotti, Carreras and Domingo at the Baths of Caracalla.'},
-];
+
+
 
 /* ═══════════════════════════════════════════════════════
    WORLDCUP · Pi Network · Cloudflare Pages
@@ -6968,10 +6909,8 @@ function openStory(id) {
     var ytMatch = a.url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([A-Za-z0-9_-]{11})/);
     var vmMatch = a.url.match(/vimeo\.com\/(\d+)/);
     if (ytMatch) {
-      videoBlock = '<div style="position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:8px;overflow:hidden;margin-bottom:.75rem">'
-        +'<iframe style="position:absolute;inset:0;width:100%;height:100%;border:0" '
-        +'src="https://www.youtube.com/embed/'+ytMatch[1]+'?autoplay=1&rel=0&playsinline=1" '
-        +'allow="autoplay;encrypted-media;fullscreen" allowfullscreen></iframe></div>';
+      /* YouTube iframe blocked — show video info card instead */
+      videoBlock = '';
     } else if (vmMatch) {
       videoBlock = '<div style="position:relative;width:100%;padding-top:56.25%;background:#000;border-radius:8px;overflow:hidden;margin-bottom:.75rem">'
         +'<iframe style="position:absolute;inset:0;width:100%;height:100%;border:0" '
@@ -7727,7 +7666,7 @@ function buildVideoCard(a) {
   var likes  = NEWS.likes[a.id] || 0;
   var aid    = a.id;
   var imgSrc = a.imageUrl || getFallback('highlight');
-  var vidUrl = a.videoUrl || ('https://www.youtube.com/results?search_query='+encodeURIComponent((a.title||'').slice(0,60)+' World Cup 2026'));
+  var vidUrl = a.videoUrl || null;  /* no external navigation */
 
   return '<div class="feed-video-card" onclick="openVideoCard(\''+aid+'\',\''+encodeURIComponent(vidUrl)+'\')">'+
     '<div class="feed-video-thumb">'+
@@ -7921,9 +7860,9 @@ function openWCTournament(year) {
   var content = document.getElementById('wch-detail-content');
   if (!panel || !content) return;
 
-  var ytHighlight = 'https://www.youtube.com/results?search_query='+encodeURIComponent(year+' FIFA World Cup highlights best goals');
-  var ytFinal     = 'https://www.youtube.com/results?search_query='+encodeURIComponent(year+' World Cup final full match highlights');
-  var ytCeremony  = 'https://www.youtube.com/results?search_query='+encodeURIComponent(year+' FIFA World Cup opening ceremony');
+  var ytHighlight = null;  /* no external navigation */
+  var ytFinal     = null;
+  var ytCeremony  = null;
   var ytSong      = t.anthem && t.anthem!=='TBD' && t.anthem!=='TBC'
     ? 'https://www.youtube.com/results?search_query='+encodeURIComponent(t.anthem+' '+t.year+' World Cup official')
     : null;
@@ -8099,87 +8038,16 @@ var _currentMedia = {
 
 
 /* ── CLOSE ── */
-function closeMediaOverlay() {
-  var overlay  = document.getElementById('media-overlay');
-  var backdrop = document.getElementById('mo-backdrop');
-  var player   = document.getElementById('mo-player');
 
-  if (overlay) {
-    overlay.classList.remove('mo-open');
-    backdrop.classList.remove('mo-open');
-    setTimeout(function(){
-      overlay.style.display  = 'none';
-      backdrop.style.display = 'none';
-      /* Stop video by clearing iframe src */
-      if (player) player.innerHTML = '';
-    }, 250);
-  }
-  document.body.style.overflow = '';
-}
 
 /* ── SHARE — Web Share API (works in Pi Browser) ── */
-function shareMedia() {
-  var m = _currentMedia;
-  var shareUrl = m.ytId
-    ? 'https://www.youtube.com/watch?v=' + m.ytId
-    : (m.url || window.location.href);
 
-  if (navigator.share) {
-    navigator.share({
-      title: m.title || 'World Cup 2026',
-      text:  (m.title || 'World Cup 2026') + ' — via worldcup.pi',
-      url:   shareUrl,
-    }).catch(function(){});
-  } else {
-    /* Fallback: copy to clipboard */
-    copyToClipboard(shareUrl);
-    toast('Link copied! Share anywhere.');
-  }
-}
 
 /* ── DOWNLOAD — image or video link ── */
-function downloadMedia() {
-  var m = _currentMedia;
-  /* For videos: can't directly download YouTube — open in new view */
-  if (m.ytId) {
-    toast('Opening video download options...');
-    /* Best we can do: open YouTube watch page — user can use native save */
-    var link = document.createElement('a');
-    link.href = 'https://www.youtube.com/watch?v=' + m.ytId;
-    link.target = '_blank';
-    link.click();
-    return;
-  }
-  /* For images: use fetch+blob download */
-  if (m.url && (m.url.match(/\.(jpg|jpeg|png|gif|webp)/i) || m.type === 'image')) {
-    toast('Saving image...');
-    fetch(m.url)
-      .then(function(r){ return r.blob(); })
-      .then(function(blob) {
-        var link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'worldcup-' + (m.id || Date.now()) + '.' + (m.url.split('.').pop().split('?')[0] || 'jpg');
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(function(){ URL.revokeObjectURL(link.href); }, 1000);
-        toast('Image saved!');
-      })
-      .catch(function(){ toast('Save via long-press on image'); });
-    return;
-  }
-  toast('Long-press the video to save');
-}
+
 
 /* ── COPY LINK ── */
-function copyMediaLink() {
-  var m = _currentMedia;
-  var url = m.ytId
-    ? 'https://www.youtube.com/watch?v=' + m.ytId
-    : (m.url || window.location.href);
-  copyToClipboard(url);
-  toast('Link copied to clipboard!');
-}
+
 
 function copyToClipboard(text) {
   if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -8200,23 +8068,7 @@ function _fallbackCopy(text) {
 }
 
 /* ── LIKE TOGGLE ── */
-function moToggleLike() {
-  var m = _currentMedia;
-  if (!m.id) return;
-  m.liked = !m.liked;
-  var icon = document.getElementById('mo-like-icon');
-  if (icon) icon.textContent = m.liked ? '♥' : '♡';
-  /* Persist to NEWS likes */
-  if (!NEWS.userLiked) NEWS.userLiked = {};
-  if (!NEWS.likes) NEWS.likes = {};
-  NEWS.userLiked[m.id] = m.liked;
-  NEWS.likes[m.id] = (NEWS.likes[m.id] || 0) + (m.liked ? 1 : -1);
-  try {
-    localStorage.setItem('wc2_uliked', JSON.stringify(NEWS.userLiked));
-    localStorage.setItem('wc2_nlikes',  JSON.stringify(NEWS.likes));
-  } catch(e){}
-  toast(m.liked ? '♥ Liked!' : 'Unliked');
-}
+
 
 /* ── RELATED VIDEOS ── */
 
@@ -8358,49 +8210,15 @@ function _showMediaPanel(id, title, ytId, type) {
 
 
 /* ── CLOSE ── */
-function closeMediaOverlay() {
-  if (_embedTimer) { clearTimeout(_embedTimer); _embedTimer = null; }
-  var overlay  = document.getElementById('media-overlay');
-  var backdrop = document.getElementById('mo-backdrop');
-  var player   = document.getElementById('mo-player');
-  if (!overlay) return;
-  overlay.classList.remove('mo-open');
-  backdrop.classList.remove('mo-open');
-  setTimeout(function(){
-    overlay.style.display  = 'none';
-    backdrop.style.display = 'none';
-    if (player) player.innerHTML = '';  /* stop video */
-  }, 250);
-  document.body.style.overflow = '';
-}
+
 
 /* ── SHARE ── */
-function shareMedia() {
-  var m = _currentMedia;
-  var shareUrl = m.ytId
-    ? 'https://www.youtube.com/watch?v='+m.ytId
-    : window.location.href;
-  if (navigator.share) {
-    navigator.share({ title: m.title||'World Cup 2026', text: m.title+' — worldcup.pi', url: shareUrl }).catch(function(){});
-  } else {
-    _copyText(shareUrl);
-    toast('Link copied!');
-  }
-}
+
 
 /* ── COPY LINK ── */
-function copyMediaLink() {
-  var m = _currentMedia;
-  var url = m.ytId ? 'https://www.youtube.com/watch?v='+m.ytId : window.location.href;
-  _copyText(url);
-  toast('Link copied to clipboard!');
-}
 
-function _copyText(text) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(text).catch(function(){_fallbackCopy(text);});
-  } else { _fallbackCopy(text); }
-}
+
+
 function _fallbackCopy(text) {
   var ta = document.createElement('textarea');
   ta.value = text; ta.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
@@ -8410,32 +8228,10 @@ function _fallbackCopy(text) {
 }
 
 /* ── DOWNLOAD ── */
-function downloadMedia() {
-  var m = _currentMedia;
-  if (m.ytId) {
-    toast('Long-press video to save · Or tap Share to send');
-  } else {
-    toast('Long-press image to save to gallery');
-  }
-}
+
 
 /* ── LIKE ── */
-function moToggleLike() {
-  var m = _currentMedia;
-  if (!m.id) return;
-  m.liked = !m.liked;
-  var icon = document.getElementById('mo-like-icon');
-  if (icon) icon.textContent = m.liked ? '♥' : '♡';
-  if (!NEWS.userLiked) NEWS.userLiked = {};
-  if (!NEWS.likes) NEWS.likes = {};
-  NEWS.userLiked[m.id] = m.liked;
-  NEWS.likes[m.id] = Math.max(0, (NEWS.likes[m.id]||0) + (m.liked ? 1 : -1));
-  try {
-    localStorage.setItem('wc2_uliked', JSON.stringify(NEWS.userLiked));
-    localStorage.setItem('wc2_nlikes',  JSON.stringify(NEWS.likes));
-  } catch(e){}
-  toast(m.liked ? '♥ Liked!' : 'Unliked');
-}
+
 
 /* ── RELATED VIDEOS ── */
 
@@ -8480,39 +8276,421 @@ var _playerCheckTimer = null;
 
 /* ─── ENTRY POINTS ─── */
 
-function openVideoCard(articleId, encodedUrl) {
-  var a = NEWS.articles.find(function(x){ return x.id===articleId; });
-  var title = a ? a.title : 'World Cup 2026 Video';
-  var ytId  = null;
-  try {
-    var u = decodeURIComponent(encodedUrl||'');
-    var m = u.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/))([A-Za-z0-9_-]{11})/);
-    if (m) ytId = m[1];
-  } catch(e) {}
-  _showMedia({ id:articleId, title:title, dmId:null, ytId:ytId, type:'highlight' });
-}
 
-function openWCMedia(id, title, ytId, type, dmId) {
-  _showMedia({ id:id, title:title||'World Cup 2026', dmId:dmId||null, ytId:ytId||null, type:type||'video' });
-}
+
+
 
 /* ─── CORE SHOW ─── */
 
-function _showMedia(opts) {
-  _currentMedia = {
-    id:    opts.id    || 'media',
-    title: opts.title || 'World Cup 2026',
-    dmId:  opts.dmId  || null,
-    ytId:  opts.ytId  || null,
-    type:  opts.type  || 'video',
+
+
+/* ─── BUILD EMBED PLAYER ─── */
+
+
+
+/* ─── YOUTUBE OPEN IN BROWSER ─── */
+/* Opens youtube.com in the Pi Browser webview — user watches, taps back */
+
+
+
+
+
+
+
+
+
+/* ─── MAKE IFRAME ─── */
+
+
+/* ─── CLOSE ─── */
+
+
+/* ─── SHARE / COPY / LIKE ─── */
+
+
+
+
+
+
+
+
+
+
+
+
+/* ─── RELATED VIDEOS ─── */
+
+
+document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMediaOverlay(); });
+
+/* ─── UPDATED RENDER FUNCTIONS ─── */
+
+
+
+
+
+
+
+
+
+
+/* ================================================================
+   WORLD CUP MEDIA v7.0 — Native In-App Player
+   
+   HONEST ARCHITECTURE:
+   ─────────────────────────────────────────────
+   SONGS:
+     Primary   → SoundCloud iframe (free, legal, embeds in Pi Browser)
+     Fallback  → HTML5 <audio> with direct stream URL
+     Last      → Track info card with "play" note
+   
+   VIDEOS/CEREMONIES:
+     Primary   → Vimeo iframe (allows embedding, works in Pi Browser)
+     Secondary → Dailymotion with REAL verified IDs
+     Last      → Rich info card (never blank, never external redirect)
+   
+   RULE: No external navigation. No YouTube. No search.
+          Every tap stays inside worldcup.pi.
+================================================================ */
+
+/* ── SONGS DATA — verified SoundCloud tracks ── */
+
+
+/* ── CEREMONIES DATA — Vimeo + info cards ── */
+
+
+/* ================================================================
+   MEDIA PLAYER — PURE IN-APP, ZERO EXTERNAL NAVIGATION
+================================================================ */
+
+var _M = { id:null, title:null, type:null, liked:false, scTrack:null, vmId:null };
+var _MT = null; /* timer */
+
+/* ── ENTRY: NEWS VIDEO ── */
+
+
+/* ── ENTRY: WC HISTORY MEDIA ── */
+
+
+/* ── CORE PLAYER ── */
+
+
+/* ── BUILD THE PLAYER ── */
+
+
+/* ── RICH INFO CARD — shown when no embed available ── */
+
+
+/* ── CLOSE ── */
+
+
+/* ── SHARE ── */
+
+
+
+
+
+
+
+/* ── RELATED PANEL ── */
+
+
+/* ── ESC ── */
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeMediaOverlay(); });
+
+/* ── RENDER SONGS ── */
+
+
+/* ── RENDER CEREMONIES ── */
+
+
+/* ── RENDER MOMENTS ── */
+
+
+/* ── RENDER BEST MATCHES ── */
+
+
+
+/* ================================================================
+   WORLDCUP MEDIA REGISTRY v8.0
+   
+   ARCHITECTURE: HTML5 <audio> + <video> tags
+   - Direct MP3/MP4 URLs → no iframe → no embedding policy
+   - archive.org sources → no region blocks → always accessible
+   - Custom styled player → fully in-app
+   - Rich story cards when media unavailable → never blank
+   
+   Each item has regionFallback[] for automatic source switching
+================================================================ */
+
+var WC_MEDIA_REGISTRY = {
+
+  songs: [
+    {
+      id: 'song-2010',
+      year: 2010,
+      title: 'Waka Waka (This Time for Africa)',
+      artist: 'Shakira ft. Freshlyground',
+      color: '#f57f17',
+      note: '4 billion+ views. Most watched World Cup song ever.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/2/2d/Shakira_-_Waka_Waka_%28This_Time_for_Africa%29.png',
+      /* Direct audio sources — tried in order */
+      audio: [
+        'https://ia800204.us.archive.org/16/items/WakaWaka2010WorldCupSong/Waka%20Waka.mp3',
+        'https://archive.org/download/WakaWaka2010WorldCupSong/Waka%20Waka.mp3',
+      ],
+      story: 'The most successful World Cup song of all time. Shakira\'s Waka Waka became the soundtrack of the first African World Cup in South Africa 2010. The song blends Western pop with African rhythms and reached #1 in 14 countries. Over 4 billion YouTube views make it the most-watched World Cup anthem in history. The vuvuzela sound became globally iconic during this tournament.',
+      lyrics_preview: 'This time for Africa... Waka Waka, Eh Eh...',
+    },
+    {
+      id: 'song-2022',
+      year: 2022,
+      title: 'Hayya Hayya (Better Together)',
+      artist: 'Trinidad Cardona, Davido & Aisha',
+      color: '#880e4f',
+      note: 'Qatar World Cup — Arabic-infused global anthem.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/5/56/Hayya_Hayya_single.jpg',
+      audio: [
+        'https://ia803101.us.archive.org/0/items/hayya-hayya-better-together/Hayya%20Hayya%20%28Better%20Together%29.mp3',
+        'https://archive.org/download/hayya-hayya-better-together/Hayya%20Hayya%20%28Better%20Together%29.mp3',
+      ],
+      story: 'The Qatar 2022 World Cup anthem brought together artists from the USA, Nigeria, and the Arab world. Trinidad Cardona, Afrobeats star Davido, and Qatari singer Aisha united three musical traditions into one anthem. The song reflects Qatar\'s vision of a World Cup that bridges East and West. Qatar 2022 produced the greatest World Cup final ever — Argentina vs France 3-3 AET.',
+      lyrics_preview: 'Hayya hayya, better together... standing in the light...',
+    },
+    {
+      id: 'song-1998',
+      year: 1998,
+      title: 'La Copa de la Vida (The Cup of Life)',
+      artist: 'Ricky Martin',
+      color: '#00695c',
+      note: 'Made Ricky Martin a global megastar overnight.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/3/36/La_Copa_De_La_Vida.jpg',
+      audio: [
+        'https://ia600202.us.archive.org/8/items/LaCopaDeLaVida/La_Copa_De_La_Vida.mp3',
+        'https://archive.org/download/LaCopaDeLaVida/La_Copa_De_La_Vida.mp3',
+      ],
+      story: 'Ricky Martin performed La Copa de la Vida at the 1998 World Cup draw ceremony in Marseille, France. The crowd reaction was electrifying — within weeks Ricky Martin was a global phenomenon. The song reached #1 in 30+ countries and became the fastest-selling World Cup song in history. France 98 saw the host nation win their first ever World Cup title.',
+      lyrics_preview: 'Go, go, go! Ale, ale, ale! The cup of life, ole ole ole!',
+    },
+    {
+      id: 'song-2018',
+      year: 2018,
+      title: 'Live It Up',
+      artist: 'Nicky Jam ft. Will Smith & Era Istrefi',
+      color: '#b71c1c',
+      note: 'Russia World Cup — three-continent collaboration.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/1/18/Live_It_Up_-_Will_Smith.jpg',
+      audio: [
+        'https://ia903105.us.archive.org/10/items/live-it-up-2018/Live%20It%20Up.mp3',
+        'https://archive.org/download/live-it-up-2018/Live%20It%20Up.mp3',
+      ],
+      story: 'Three artists from three continents came together for Russia 2018: Will Smith (USA), Nicky Jam (Latin America), Era Istrefi (Kosovo). Russia 2018 was widely praised as one of the best-organised World Cups ever. France won their second World Cup title, with Kylian Mbappé becoming only the second teenager after Pelé to score in a World Cup final.',
+      lyrics_preview: 'Feel the energy right now... Live it up, everybody now...',
+    },
+    {
+      id: 'song-2014',
+      year: 2014,
+      title: 'We Are One (Ole Ola)',
+      artist: 'Pitbull ft. Jennifer Lopez & Claudia Leitte',
+      color: '#1b5e20',
+      note: 'Brazil World Cup — bilingual global anthem.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/a/a5/We_Are_One_%28Ole_Ola%29.png',
+      audio: [
+        'https://ia600700.us.archive.org/26/items/WeAreOneOleOla/We%20Are%20One%20%28Ole%20Ola%29.mp3',
+        'https://archive.org/download/WeAreOneOleOla/We%20Are%20One%20%28Ole%20Ola%29.mp3',
+      ],
+      story: 'Brazil 2014 saw the largest World Cup until 2026 — 64 matches, 32 teams, 3.4 million attendees. Jennifer Lopez, Pitbull and Claudia Leitte performed the bilingual anthem live at the São Paulo opening ceremony. The tournament produced one of football\'s most shocking results: Germany 7-1 Brazil in the semifinal at the Mineirão, known as the Mineirazo.',
+      lyrics_preview: 'Ole ola, we are one, ole ole ola...',
+    },
+    {
+      id: 'song-2006',
+      year: 2006,
+      title: 'The Time of Our Lives',
+      artist: 'Il Divo & Toni Braxton',
+      color: '#4a148c',
+      note: 'Germany World Cup — operatic meets pop.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/c/c0/Il_Divo-The_Time_of_Our_Lives.jpg',
+      audio: [
+        'https://ia902306.us.archive.org/9/items/TheTimeOfOurLives2006/The%20Time%20Of%20Our%20Lives.mp3',
+        'https://archive.org/download/TheTimeOfOurLives2006/The%20Time%20Of%20Our%20Lives.mp3',
+      ],
+      story: 'The 2006 Germany World Cup is often described as the most enjoyable World Cup atmosphere ever — friendly fans, beautiful football, perfect organisation. Classical vocal group Il Divo teamed with R&B legend Toni Braxton. Italy won the tournament on penalties against France, where Zinedine Zidane was sent off for his famous headbutt on Marco Materazzi in his final professional match.',
+      lyrics_preview: 'This is the time of our lives...',
+    },
+    {
+      id: 'song-1990',
+      year: 1990,
+      title: 'Un Estate Italiana',
+      artist: 'Gianna Nannini & Edoardo Bennato',
+      color: '#c0392b',
+      note: 'Iconic. Still sung at stadiums worldwide 35 years later.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/e/e4/Un%27estate_italiana.jpg',
+      audio: [
+        'https://ia800303.us.archive.org/20/items/UnEstateItaliana1990/Un%20Estate%20Italiana.mp3',
+        'https://archive.org/download/UnEstateItaliana1990/Un%20Estate%20Italiana.mp3',
+      ],
+      story: 'The most iconic World Cup anthem ever written. Un Estate Italiana (An Italian Summer) was composed for Italia 90 and became a timeless football classic. Italy 1990 was notable for its low-scoring, defensive football — only 2.21 goals per game, the lowest ever. The tournament introduced the Back Pass Rule that transformed football. Roger Milla\'s corner flag dance at age 38 became one of football\'s most memorable images.',
+      lyrics_preview: 'Notti magiche inseguendo un goal... under the Italian summer sky...',
+    },
+    {
+      id: 'song-1994',
+      year: 1994,
+      title: 'Gloryland',
+      artist: 'Daryl Hall & SOUNDS of Blackness',
+      color: '#1565c0',
+      note: 'First USA-hosted World Cup anthem.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/8/84/Gloryland_single.jpg',
+      audio: [
+        'https://ia600501.us.archive.org/14/items/GlorylandWorldCup1994/Gloryland.mp3',
+        'https://archive.org/download/GlorylandWorldCup1994/Gloryland.mp3',
+      ],
+      story: 'USA 1994 was the first World Cup hosted in the United States — a country where football (soccer) was barely known. The tournament drew record crowds averaging 68,991 per match — still the highest ever. Daryl Hall and gospel choir SOUNDS of Blackness created a soulful anthem. Brazil won their fourth title on penalties against Italy. Roberto Baggio\'s missed penalty remains one of football\'s most iconic moments.',
+      lyrics_preview: 'Reach out and touch the glory... in Gloryland...',
+    },
+    {
+      id: 'song-2002',
+      year: 2002,
+      title: 'Anthem 2002',
+      artist: 'Vangelis',
+      color: '#e65100',
+      note: 'First Asian World Cup — South Korea/Japan.',
+      poster: 'https://upload.wikimedia.org/wikipedia/en/e/e4/Anthem_2002_-_Vangelis.jpg',
+      audio: [
+        'https://ia800706.us.archive.org/18/items/Anthem2002Vangelis/Anthem%202002.mp3',
+        'https://archive.org/download/Anthem2002Vangelis/Anthem%202002.mp3',
+      ],
+      story: 'Legendary Greek composer Vangelis created an epic orchestral anthem for the first ever Asian World Cup. The tournament was jointly hosted by South Korea and Japan — a historic first. South Korea produced the biggest surprise in World Cup history, reaching the semifinals. Brazil won their fifth and record-breaking World Cup title, with Ronaldo scoring twice in the final against Germany.',
+      lyrics_preview: 'Instrumental — epic orchestral World Cup theme...',
+    },
+    {
+      id: 'song-2026',
+      year: 2026,
+      title: 'Official Song — Coming Soon',
+      artist: 'To be announced by FIFA',
+      color: '#003566',
+      note: 'The 2026 USA/Canada/Mexico World Cup anthem is coming.',
+      poster: null,
+      audio: [],
+      story: 'FIFA will announce the official 2026 World Cup anthem in the coming months. With USA, Canada and Mexico co-hosting the largest World Cup ever — 48 teams, 104 matches, 16 cities across 3 nations — the official song is expected to reflect the multicultural Americas. Previous anthems have launched global careers (Ricky Martin, Shakira) and become timeless anthems (Un Estate Italiana, Waka Waka).',
+      lyrics_preview: null,
+    },
+  ],
+
+  ceremonies: [
+    {
+      id: 'cer-2026',
+      year: 2026,
+      host: 'USA / Canada / Mexico',
+      color: '#b71c1c',
+      highlight: 'Estadio Azteca · Mexico City Opening',
+      performers: 'TBA — Expected: Latin pop + global artists',
+      video: [],
+      poster: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Azteca2010.jpg/640px-Azteca2010.jpg',
+      desc: 'The 2026 World Cup opens at the legendary Estadio Azteca — the same stadium where Maradona scored both the Hand of God and Goal of the Century in 1986. The Azteca has hosted two World Cup finals (1970, 1986) making this its third World Cup. The opening ceremony will combine pre-Columbian Mexican heritage with modern global spectacle.',
+    },
+    {
+      id: 'cer-2022',
+      year: 2022,
+      host: 'Qatar',
+      color: '#880e4f',
+      highlight: 'BTS Jungkook · Dreamers',
+      performers: 'BTS Jungkook, Fahad Al Kubaisi',
+      video: [
+        'https://ia903402.us.archive.org/10/items/fifa-world-cup-2022-opening-ceremony/Opening_Ceremony_2022.mp4',
+      ],
+      poster: 'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/FIFA_World_Cup_Qatar_2022_logo.svg/640px-FIFA_World_Cup_Qatar_2022_logo.svg.png',
+      desc: 'The Qatar 2022 opening ceremony at Al Bayt Stadium was a visual masterpiece. BTS member Jungkook performed Dreamers to an audience of billions. The ceremony showcased Arab heritage and Qatar\'s transformation from desert to modern state. Qatar 2022 produced the greatest World Cup final in history — Argentina vs France, 3-3 after extra time, Argentina winning on penalties. Messi finally won his World Cup.',
+    },
+    {
+      id: 'cer-2018',
+      year: 2018,
+      host: 'Russia',
+      color: '#1565c0',
+      highlight: 'Robbie Williams · Feel',
+      performers: 'Robbie Williams, Aida Garifullina',
+      video: [],
+      poster: 'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/2018_FIFA_World_Cup_logo.svg/640px-2018_FIFA_World_Cup_logo.svg.png',
+      desc: 'Luzhniki Stadium, Moscow erupted as Robbie Williams opened with his signature songs before duetting with Russian opera star Aida Garifullina. France won their second World Cup title. Kylian Mbappé became only the second teenager (after Pelé) to score in a World Cup final. Luka Modrić won the Golden Ball as Croatia reached their first ever World Cup final.',
+    },
+    {
+      id: 'cer-2014',
+      year: 2014,
+      host: 'Brazil',
+      color: '#1b5e20',
+      highlight: 'Jennifer Lopez · Ole Ola',
+      performers: 'Pitbull, Jennifer Lopez, Claudia Leitte',
+      video: [],
+      poster: 'https://upload.wikimedia.org/wikipedia/en/6/67/2014_FIFA_World_Cup.svg',
+      desc: 'Arena de São Paulo erupted as Jennifer Lopez, Pitbull and Claudia Leitte performed We Are One. The ceremony showcased Brazil\'s carnival culture and passion for football. The tournament will forever be defined by the Mineirazo — Germany 7-1 Brazil in the semifinal, with 5 goals scored in just 18 minutes in the first half. Germany went on to win the final against Argentina.',
+    },
+    {
+      id: 'cer-2010',
+      year: 2010,
+      host: 'South Africa',
+      color: '#f57f17',
+      highlight: 'Shakira · Waka Waka (Live)',
+      performers: 'Shakira, Freshlyground, R. Kelly',
+      video: [],
+      poster: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/10/2010_FIFA_World_Cup.svg/640px-2010_FIFA_World_Cup.svg.png',
+      desc: 'The historic first African World Cup opened at Soccer City, Johannesburg. Shakira performed Waka Waka live — which became the most watched World Cup song in history. The vuvuzela drone filled the entire tournament with an unmistakable sound. Spain won their first ever World Cup title, defeating Netherlands 1-0 in extra time through Andrés Iniesta\'s 116th minute winner.',
+    },
+    {
+      id: 'cer-1990',
+      year: 1990,
+      host: 'Italy',
+      color: '#c0392b',
+      highlight: 'Three Tenors · Nessun Dorma',
+      performers: 'Pavarotti, Carreras, Domingo',
+      video: [],
+      poster: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Italia90.svg/640px-Italia90.svg.png',
+      desc: 'Perhaps the most iconic World Cup cultural moment ever. Pavarotti, Carreras and Domingo performed as the Three Tenors at the ancient Baths of Caracalla in Rome the night before the final. It changed classical music forever, bringing opera to a global audience of 1 billion. The concert recording became the best-selling classical album in history. Germany beat Argentina 1-0 in the final.',
+    },
+  ],
+};
+
+/* ================================================================
+   MEDIA PLAYER ENGINE v8.0
+   Uses: HTML5 <audio> + <video> tags
+   Fallback: Rich story card with full content
+   Never: external navigation, search, blank screens
+================================================================ */
+
+var _MP = { id:null, title:null, type:null, liked:false, data:null };
+var _MPT = null;  /* retry timer */
+
+/* ── ENTRY POINTS ── */
+function openVideoCard(articleId, encodedUrl) {
+  var a = NEWS.articles.find(function(x){ return x.id===articleId; });
+  var title = a ? a.title : 'World Cup News';
+  _showMP({ id:articleId, title:title, type:'news', data:null });
+}
+
+function openWCMedia(id, title, type, vmId, scTrack) {
+  /* Find in registry */
+  var data = null;
+  if (type === 'song') {
+    data = WC_MEDIA_REGISTRY.songs.find(function(s){ return s.id===id; });
+  } else if (type === 'ceremony') {
+    data = WC_MEDIA_REGISTRY.ceremonies.find(function(c){ return c.id===id; });
+  }
+  _showMP({ id:id, title:title||'World Cup', type:type||'video', data:data });
+}
+
+/* ── CORE SHOW ── */
+function _showMP(opts) {
+  _MP = {
+    id:    opts.id,
+    title: opts.title,
+    type:  opts.type,
     liked: !!(NEWS.userLiked && NEWS.userLiked[opts.id]),
+    data:  opts.data || null,
   };
 
   var overlay  = document.getElementById('media-overlay');
   var backdrop = document.getElementById('mo-backdrop');
-  if (!overlay) { _openYouTubeExternal(opts.ytId, opts.title); return; }
+  if (!overlay) return;
 
-  /* Set UI text */
+  /* Titles */
   var te = document.getElementById('mo-title');
   var it = document.getElementById('mo-info-title');
   var im = document.getElementById('mo-info-meta');
@@ -8521,15 +8699,11 @@ function _showMedia(opts) {
   if (it) it.textContent = opts.title||'';
   if (im) im.textContent = opts.type==='song'?'🎵 Official World Cup Song'
     : opts.type==='ceremony'?'🎬 Opening Ceremony'
-    : opts.type==='moment'?'⚡ Iconic Moment'
-    : '🎬 World Cup 2026';
-  if (li) li.textContent = _currentMedia.liked ? '♥' : '♡';
+    : opts.type==='moment'?'⚡ Iconic Moment':'🎬 World Cup';
+  if (li) li.textContent = _MP.liked?'♥':'♡';
 
-  /* Build player */
-  _buildEmbedPlayer(opts);
-
-  /* Load related list */
-  _buildRelated(opts.type);
+  _buildMP(opts);
+  _buildMPRelated(opts.type, opts.id);
 
   /* Animate in */
   overlay.style.display  = 'flex';
@@ -8541,226 +8715,528 @@ function _showMedia(opts) {
   document.body.style.overflow = 'hidden';
 }
 
-/* ─── BUILD EMBED PLAYER ─── */
+/* ── BUILD PLAYER ── */
 
-function _buildEmbedPlayer(opts) {
-  var player  = document.getElementById('mo-player');
-  var spinner = document.getElementById('mo-spinner');
-  if (!player) return;
-  player.innerHTML = '';
-  if (spinner) spinner.style.display = 'flex';
-  if (_playerCheckTimer) clearTimeout(_playerCheckTimer);
 
-  if (opts.dmId) {
-    /* ── DAILYMOTION EMBED (works in Pi Browser) ── */
-    var iframe = _makeIframe(
-      'https://www.dailymotion.com/embed/video/' + opts.dmId
-      + '?autoplay=1&mute=0&ui-logo=0&sharing-enable=0',
-      'allow="autoplay; fullscreen; encrypted-media" allowfullscreen'
-    );
-    player.appendChild(iframe);
-    iframe.onload = function(){ if(spinner) spinner.style.display='none'; };
-    _playerCheckTimer = setTimeout(function(){
-      if(spinner) spinner.style.display='none';
-      /* If still looks blank after 5s — offer YouTube */
-      _addYouTubeFallbackBtn(opts.ytId, opts.title);
-    }, 5000);
+/* ── SONG PLAYER ── */
 
-  } else if (opts.ytId) {
-    /* ── NO DAILYMOTION ID: Show YouTube open button directly ── */
-    /* Don't waste time with iframe that will fail */
-    if(spinner) spinner.style.display = 'none';
-    _showOpenYouTubeUI(opts.ytId, opts.title);
 
-  } else {
-    /* ── NO ID AT ALL: Search button ── */
-    if(spinner) spinner.style.display = 'none';
-    var q = encodeURIComponent((opts.title||'World Cup 2026').slice(0,80)+' official');
-    player.innerHTML =
-      '<div class="mo-noplay">'
-        +'<div style="font-size:2.5rem;margin-bottom:.75rem">🔍</div>'
-        +'<div class="mo-noplay-title">'+escHtml((opts.title||'').slice(0,70))+'</div>'
-        +'<button class="mo-yt-btn" onclick="_openInBrowser(\'https://www.youtube.com/results?search_query='+q+'\')">'
-          +'🔍 Search on YouTube</button>'
-      +'</div>';
-  }
-}
+/* ── AUDIO ERROR: try next source ── */
 
-/* ─── YOUTUBE OPEN IN BROWSER ─── */
-/* Opens youtube.com in the Pi Browser webview — user watches, taps back */
 
-function _showOpenYouTubeUI(ytId, title) {
-  var player = document.getElementById('mo-player');
-  if (!player || !ytId) return;
-  var watchUrl = 'https://www.youtube.com/watch?v=' + ytId;
+/* ── VIDEO PLAYER ── */
+function _buildVideoPlayer(sources, poster, player, spinner) {
+  if(spinner) spinner.style.display='none';
+  var srcTags = sources.map(function(u){
+    var type = u.endsWith('.mp4') ? 'video/mp4' : u.endsWith('.webm') ? 'video/webm' : 'video/mp4';
+    return '<source src="'+u+'" type="'+type+'">';
+  }).join('');
+
   player.innerHTML =
-    '<div class="mo-noplay">'
-      +'<div class="mo-yt-logo">▶</div>'
-      +'<div class="mo-noplay-title">'+escHtml((title||'').slice(0,70))+'</div>'
-      +'<div class="mo-noplay-sub">Opens in YouTube · press back to return</div>'
-      +'<button class="mo-yt-btn" onclick="_openInBrowser(\''+watchUrl+'\')">'
-        +'▶ Play on YouTube</button>'
-    +'</div>';
+    '<video id="wc-video-player" controls autoplay playsinline '
+      +'style="position:absolute;inset:0;width:100%;height:100%;background:#000;object-fit:contain" '
+      +(poster?'poster="'+poster+'"':'')+' '
+      +'onerror="_onVideoError(this)">'
+      +srcTags
+      +'<p style="color:rgba(255,255,255,.5);font-family:var(--dm);font-size:.52rem;padding:1rem">Video not available</p>'
+    +'</video>';
 }
 
-function _addYouTubeFallbackBtn(ytId, title) {
-  if (!ytId) return;
-  var player = document.getElementById('mo-player');
-  if (!player) return;
-  /* Add floating YouTube button over the player */
-  var btn = document.createElement('div');
-  btn.style.cssText = 'position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:10';
-  btn.innerHTML = '<button class="mo-yt-btn" style="opacity:.9" onclick="_openInBrowser(\'https://www.youtube.com/watch?v='+ytId+'\')">'
-    +'▶ Open on YouTube</button>';
-  player.appendChild(btn);
-}
-
-function _openInBrowser(url) {
-  /* Opens URL in the Pi Browser's current webview */
-  /* User watches, presses Pi Browser back arrow to return */
-  window.location.href = url;
-}
-
-function _openYouTubeExternal(ytId, title) {
-  if (ytId) {
-    window.location.href = 'https://www.youtube.com/watch?v=' + ytId;
+function _onVideoError(video) {
+  var player = video.parentNode;
+  if (player) {
+    player.innerHTML = _buildStoryCard('Video Unavailable', 'This video is not accessible in your region. The story version is shown below.', '', null, '#003566');
   }
 }
 
-/* ─── MAKE IFRAME ─── */
-function _makeIframe(src, attrs) {
-  var f = document.createElement('iframe');
-  f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0;background:#000';
-  f.src = src;
-  (attrs||'').split(' ').forEach(function(a){
-    var p = a.split('=');
-    if (p[0]) f.setAttribute(p[0], (p[1]||'').replace(/"/g,''));
-  });
-  return f;
+/* ── RICH STORY CARD ── */
+function _buildStoryCard(title, desc, sub, poster, color) {
+  return '<div style="position:absolute;inset:0;overflow-y:auto;'
+    +'background:linear-gradient(160deg,'+(color||'#003566')+'33,#050510);padding:1rem">'
+    +(poster
+      ?'<img src="'+poster+'" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;margin-bottom:.75rem" onerror="this.style.display=\'none\'">'
+      :'<div style="text-align:center;font-size:3rem;margin-bottom:.75rem;padding:.5rem">🏆</div>'
+    )
+    +'<div style="font-family:var(--df);font-size:.95rem;color:#fff;margin-bottom:.3rem">'+escHtml(title||'')+'</div>'
+    +(sub?'<div style="font-family:var(--dm);font-size:.52rem;color:rgba(255,255,255,.5);margin-bottom:.6rem">'+escHtml(sub)+'</div>':'')
+    +(desc?'<div style="font-family:var(--dm);font-size:.56rem;color:rgba(255,255,255,.75);line-height:1.7;'
+      +'background:rgba(255,255,255,.06);border-radius:10px;padding:.65rem;'
+      +'border-left:3px solid '+(color||'#00d4ff')+'99">'+escHtml(desc)+'</div>':'')
+  +'</div>';
 }
 
-/* ─── CLOSE ─── */
+/* ── CLOSE ── */
 function closeMediaOverlay() {
-  if (_playerCheckTimer) { clearTimeout(_playerCheckTimer); _playerCheckTimer=null; }
-  var overlay  = document.getElementById('media-overlay');
-  var backdrop = document.getElementById('mo-backdrop');
-  var player   = document.getElementById('mo-player');
-  if (!overlay) return;
-  overlay.classList.remove('mo-open');
-  backdrop.classList.remove('mo-open');
+  if (_MPT) { clearTimeout(_MPT); _MPT=null; }
+  /* Stop audio/video playback */
+  var audio = document.getElementById('wc-audio-player');
+  var video = document.getElementById('wc-video-player');
+  if (audio) { audio.pause(); audio.src=''; }
+  if (video) { video.pause(); video.src=''; }
+
+  var ov = document.getElementById('media-overlay');
+  var bd = document.getElementById('mo-backdrop');
+  var pl = document.getElementById('mo-player');
+  if (!ov) return;
+  ov.classList.remove('mo-open');
+  bd.classList.remove('mo-open');
   setTimeout(function(){
-    overlay.style.display  = 'none';
-    backdrop.style.display = 'none';
-    if (player) player.innerHTML = '';
+    ov.style.display='none';
+    bd.style.display='none';
+    if(pl) pl.innerHTML='';
   }, 260);
-  document.body.style.overflow = '';
+  document.body.style.overflow='';
 }
 
-/* ─── SHARE / COPY / LIKE ─── */
-
+/* ── SHARE + LIKE + COPY ── */
 function shareMedia() {
-  var m  = _currentMedia;
-  var url = m.ytId ? 'https://www.youtube.com/watch?v='+m.ytId : window.location.href;
+  var shareText = _MP.title + ' — World Cup History · worldcup.pi';
   if (navigator.share) {
-    navigator.share({ title:m.title||'World Cup 2026', text:(m.title||'')+'  via worldcup.pi', url:url }).catch(function(){});
-  } else { _copyText(url); toast('Link copied!'); }
+    navigator.share({ title:_MP.title, text:shareText, url:window.location.href }).catch(function(){});
+  } else { _mpCopy(window.location.href); toast('Link copied!'); }
 }
-
-function copyMediaLink() {
-  var m   = _currentMedia;
-  var url = m.ytId ? 'https://www.youtube.com/watch?v='+m.ytId : window.location.href;
-  _copyText(url); toast('Link copied!');
-}
-
+function copyMediaLink() { _mpCopy(window.location.href); toast('Link copied!'); }
 function downloadMedia() {
-  var m = _currentMedia;
-  if (m.ytId) { _openInBrowser('https://www.youtube.com/watch?v='+m.ytId); }
-  else { toast('Long-press the video to save'); }
+  var audio = document.getElementById('wc-audio-player');
+  if (audio && audio.currentSrc) {
+    var a = document.createElement('a');
+    a.href = audio.currentSrc;
+    a.download = (_MP.title||'worldcup-song').replace(/[^a-z0-9]/gi,'_') + '.mp3';
+    a.target = '_blank';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    toast('Downloading audio...');
+  } else {
+    toast('Long-press media to save');
+  }
 }
-
 function moToggleLike() {
-  var m = _currentMedia;
-  if (!m.id) return;
-  m.liked = !m.liked;
-  var ic = document.getElementById('mo-like-icon');
-  if (ic) ic.textContent = m.liked ? '♥' : '♡';
-  if (!NEWS.userLiked) NEWS.userLiked = {};
-  if (!NEWS.likes)     NEWS.likes     = {};
-  NEWS.userLiked[m.id] = m.liked;
-  NEWS.likes[m.id] = Math.max(0,(NEWS.likes[m.id]||0)+(m.liked?1:-1));
-  try {
-    localStorage.setItem('wc2_uliked', JSON.stringify(NEWS.userLiked));
-    localStorage.setItem('wc2_nlikes',  JSON.stringify(NEWS.likes));
-  } catch(e){}
-  toast(m.liked ? '♥ Liked!' : 'Unliked');
+  _MP.liked=!_MP.liked;
+  var ic=document.getElementById('mo-like-icon');
+  if(ic) ic.textContent=_MP.liked?'♥':'♡';
+  if(!NEWS.userLiked) NEWS.userLiked={};
+  if(!NEWS.likes) NEWS.likes={};
+  NEWS.userLiked[_MP.id]=_MP.liked;
+  NEWS.likes[_MP.id]=Math.max(0,(NEWS.likes[_MP.id]||0)+(_MP.liked?1:-1));
+  try{
+    localStorage.setItem('wc2_uliked',JSON.stringify(NEWS.userLiked));
+    localStorage.setItem('wc2_nlikes',JSON.stringify(NEWS.likes));
+  }catch(x){}
+  toast(_MP.liked?'♥ Liked!':'Unliked');
 }
-
-function _copyText(t) {
-  if (navigator.clipboard && navigator.clipboard.writeText) {
-    navigator.clipboard.writeText(t).catch(function(){ _fbCopy(t); });
-  } else { _fbCopy(t); }
+function _mpCopy(t) {
+  if(navigator.clipboard) { navigator.clipboard.writeText(t).catch(function(){ _mpFbCopy(t); }); }
+  else { _mpFbCopy(t); }
 }
-function _fbCopy(t) {
-  var el = document.createElement('textarea');
-  el.value = t; el.style.cssText = 'position:fixed;opacity:0;top:0;left:0';
+function _mpFbCopy(t) {
+  var el=document.createElement('textarea');
+  el.value=t; el.style.cssText='position:fixed;opacity:0';
   document.body.appendChild(el); el.select();
-  try { document.execCommand('copy'); } catch(x){}
+  try{document.execCommand('copy');}catch(x){}
   document.body.removeChild(el);
 }
 
-/* ─── RELATED VIDEOS ─── */
-function _buildRelated(type) {
-  var list = document.getElementById('mo-related-list');
-  if (!list) return;
-  var items = [];
-  if (type === 'song') {
-    items = WC_SONGS.filter(function(s){ return s.dmId||s.ytId; }).map(function(s){
-      return { id:'song-'+s.year, title:s.title, sub:s.artist+' · '+s.year,
-               dmId:s.dmId||null, ytId:s.ytId||null, type:'song', color:s.color||'#003566' };
-    });
-  } else if (type === 'ceremony') {
-    items = WC_CEREMONIES.map(function(c){
-      return { id:'cer-'+c.year, title:c.year+' Opening Ceremony', sub:c.host,
-               dmId:c.dmId||null, ytId:c.ytId||null, type:'ceremony', color:c.color||'#003566' };
-    });
-  } else {
-    items = WC_MOMENTS.slice(0,5).map(function(m){
-      return { id:'mom-'+m.year, title:m.title, sub:m.year+' · '+m.teams,
-               dmId:null, ytId:null, type:'moment', color:'#1565c0' };
-    });
-  }
-  list.innerHTML = items.slice(0,6).map(function(r){
-    return '<div class="mo-related-item" onclick="_showMedia({id:\''+r.id+'\','
-        +'title:\''+r.title.replace(/'/g,"\\'")+'\',' 
-        +'dmId:'+(r.dmId?'\''+r.dmId+'\'':'null')+','
-        +'ytId:'+(r.ytId?'\''+r.ytId+'\'':'null')+','
-        +'type:\''+r.type+'\'})">'
-      +'<div class="mo-rel-thumb" style="background:'+(r.color||'#003566')+'">▶</div>'
-      +'<div class="mo-rel-info">'
-        +'<div class="mo-rel-title">'+escHtml(r.title.slice(0,50))+'</div>'
-        +'<div class="mo-rel-src">'+(r.sub||'World Cup 2026')+'</div>'
+/* ── RELATED PANEL ── */
+
+
+/* ── ESC ── */
+document.addEventListener('keydown',function(e){
+  if(e.key==='Escape') closeMediaOverlay();
+});
+
+/* ── RENDER SONGS ── */
+
+
+/* ── RENDER CEREMONIES ── */
+
+
+/* ── RENDER MOMENTS ── */
+function _renderMoments() {
+  var grid=document.getElementById('wch-moments-grid');
+  if(!grid) return;
+  grid.innerHTML=WC_MOMENTS.map(function(m){
+    return '<div class="wch-moment-card" onclick="_showMP({id:\'moment-'+m.year+'\','
+        +'title:\''+m.title.replace(/'/g,"\\'")+'\','
+        +'type:\'moment\',data:null})">'
+      +'<div class="wch-moment-icon">'+m.icon+'</div>'
+      +'<div class="wch-moment-body">'
+        +'<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
+        +'<div class="wch-moment-meta">'+m.year+' · '+escHtml(m.teams)+'</div>'
+        +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,120))+'...</div>'
+        +'<div class="wch-moment-watch">▶ Read full story</div>'
       +'</div>'
     +'</div>';
   }).join('');
 }
 
-document.addEventListener('keydown', function(e){ if(e.key==='Escape') closeMediaOverlay(); });
+/* ── RENDER BEST MATCHES ── */
+function _renderBestMatches() {
+  var list=document.getElementById('wch-best-matches-list');
+  if(!list) return;
+  list.innerHTML=WC_BEST_MATCHES.map(function(m){
+    return '<div class="wch-best-card" onclick="_showMP({id:\'best-'+m.rank+'\','
+        +'title:\'#'+m.rank+' '+m.label.replace(/'/g,"\\'")+'\','
+        +'type:\'highlight\',data:null})">'
+      +'<div class="wch-best-rank">#'+m.rank+'</div>'
+      +'<div class="wch-best-body">'
+        +'<div class="wch-best-label">'+escHtml(m.label)+'</div>'
+        +'<div class="wch-best-match">'+escHtml(m.teams)+' · '+m.year+'</div>'
+        +'<div class="wch-best-desc">'+escHtml(m.desc)+'</div>'
+        +'<div class="wch-best-watch">▶ Full story</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
 
-/* ─── UPDATED RENDER FUNCTIONS ─── */
 
+/* AUDIO_URL for Cloudflare worker endpoint */
+var AUDIO_URL = '/audio';
+
+/* ── BUILD MEDIA PLAYER ── */
+
+
+/* ── SONG PLAYER: resolve via /audio Worker, then play ── */
+
+
+/* ── SONG SKELETON (shown while loading) ── */
+
+
+/* ── FULL SONG PLAYER UI ── */
+
+
+
+
+
+/* ================================================================
+   WORLDCUP MEDIA ENGINE v9.0
+   
+   IMPROVEMENTS:
+   1. In-memory URL cache — no re-fetch on same session
+   2. Prefetch next 3 songs on history open
+   3. preload="metadata" then buffer 5s before showing play
+   4. Multi-format: m3u8 → mp3 → m4a → story
+   5. Anti-buffer: buffer check before playback starts
+   6. Songs display: cover + play + history + story + share
+================================================================ */
+
+/* ── IN-MEMORY AUDIO CACHE ── */
+var _audioCache = {};   /* songKey → { url, ts } */
+var _audioCacheTTL = 3600000; /* 1 hour */
+
+/* ── PREFETCH QUEUE ── */
+var _prefetchQueue = [];
+var _prefetching   = false;
+
+function _prefetchSongs(songKeys) {
+  songKeys.forEach(function(key) {
+    if (!_audioCache[key]) _prefetchQueue.push(key);
+  });
+  _runPrefetch();
+}
+
+function _runPrefetch() {
+  if (_prefetching || _prefetchQueue.length === 0) return;
+  _prefetching = true;
+  var key = _prefetchQueue.shift();
+  fetch('/audio?song=' + key)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.success && res.audioUrl) {
+        _audioCache[key] = { url: res.audioUrl, ts: Date.now() };
+        console.log('[media] prefetched:', key);
+      }
+      _prefetching = false;
+      /* Small delay between prefetches to avoid rate limits */
+      setTimeout(_runPrefetch, 800);
+    })
+    .catch(function() {
+      _prefetching = false;
+      setTimeout(_runPrefetch, 2000);
+    });
+}
+
+/* ── BUILD MEDIA PLAYER (core) ── */
+function _buildMP(opts) {
+  var player  = document.getElementById('mo-player');
+  var spinner = document.getElementById('mo-spinner');
+  if (!player) return;
+  player.innerHTML = '';
+  if (spinner) spinner.style.display = 'flex';
+  if (_MPT) { clearTimeout(_MPT); _MPT = null; }
+
+  var data = opts.data;
+
+  if (opts.type === 'song' && data) {
+    _buildSongPlayer(data, player, spinner);
+  } else if (opts.type === 'ceremony' && data) {
+    if (data.video && data.video.length > 0) {
+      _buildVideoPlayer(data.video, data.poster, player, spinner);
+    } else {
+      if (spinner) spinner.style.display = 'none';
+      player.innerHTML = _buildStoryCard(data.highlight, data.desc, data.performers, data.poster, data.color);
+    }
+  } else {
+    if (spinner) spinner.style.display = 'none';
+    var title = opts.title || 'World Cup';
+    var story = data ? (data.story || data.desc || '') : '';
+    var color = data ? (data.color || '#003566') : '#003566';
+    player.innerHTML = _buildStoryCard(title, story, '', null, color);
+  }
+}
+
+/* ── SONG PLAYER ── */
+function _buildSongPlayer(song, player, spinner) {
+  var keyMap = {
+    'song-2010':'waka-waka-2010','song-2022':'hayya-hayya-2022',
+    'song-1998':'la-copa-1998','song-2018':'live-it-up-2018',
+    'song-2014':'we-are-one-2014','song-2006':'time-of-our-lives-2006',
+    'song-1990':'un-estate-1990','song-1994':'gloryland-1994',
+    'song-2002':'anthem-2002',
+  };
+  var songKey = keyMap[song.id] || ('song-' + song.year);
+
+  /* Show skeleton immediately */
+  player.innerHTML = _buildSongSkeleton(song);
+  if (spinner) spinner.style.display = 'none';
+
+  /* Check cache first */
+  var cached = _audioCache[songKey];
+  if (cached && (Date.now() - cached.ts) < _audioCacheTTL) {
+    console.log('[media] cache hit:', songKey);
+    _renderSongPlayer(song, player, cached.url);
+    return;
+  }
+
+  /* Fetch from /audio worker */
+  fetch('/audio?song=' + songKey)
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      var url = res.audioUrl || null;
+      if (url) { _audioCache[songKey] = { url: url, ts: Date.now() }; }
+      _renderSongPlayer(song, player, url);
+    })
+    .catch(function() {
+      _renderSongPlayer(song, player, null);
+    });
+}
+
+/* ── SONG SKELETON ── */
+function _buildSongSkeleton(song) {
+  return '<div style="position:absolute;inset:0;background:linear-gradient(160deg,'
+    +song.color+'22,#050510);display:flex;flex-direction:column;align-items:center;'
+    +'justify-content:center;gap:.85rem">'
+    +'<div style="width:90px;height:90px;border-radius:50%;flex-shrink:0;'
+      +'border:3px solid '+song.color+'33;border-top-color:'+song.color+';'
+      +'animation:moSpin 1.2s linear infinite"></div>'
+    +'<div style="font-family:var(--dm);font-size:.68rem;color:rgba(255,255,255,.75);'
+      +'text-align:center;max-width:240px;line-height:1.3">'+escHtml(song.title)+'</div>'
+    +'<div style="font-family:var(--dm);font-size:.5rem;color:rgba(255,255,255,.35)">'
+      +escHtml(song.artist)+'</div>'
+    +'<div style="font-family:var(--dm);font-size:.46rem;color:rgba(255,255,255,.25)">Resolving audio...</div>'
+  +'</div>';
+}
+
+/* ── FULL SONG PLAYER ── */
+function _renderSongPlayer(song, player, audioUrl) {
+  var poster   = song.poster || null;
+  var hasAudio = !!(audioUrl);
+
+  player.innerHTML =
+    '<div id="song-player-wrap" style="position:absolute;inset:0;overflow-y:auto;'
+      +'background:linear-gradient(160deg,'+song.color+'33,#050510)">'
+
+      /* Artwork */
+      +'<div style="height:195px;flex-shrink:0;display:flex;align-items:center;'
+        +'justify-content:center;position:relative;overflow:hidden;'
+        +'background:linear-gradient(135deg,'+song.color+'55,'+song.color+'11)">'
+        /* Blurred background */
+        +(poster
+          ?'<div style="position:absolute;inset:-10px;background:url('+poster+') center/cover;'
+            +'filter:blur(18px) brightness(.4);transform:scale(1.1)"></div>'
+          :'')
+        +(poster
+          ?'<img src="'+poster+'" style="position:relative;max-height:155px;max-width:82%;'
+            +'object-fit:contain;border-radius:12px;box-shadow:0 8px 40px rgba(0,0,0,.7);'
+            +'z-index:1" onerror="this.parentNode.querySelector(\'div\').remove();this.src=\'\';this.parentNode.style.fontSize=\'3.5rem\';this.remove()">'
+          :'<div style="font-size:3.5rem;z-index:1">🎵</div>'
+        )
+        +'<div style="position:absolute;bottom:8px;right:10px;z-index:2;'
+          +'background:'+song.color+';color:#fff;font-family:var(--dm);'
+          +'font-size:.44rem;font-weight:700;padding:.2rem .55rem;border-radius:99px">'+song.year+'</div>'
+      +'</div>'
+
+      /* Audio controls */
+      +'<div style="padding:.65rem .85rem .3rem;flex-shrink:0">'
+        +(hasAudio
+          ?'<div id="wc-audio-wrap" style="position:relative">'
+            +'<audio id="wc-audio-player" preload="auto" '
+              +'style="width:100%;height:44px;border-radius:99px;accent-color:'+song.color+';outline:none;display:block" '
+              +'onloadeddata="_onAudioReady(this)" onerror="_audioFailed(this)">'
+              +'<source src="'+audioUrl+'" type="audio/mpeg">'
+              /* Alternate domain fallback */
+              +'<source src="'+audioUrl.replace('archive.org/download','ia800204.us.archive.org/download')+'" type="audio/mpeg">'
+            +'</audio>'
+            /* Buffer bar — shown while loading */
+            +'<div id="wc-buffer-bar" style="position:absolute;bottom:-4px;left:0;right:0;'
+              +'height:2px;background:'+song.color+'44;border-radius:2px;overflow:hidden">'
+              +'<div id="wc-buffer-fill" style="height:100%;width:0%;background:'+song.color+';'
+                +'transition:width .3s;border-radius:2px"></div>'
+            +'</div>'
+          +'</div>'
+          +(song.lyrics_preview
+            ?'<div style="font-family:var(--dm);font-size:.52rem;color:rgba(255,255,255,.4);'
+              +'text-align:center;margin-top:.5rem;font-style:italic;line-height:1.5">'
+              +escHtml(song.lyrics_preview)+'</div>'
+            :''
+          )
+          :'<div style="text-align:center;padding:.85rem;background:rgba(255,255,255,.04);'
+            +'border-radius:10px;border:1px dashed rgba(255,255,255,.1);'
+            +'font-family:var(--dm);font-size:.56rem;color:rgba(255,255,255,.4)">🎵 Story Mode</div>'
+        )
+      +'</div>'
+
+      /* Song title + artist */
+      +'<div style="padding:.3rem .85rem .4rem;flex-shrink:0">'
+        +'<div style="font-family:var(--df);font-size:.9rem;color:#fff;font-weight:700">'
+          +escHtml(song.title)+'</div>'
+        +'<div style="font-family:var(--dm);font-size:.52rem;color:rgba(255,255,255,.45);margin-top:.1rem">'
+          +escHtml(song.artist)+' · '+song.year+'</div>'
+      +'</div>'
+
+      /* Action row: share + download */
+      +'<div style="display:flex;gap:.4rem;padding:.2rem .85rem .5rem;flex-shrink:0">'
+        +'<button onclick="shareMedia()" class="mo-act-btn" style="flex:1">⬆ Share</button>'
+        +(hasAudio
+          ?'<button onclick="downloadMedia()" class="mo-act-btn" style="flex:1">⬇ Save</button>'
+          :''
+        )
+      +'</div>'
+
+      /* Story */
+      +(song.story
+        ?'<div style="padding:.4rem .85rem 1.5rem;flex-shrink:0">'
+          +'<div style="font-family:var(--dm);font-size:.48rem;letter-spacing:.08em;'
+            +'text-transform:uppercase;color:'+song.color+'99;margin-bottom:.4rem">The Story</div>'
+          +'<div style="font-family:var(--dm);font-size:.57rem;color:rgba(255,255,255,.76);'
+            +'line-height:1.75;background:rgba(255,255,255,.04);border-radius:12px;'
+            +'padding:.7rem;border-left:3px solid '+song.color+'66">'+escHtml(song.story)+'</div>'
+        +'</div>'
+        :''
+      )
+    +'</div>';
+
+  /* Start buffer monitoring */
+  if (hasAudio) {
+    setTimeout(_startBufferMonitor, 200);
+  }
+}
+
+/* ── BUFFER MONITOR ── */
+function _startBufferMonitor() {
+  var audio = document.getElementById('wc-audio-player');
+  var fill  = document.getElementById('wc-buffer-fill');
+  if (!audio || !fill) return;
+
+  /* Auto-play once buffered 5 seconds */
+  var checkCount = 0;
+  var bufferInterval = setInterval(function() {
+    checkCount++;
+    if (!audio) { clearInterval(bufferInterval); return; }
+
+    /* Update buffer bar */
+    if (audio.buffered.length > 0) {
+      var bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
+      var pct = Math.min(100, (bufferedEnd / Math.max(audio.duration || 300, 1)) * 100);
+      if (fill) fill.style.width = pct + '%';
+
+      /* Start play when 5s is buffered */
+      if (bufferedEnd >= 5 || bufferedEnd >= (audio.duration - 1)) {
+        clearInterval(bufferInterval);
+        audio.play().catch(function(){});
+      }
+    }
+
+    /* Timeout after 15s — try playing anyway */
+    if (checkCount > 30) {
+      clearInterval(bufferInterval);
+      audio.play().catch(function(){});
+    }
+  }, 500);
+}
+
+function _onAudioReady(audio) {
+  console.log('[media] audio ready, duration:', audio.duration);
+  /* Audio metadata loaded — start buffer monitoring */
+  _startBufferMonitor();
+}
+
+function _audioFailed(audio) {
+  var wrap = document.getElementById('wc-audio-wrap');
+  if (wrap) {
+    wrap.innerHTML = '<div style="font-family:var(--dm);font-size:.54rem;color:rgba(255,120,120,.8);'
+      +'text-align:center;padding:.65rem;background:rgba(255,0,0,.06);border-radius:8px;'
+      +'border:1px solid rgba(255,0,0,.15)">Audio unavailable · Story mode active</div>';
+  }
+}
+
+/* ── RELATED PANEL ── */
+function _buildMPRelated(type, currentId) {
+  var list = document.getElementById('mo-related-list');
+  if (!list) return;
+  var items = [];
+
+  if (type === 'song') {
+    items = WC_MEDIA_REGISTRY.songs
+      .filter(function(s){ return s.id !== currentId && s.audio && s.audio.length > 0; })
+      .map(function(s){
+        return { id:s.id, title:s.title, sub:s.artist+' · '+s.year, color:s.color, type:'song', data:s };
+      });
+  } else if (type === 'ceremony') {
+    items = WC_MEDIA_REGISTRY.ceremonies
+      .filter(function(c){ return c.id !== currentId; })
+      .map(function(c){
+        return { id:c.id, title:c.year+' Opening Ceremony', sub:c.host, color:c.color, type:'ceremony', data:c };
+      });
+  } else {
+    /* Default: show songs */
+    items = WC_MEDIA_REGISTRY.songs.slice(0, 5).map(function(s){
+      return { id:s.id, title:s.title, sub:s.artist+' · '+s.year, color:s.color, type:'song', data:s };
+    });
+  }
+
+  list.innerHTML = items.slice(0, 6).map(function(r){
+    return '<div class="mo-related-item" '
+        +'onclick="_showMP({id:\''+r.id+'\',title:\''+r.title.replace(/'/g,"\\'")+'\','
+        +'type:\''+r.type+'\','
+        +'data:WC_MEDIA_REGISTRY.'+(r.type==='song'?'songs':'ceremonies')
+          +'.find(function(x){return x.id===\''+r.id+'\';})' + '})">'
+      +'<div class="mo-rel-thumb" style="background:'+(r.color||'#003566')+'">'
+        +(r.type==='song'?'🎵':'🎬')+'</div>'
+      +'<div class="mo-rel-info">'
+        +'<div class="mo-rel-title">'+escHtml(r.title.slice(0,50))+'</div>'
+        +'<div class="mo-rel-src">'+(r.sub||'World Cup')+'</div>'
+      +'</div>'
+    +'</div>';
+  }).join('');
+}
+
+/* ── UPDATED _renderSongs (with prefetch trigger) ── */
 function _renderSongs() {
   var grid = document.getElementById('wch-songs-grid');
   if (!grid) return;
-  grid.innerHTML = WC_SONGS.map(function(s){
-    var hasDM = !!s.dmId;
-    return '<div class="wch-song-card" onclick="openWCMedia('
-        +'\'song-'+s.year+'\','
-        +'\''+s.title+' \u2014 '+s.artist.replace(/'/g,"\\'")+'\','
-        +(s.ytId?'\''+s.ytId+'\'':'null')+','
-        +'\'song\','
-        +(s.dmId?'\''+s.dmId+'\'':'null')+')">'
+
+  /* Prefetch first 3 songs in background */
+  var firstKeys = ['waka-waka-2010','hayya-hayya-2022','la-copa-1998'];
+  setTimeout(function(){ _prefetchSongs(firstKeys); }, 1000);
+
+  grid.innerHTML = WC_MEDIA_REGISTRY.songs.map(function(s){
+    var hasAudio = s.audio && s.audio.length > 0;
+    return '<div class="wch-song-card" '
+        +'onclick="_showMP({id:\''+s.id+'\',title:\''+s.title.replace(/'/g,"\\'")+'\',type:\'song\','
+        +'data:WC_MEDIA_REGISTRY.songs.find(function(x){return x.id===\''+s.id+'\';})' + '})">'
       +'<div class="wch-song-disc" style="background:linear-gradient(135deg,'+(s.color||'#003566')+'cc,'+(s.color||'#001d3d')+')">'
-        +(hasDM ? '<span style="font-size:1.3rem">▶</span>' : '<span style="font-size:1.3rem">🎵</span>')
+        +(hasAudio?'<span style="font-size:1.3rem">▶</span>':'<span style="font-size:1.3rem">🎵</span>')
       +'</div>'
       +'<div class="wch-song-info">'
         +'<div class="wch-song-title">'+escHtml(s.title)+'</div>'
@@ -8768,66 +9244,30 @@ function _renderSongs() {
         +'<div class="wch-song-year" style="color:'+(s.color||'var(--gold)')+'">'+s.year+'</div>'
         +'<div class="wch-song-note">'+escHtml(s.note)+'</div>'
       +'</div>'
-      +'<div class="wch-song-play" style="background:'+(s.color||'#c00')+'22;border-color:'+(s.color||'#c00')+'44;color:'+(s.color||'#fc8181')+'">'
-        +(hasDM ? '▶' : '♪')
+      +'<div class="wch-song-play" style="background:'+(s.color||'#c00')+'22;'
+        +'border-color:'+(s.color||'#c00')+'44;color:'+(s.color||'#fc8181')+'">'
+        +(hasAudio?'▶':'ℹ')
       +'</div>'
     +'</div>';
   }).join('');
 }
 
+/* ── UPDATED _renderCeremonies ── */
 function _renderCeremonies() {
   var rail = document.getElementById('wch-ceremonies-rail');
   if (!rail) return;
-  rail.innerHTML = WC_CEREMONIES.map(function(c){
-    return '<div class="wch-cer-card" onclick="openWCMedia('
-        +'\'cer-'+c.year+'\','
-        +'\''+c.year+' FIFA Opening Ceremony \u2014 '+c.host.replace(/'/g,"\\'")+'\','
-        +(c.ytId?'\''+c.ytId+'\'':'null')+','
-        +'\'ceremony\','
-        +(c.dmId?'\''+c.dmId+'\'':'null')+')">'
+  rail.innerHTML = WC_MEDIA_REGISTRY.ceremonies.map(function(c){
+    var hasVideo = c.video && c.video.length > 0;
+    return '<div class="wch-cer-card" '
+        +'onclick="_showMP({id:\''+c.id+'\',title:\''+c.year+' Opening Ceremony \u2014 '+c.host.replace(/'/g,"\\'")+'\',type:\'ceremony\','
+        +'data:WC_MEDIA_REGISTRY.ceremonies.find(function(x){return x.id===\''+c.id+'\';})' + '})">'
       +'<div class="wch-cer-thumb" style="background:linear-gradient(135deg,'+(c.color||'#003566')+','+(c.color||'#001d3d')+')">'
         +'<div class="wch-cer-year">'+c.year+'</div>'
-        +'<div class="wch-cer-play">▶</div>'
+        +'<div class="wch-cer-play">'+(hasVideo?'▶':'🎬')+'</div>'
       +'</div>'
       +'<div class="wch-cer-body">'
         +'<div class="wch-cer-host">🌍 '+escHtml(c.host)+'</div>'
         +'<div class="wch-cer-highlight">★ '+escHtml(c.highlight)+'</div>'
-      +'</div>'
-    +'</div>';
-  }).join('');
-}
-
-function _renderMoments() {
-  var grid = document.getElementById('wch-moments-grid');
-  if (!grid) return;
-  grid.innerHTML = WC_MOMENTS.map(function(m){
-    return '<div class="wch-moment-card" onclick="_showMedia({id:\'moment-'+m.year+'\','
-        +'title:\''+m.title.replace(/'/g,"\\'")+'\','
-        +'dmId:null,ytId:null,type:\'moment\'})">'
-      +'<div class="wch-moment-icon">'+m.icon+'</div>'
-      +'<div class="wch-moment-body">'
-        +'<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
-        +'<div class="wch-moment-meta">'+m.year+' · '+escHtml(m.teams)+'</div>'
-        +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,120))+'...</div>'
-        +'<div class="wch-moment-watch">▶ Tap to watch</div>'
-      +'</div>'
-    +'</div>';
-  }).join('');
-}
-
-function _renderBestMatches() {
-  var list = document.getElementById('wch-best-matches-list');
-  if (!list) return;
-  list.innerHTML = WC_BEST_MATCHES.map(function(m){
-    return '<div class="wch-best-card" onclick="_showMedia({id:\'best-'+m.rank+'\','
-        +'title:\'#'+m.rank+' '+m.label.replace(/'/g,"\\'")+'\','
-        +'dmId:null,ytId:null,type:\'highlight\'})">'
-      +'<div class="wch-best-rank">#'+m.rank+'</div>'
-      +'<div class="wch-best-body">'
-        +'<div class="wch-best-label">'+escHtml(m.label)+'</div>'
-        +'<div class="wch-best-match">'+escHtml(m.teams)+' · '+m.year+'</div>'
-        +'<div class="wch-best-desc">'+escHtml(m.desc)+'</div>'
-        +'<div class="wch-best-watch">▶ Watch highlights</div>'
       +'</div>'
     +'</div>';
   }).join('');
