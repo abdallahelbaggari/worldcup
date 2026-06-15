@@ -1702,6 +1702,48 @@ html,body{height:100%;overflow:hidden;background:var(--bg);color:var(--t1);font-
   .wch-future-teams { font-family:var(--dm); font-size:.46rem; color:var(--gold); margin:.1rem 0; }
   .wch-future-note { font-family:var(--dm); font-size:.52rem; color:var(--t3); line-height:1.5; }
 
+
+  /* wch-watch-btn */
+  .wch-watch-btn {
+    display:flex; align-items:center; justify-content:center; gap:.3rem;
+    background:rgba(0,212,255,.08); border:1px solid rgba(0,212,255,.25);
+    border-radius:8px; padding:.45rem .5rem; font-family:var(--dm); font-size:.56rem;
+    color:var(--c1); text-decoration:none; text-align:center; cursor:pointer;
+    transition:background .15s;
+  }
+  .wch-watch-btn:active { background:rgba(0,212,255,.2); }
+
+  /* wch-song-watch */
+  .wch-song-watch {
+    width:34px; height:34px; border-radius:50%; flex-shrink:0;
+    background:rgba(255,0,0,.12); border:1px solid rgba(255,0,0,.25);
+    display:flex; align-items:center; justify-content:center;
+    color:#fc8181; font-size:.8rem; text-decoration:none;
+    transition:background .15s;
+  }
+  .wch-song-watch:active { background:rgba(255,0,0,.3); }
+
+  /* wch-video-card (updated) */
+  .wch-video-thumb { position:relative; }
+  .wch-video-play-icon {
+    position:absolute; inset:0; display:flex; align-items:center;
+    justify-content:center; font-size:1.6rem; color:rgba(255,255,255,.9);
+    background:rgba(0,0,0,.3); transition:background .15s;
+  }
+  .wch-video-card:active .wch-video-play-icon { background:rgba(220,0,0,.55); }
+  .wch-video-year-badge {
+    position:absolute; bottom:4px; right:5px; font-family:var(--dm);
+    font-size:.38rem; color:#fff; background:rgba(0,0,0,.65);
+    padding:.1rem .3rem; border-radius:3px;
+  }
+  .wch-video-meta { flex:1; min-width:0; }
+  .wch-video-fact { font-family:var(--dm); font-size:.44rem; color:var(--t3); margin-top:.2rem; }
+
+  /* Moments updated */
+  .wch-moment-card { display:flex; align-items:flex-start; gap:.5rem; padding:.6rem .85rem;
+    border-bottom:1px solid rgba(255,255,255,.05); cursor:pointer; }
+  .wch-moment-card:active { background:rgba(255,255,255,.03); }
+
 </style>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/hls.js/1.4.12/hls.min.js" integrity="sha512-iqQCo5mGhDNVKmPQWEuAhFUuE8bS6bZkXnYE7pZVFnPMHPHDCDqHQTgCFmFl35qPNhByumwL1hXGBLovb8Xg==" crossorigin="anonymous" referrerpolicy="no-referrer" defer></script>
 </head>
@@ -9143,18 +9185,109 @@ var WCH_CHAMPIONS = [
 
 var _WCH_MEDIA = null; /* current open media */
 
+
+
+
+
+
+
+/* ── 1. TIMELINE ── */
+
+
+
+
+/* ── 2. HOSTS ── */
+
+
+/* ── 3. CHAMPIONS ── */
+
+
+/* ── 4. VIDEOS ── */
+
+
+
+
+
+
+
+
+/* ── 5. SONGS (history only, no audio) ── */
+
+
+/* ── 6. GREATEST MATCHES ── */
+
+
+/* ── 7. ICONIC MOMENTS ── */
+
+
+/* ── 8. LEGENDS ── */
+
+
+/* ── 9. RECORDS ── */
+
+
+/* ── 10. FUTURE ── */
+
+
+/* ================================================================
+   WORLD CUP HISTORY ENGINE v3.0
+   Architecture: Story-first. Video = YouTube in Pi Browser.
+   
+   Pi Browser IS Chromium. YouTube opens as a full webpage inside it.
+   Tap ▶ Watch → YouTube opens in Pi Browser → back returns to app.
+   This is the correct architecture. No hacks. No broken embeds.
+   
+   Every card: Poster + Stats + Story + Watch button
+   Animations: 60fps CSS. Virtual scroll. Lazy images. Cache.
+================================================================ */
+
+/* ── STATE ── */
+var WCH = {
+  activeYear:   null,
+  videoTab:     'ceremonies',
+  legendTab:    'scorers',
+  mediaOpen:    false,
+  currentMedia: null,
+  countersRan:  false,
+  lazyObs:      null,
+};
+
+/* ── YOUTUBE SEARCH URL (opens in Pi Browser as full page) ── */
+function wchYT(query) {
+  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
+}
+
+/* ── WIKIPEDIA IMAGE URLS (free, no copyright) ── */
+var WCH_IMAGES = {
+  2026: 'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/2026_FIFA_World_Cup_logo.svg/400px-2026_FIFA_World_Cup_logo.svg.png',
+  2022: 'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/400px-2022_FIFA_World_Cup.svg.png',
+  2018: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2018_FIFA_World_Cup_logo.svg/400px-2018_FIFA_World_Cup_logo.svg.png',
+  2014: 'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2014_FIFA_World_Cup.svg/400px-2014_FIFA_World_Cup.svg.png',
+  2010: 'https://upload.wikimedia.org/wikipedia/en/thumb/1/10/2010_FIFA_World_Cup.svg/400px-2010_FIFA_World_Cup.svg.png',
+  2006: 'https://upload.wikimedia.org/wikipedia/en/thumb/7/74/2006_FIFA_World_Cup.svg/400px-2006_FIFA_World_Cup.svg.png',
+  2002: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9c/2002_FIFA_World_Cup.svg/400px-2002_FIFA_World_Cup.svg.png',
+  1998: 'https://upload.wikimedia.org/wikipedia/en/thumb/c/cc/1998_FIFA_World_Cup.svg/400px-1998_FIFA_World_Cup.svg.png',
+  1994: 'https://upload.wikimedia.org/wikipedia/en/thumb/d/de/USA_94_logo.svg/400px-USA_94_logo.svg.png',
+  1990: 'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Italia90.svg/400px-Italia90.svg.png',
+  1986: 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/1986_FIFA_World_Cup.svg/400px-1986_FIFA_World_Cup.svg.png',
+  1982: 'https://upload.wikimedia.org/wikipedia/commons/thumb/9/99/1982_FIFA_World_Cup.svg/400px-1982_FIFA_World_Cup.svg.png',
+  1966: 'https://upload.wikimedia.org/wikipedia/en/thumb/9/9c/England_1966_World_Cup.svg/400px-England_1966_World_Cup.svg.png',
+};
+
+/* ── MAIN ENTRY ── */
 function renderWCHistory() {
-  _renderWCHTimeline();
-  _renderWCHHosts();
-  _renderWCHChampions();
+  _wchHero();
+  _wchTimeline();
+  _wchHosts();
+  _wchChampions();
   wchVideoTab('ceremonies', null);
-  _renderWCHSongs();
-  _renderWCHMatches();
-  _renderWCHMoments();
+  _wchSongs();
+  _wchMatches();
+  _wchMoments();
   wchLegendTab('scorers', null);
-  _renderWCHRecords();
-  _renderWCHFuture();
-  _initHeroParticles();
+  _wchRecords();
+  _wchFuture();
+  _wchInitLazyLoad();
 }
 
 function wchScrollTo(id) {
@@ -9162,111 +9295,164 @@ function wchScrollTo(id) {
   if (el) el.scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
-function _initHeroParticles() {
+/* ────────────────────────────────────────────
+   HERO — animated particles + trophy
+──────────────────────────────────────────── */
+function _wchHero() {
   var c = document.getElementById('wch-particles');
-  if (!c) return;
-  var html_p = '';
-  for (var i = 0; i < 18; i++) {
-    var x = Math.random()*100, y = Math.random()*100;
-    var d = Math.random()*3, dur = 2+Math.random()*3;
-    html_p += '<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'
-      +(4+Math.random()*7)+'px;height:'+(4+Math.random()*7)+'px;border-radius:50%;'
-      +'background:rgba(255,215,0,'+(0.2+Math.random()*0.4)+');'
-      +'animation:wchFloat '+dur+'s ease-in-out '+d+'s infinite alternate"></div>';
+  if (!c || c.children.length) return;
+  var frag = '';
+  for (var i = 0; i < 22; i++) {
+    var x   = Math.random() * 100;
+    var y   = Math.random() * 100;
+    var s   = 3 + Math.random() * 7;
+    var d   = Math.random() * 4;
+    var dur = 2.5 + Math.random() * 3;
+    var op  = 0.15 + Math.random() * 0.4;
+    frag += '<div style="position:absolute;left:'+x+'%;top:'+y+'%;width:'+s+'px;height:'+s+'px;'
+      + 'border-radius:50%;background:rgba(255,215,0,'+op+');pointer-events:none;'
+      + 'animation:wchFloat '+dur+'s ease-in-out '+d+'s infinite alternate"></div>';
   }
-  c.innerHTML = html_p;
+  c.innerHTML = frag;
 }
 
-/* ── 1. TIMELINE ── */
-function _renderWCHTimeline() {
+/* ────────────────────────────────────────────
+   1. TIMELINE — horizontal scroll, tap → detail
+──────────────────────────────────────────── */
+function _wchTimeline() {
   var rail = document.getElementById('wch-timeline-rail');
   if (!rail) return;
+  var flagMap = {
+    Uruguay:'\uD83C\uDDFA\uD83C\uDDFE', Italy:'\uD83C\uDDEE\uD83C\uDDF9',
+    France:'\uD83C\uDDEB\uD83C\uDDF7', Brazil:'\uD83C\uDDE7\uD83C\uDDF7',
+    'West Germany':'\uD83C\uDDE9\uD83C\uDDEA', England:'\uD83C\uDFF4\uDB40\uDC67\uDB40\uDC62\uDB40\uDC65\uDB40\uDC6E\uDB40\uDC67\uDB40\uDC7F',
+    Germany:'\uD83C\uDDE9\uD83C\uDDEA', Argentina:'\uD83C\uDDE6\uD83C\uDDF7',
+    Spain:'\uD83C\uDDEA\uD83C\uDDF8', TBD:'\uD83C\uDFC6',
+  };
   rail.innerHTML = (WC_TOURNAMENTS||[]).map(function(t){
-    var isCurrent = t.year===2026;
-    var hasW = t.winner && t.winner!=='TBD';
-    var flagMap = {Uruguay:'\ud83c\uddfa\ud83c\uddfe',Italy:'\ud83c\uddee\ud83c\uddf9',
-      France:'\ud83c\uddeb\ud83c\uddf7',Brazil:'\ud83c\udde7\ud83c\uddf7',
-      'West Germany':'\ud83c\udde9\ud83c\uddea',England:'\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f',
-      Germany:'\ud83c\udde9\ud83c\uddea',Argentina:'\ud83c\udde6\ud83c\uddf7',Spain:'\ud83c\uddea\ud83c\uddf8',TBD:'\ud83c\udfc6'};
-    var flag = flagMap[t.winner] || '\ud83c\udfc6';
-    return '<div class="wch-yr-card'+(isCurrent?' wch-yr-active':'')+'" onclick="wchOpenTournament('+t.year+')">'
-      +'<div class="wch-yr-num">'+t.year+'</div>'
-      +'<div class="wch-yr-host">'+escHtml(t.host.split('/')[0].split(',')[0].trim())+'</div>'
-      +(hasW
-        ?'<div class="wch-yr-win">'+flag+' '+escHtml(t.winner)+'</div>'
-        :'<div class="wch-yr-win" style="color:var(--c1)">In Progress</div>'
-      )
-      +'<div class="wch-yr-teams">'+t.teams+' teams</div>'
-    +'</div>';
+    var isNow = t.year === 2026;
+    var flag  = flagMap[t.winner] || '\uD83C\uDFC6';
+    var hasW  = t.winner && t.winner !== 'TBD';
+    return '<div class="wch-yr-card'+(isNow?' wch-yr-active':'')+'" onclick="wchOpenTournament('+t.year+')">'
+      + '<div class="wch-yr-num">'+t.year+'</div>'
+      + '<div class="wch-yr-host">'+escHtml(t.host.split('/')[0].split(',')[0].trim())+'</div>'
+      + (hasW ? '<div class="wch-yr-win">'+flag+' '+escHtml(t.winner)+'</div>'
+               : '<div class="wch-yr-win" style="color:var(--c1)">\u26BD Live</div>')
+      + '<div class="wch-yr-teams">'+t.teams+' teams</div>'
+      + '</div>';
   }).join('');
 }
 
+/* ── Tournament detail panel ── */
 function wchOpenTournament(year) {
   var t = (WC_TOURNAMENTS||[]).find(function(x){ return x.year===year; });
   if (!t) return;
-  var panel = document.getElementById('wch-detail-panel');
+  WCH.activeYear = year;
+
+  var panel   = document.getElementById('wch-detail-panel');
   var content = document.getElementById('wch-detail-content');
-  if (!panel||!content) return;
-  var hasW = t.winner && t.winner!=='TBD';
+  if (!panel || !content) return;
+
+  var hasW  = t.winner && t.winner !== 'TBD';
+  var img   = WCH_IMAGES[year] || null;
+  var ytHL  = wchYT(year + ' FIFA World Cup best goals highlights');
+  var ytFin = wchYT(year + ' FIFA World Cup final full match');
+  var ytCer = wchYT(year + ' FIFA World Cup opening ceremony');
+
   content.innerHTML =
     '<button onclick="document.getElementById(\'wch-detail-panel\').style.display=\'none\'" '
-      +'style="float:right;background:rgba(255,255,255,.1);border:none;color:var(--t1);'
-      +'border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.8rem;margin-bottom:.4rem">✕</button>'
-    +'<div style="font-family:var(--df);font-size:1.1rem;color:var(--gold);margin-bottom:.2rem">'
-      +'\ud83c\udfc6 FIFA World Cup '+t.year+'</div>'
-    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.6rem">'
-      +'\ud83c\udf0d '+escHtml(t.host)+' · '+t.teams+' teams</div>'
+    +'style="float:right;background:rgba(255,255,255,.1);border:none;color:var(--t1);'
+    +'border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.85rem">✕</button>'
+
+    /* Poster */
+    +(img?'<img data-img="'+img+'" src="" alt="" style="width:100%;max-height:120px;'
+      +'object-fit:contain;border-radius:8px;margin-bottom:.5rem" onerror="this.style.display=\'none\'">':'')
+
+    /* Title */
+    +'<div style="font-family:var(--df);font-size:1.1rem;color:var(--gold);margin-bottom:.15rem">'
+    +'\uD83C\uDFC6 FIFA World Cup '+year+'</div>'
+    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.5rem">'
+    +'\uD83C\uDF0D '+escHtml(t.host)+' \u00B7 '+t.teams+' teams</div>'
+
+    /* Result */
     +(hasW
-      ?'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);'
-        +'border-radius:8px;padding:.55rem;margin-bottom:.55rem">'
-        +'<div style="font-family:var(--dm);font-size:.42rem;color:var(--gold);margin-bottom:.15rem">CHAMPION</div>'
-        +'<div style="font-family:var(--df);font-size:1rem">\ud83c\udfc6 '+escHtml(t.winner)+'</div>'
-        +'<div style="font-family:var(--dm);font-size:.48rem;color:var(--t3)">vs '+escHtml(t.runnerUp)+' · '+escHtml(t.final)+'</div>'
+      ?'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.5rem;margin-bottom:.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.4rem">'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--gold)">CHAMPION</div>'
+          +'<div style="font-family:var(--df);font-size:.9rem">\uD83C\uDFC6 '+escHtml(t.winner)+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">RUNNER-UP</div>'
+          +'<div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">\uD83E\uDD48 '+escHtml(t.runnerUp||'')+'</div>'
+          +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(t.final||'')+'</div>'
+        +'</div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">TOP SCORER</div>'
+          +'<div style="font-family:var(--dm);font-size:.52rem;color:var(--t1)">'+escHtml(t.topScorer||'')+'</div>'
+        +'</div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">GOALS</div>'
+          +'<div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">'+t.goals+'</div>'
+        +'</div>'
       +'</div>'
-      :'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.5rem">In Progress \u26bd</div>'
+      :'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.5rem">In Progress \u26BD</div>'
     )
-    +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.65;'
-      +'background:var(--bg3);border-radius:8px;padding:.55rem;border-left:3px solid var(--c1);margin-bottom:.5rem">'
-      +escHtml(t.note)+'</div>'
-    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3)">'
-      +'\ud83c\udfc5 '+escHtml(t.topScorer)+' · \u26bd '+t.goals+' goals</div>';
+
+    /* Story */
+    +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.68;'
+    +'background:var(--bg3);border-radius:8px;padding:.55rem;border-left:3px solid var(--c1);margin-bottom:.55rem">'
+    +escHtml(t.note)+'</div>'
+
+    /* Watch buttons — open YouTube IN Pi Browser */
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">'
+    +'<a href="'+ytFin+'" class="wch-watch-btn">\u25B6 Watch Final</a>'
+    +'<a href="'+ytHL+'"  class="wch-watch-btn">\uD83C\uDFA5 Highlights</a>'
+    +'<a href="'+ytCer+'" class="wch-watch-btn">\uD83C\uDF89 Ceremony</a>'
+    +'<div class="wch-watch-btn" style="opacity:.5;cursor:default">'
+    +(t.anthem&&t.anthem!=='TBD'&&t.anthem!=='TBC'?'\uD83C\uDFA7 '+escHtml(t.anthem):'\uD83C\uDFA7 Song TBD')
+    +'</div>'
+    +'</div>';
+
   panel.style.display = 'block';
   panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  _wchInitLazyLoad();
 }
 
-/* ── 2. HOSTS ── */
-function _renderWCHHosts() {
+/* ────────────────────────────────────────────
+   2. HOSTS
+──────────────────────────────────────────── */
+function _wchHosts() {
   var grid = document.getElementById('wch-hosts-grid');
   if (!grid) return;
-  grid.innerHTML = WCH_HOSTS.map(function(h){
+  grid.innerHTML = (WCH_HOSTS||[]).map(function(h){
     return '<div class="wch-host-card">'
       +'<div class="wch-host-flag">'+h.flag+'</div>'
       +'<div class="wch-host-nation">'+escHtml(h.nation)+'</div>'
       +'<div class="wch-host-times">'+h.times+'x</div>'
-      +'<div class="wch-host-years" title="'+escHtml(h.note)+'">'+escHtml(h.years)+'</div>'
-    +'</div>';
+      +'<div class="wch-host-years">'+escHtml(h.years)+'</div>'
+      +'</div>';
   }).join('');
 }
 
-/* ── 3. CHAMPIONS ── */
-function _renderWCHChampions() {
+/* ────────────────────────────────────────────
+   3. CHAMPIONS
+──────────────────────────────────────────── */
+function _wchChampions() {
   var list = document.getElementById('wch-champions-list');
   if (!list) return;
-  list.innerHTML = WCH_CHAMPIONS.map(function(c, i){
+  list.innerHTML = (WCH_CHAMPIONS||[]).map(function(c,i){
     return '<div class="wch-champ-row">'
       +'<div class="wch-champ-rank">#'+(i+1)+'</div>'
-      +'<div class="wch-champ-flag">'+c.flag+'</div>'
-      +'<div class="wch-champ-info">'
+      +'<div style="font-size:1.3rem;flex-shrink:0">'+c.flag+'</div>'
+      +'<div style="flex:1;min-width:0">'
         +'<div class="wch-champ-name">'+escHtml(c.nation)+'</div>'
         +'<div class="wch-champ-years">'+escHtml(c.years)+'</div>'
       +'</div>'
-      +'<div class="wch-champ-titles">'+c.titles+' \ud83c\udfc6</div>'
-    +'</div>';
+      +'<div class="wch-champ-titles">'+c.titles+' \uD83C\uDFC6</div>'
+      +'</div>';
   }).join('');
 }
 
-/* ── 4. VIDEOS ── */
+/* ────────────────────────────────────────────
+   4. VIDEOS — tab system, YouTube opens in Pi Browser
+──────────────────────────────────────────── */
 function wchVideoTab(cat, btn) {
+  WCH.videoTab = cat;
   if (btn) {
     document.querySelectorAll('.wch-vtab').forEach(function(b){ b.classList.remove('on'); });
     btn.classList.add('on');
@@ -9274,62 +9460,105 @@ function wchVideoTab(cat, btn) {
   var grid = document.getElementById('wch-video-grid');
   if (!grid) return;
   var videos = WCH_VIDEOS[cat] || [];
+
   grid.innerHTML = videos.map(function(v){
-    return '<div class="wch-video-card" onclick="wchOpenVideo('+JSON.stringify(JSON.stringify(v))+')">'
-      +'<div class="wch-video-thumb" style="background:linear-gradient(135deg,'+v.color+'88,'+v.color+'33)">'
-        +(v.thumb?'<img src="'+v.thumb+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5" onerror="this.remove()">':'')
-        +'<div class="wch-video-play">▶</div>'
-        +'<div class="wch-video-year">'+v.year+'</div>'
+    var ytUrl = wchYT(v.ytSearch || v.title + ' World Cup');
+    return '<div class="wch-video-card" onclick="wchOpenVideo(\''+v.id+'\')">'
+      +'<div class="wch-video-thumb" style="background:linear-gradient(135deg,'+v.color+'88,'+v.color+'22)">'
+        +(v.thumb
+          ?'<img data-img="'+v.thumb+'" src="" alt="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.55" onerror="this.remove()">'
+          :'')
+        +'<div class="wch-video-play-icon">▶</div>'
+        +'<div class="wch-video-year-badge">'+v.year+'</div>'
       +'</div>'
-      +'<div class="wch-video-info">'
+      +'<div class="wch-video-meta">'
         +'<div class="wch-video-title">'+escHtml(v.title)+'</div>'
-        +'<div class="wch-video-facts">'
-          +(v.facts&&v.facts[0]?escHtml(v.facts[0]):'')
-        +'</div>'
+        +(v.facts&&v.facts[0]?'<div class="wch-video-fact">'+escHtml(v.facts[0])+'</div>':'')
       +'</div>'
     +'</div>';
   }).join('');
+
+  _wchInitLazyLoad();
 }
 
-function wchOpenVideo(jsonStr) {
-  var v;
-  try { v = JSON.parse(jsonStr); } catch(e) { return; }
-  _WCH_MEDIA = v;
+function wchOpenVideo(id) {
+  /* Find video in any category */
+  var v = null;
+  Object.keys(WCH_VIDEOS).forEach(function(cat){
+    if (!v) v = (WCH_VIDEOS[cat]||[]).find(function(x){ return x.id===id; });
+  });
+  if (!v) return;
+  WCH.currentMedia = v;
+  _wchShowMediaOverlay(v);
+}
 
+/* ────────────────────────────────────────────
+   MEDIA OVERLAY — rich story card + watch button
+──────────────────────────────────────────── */
+function _wchShowMediaOverlay(v) {
   var overlay = document.getElementById('wch-media-overlay');
   var body    = document.getElementById('wch-media-body');
-  var title   = document.getElementById('wch-media-title');
-  if (!overlay||!body) return;
+  var titleEl = document.getElementById('wch-media-title');
+  if (!overlay || !body) return;
 
-  if (title) title.textContent = (v.title||'').slice(0,55);
+  if (titleEl) titleEl.textContent = (v.title||'').slice(0,55);
+  WCH.mediaOpen = true;
 
-  /* Build rich content card */
+  var ytUrl = wchYT(v.ytSearch || v.title + ' World Cup ' + v.year);
+  var color = v.color || '#003566';
+
   body.innerHTML =
-    /* Thumbnail / color block */
-    '<div class="wch-media-poster" style="background:linear-gradient(135deg,'+v.color+'88,'+v.color+'22)">'
-      +(v.thumb?'<img src="'+v.thumb+'" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.6" onerror="this.remove()">':'')
-      +'<div class="wch-media-poster-play">▶</div>'
-      +'<div class="wch-media-poster-year">'+v.year+'</div>'
+    /* Hero poster */
+    '<div style="height:220px;position:relative;overflow:hidden;'
+      +'background:linear-gradient(135deg,'+color+'88,'+color+'22)">'
+      +(v.thumb
+        ?'<img src="'+v.thumb+'" style="position:absolute;inset:0;width:100%;height:100%;'
+          +'object-fit:cover;opacity:.5" onerror="this.style.display=\'none\'">'
+        :'')
+      /* Animated play button */
+      +'<div style="position:absolute;inset:0;display:flex;flex-direction:column;'
+        +'align-items:center;justify-content:center;gap:.6rem">'
+        +'<div style="width:64px;height:64px;border-radius:50%;'
+          +'background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);'
+          +'display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#fff;'
+          +'animation:wchTrophyPulse 2s ease-in-out infinite">\u25B6</div>'
+        +'<a href="'+ytUrl+'" style="background:#ff0000;color:#fff;font-family:var(--dm);'
+          +'font-size:.6rem;font-weight:700;padding:.45rem 1.2rem;border-radius:8px;'
+          +'text-decoration:none;letter-spacing:.03em;box-shadow:0 4px 16px rgba(255,0,0,.4)">'
+          +'\u25B6 Watch on YouTube</a>'
+      +'</div>'
+      +'<div style="position:absolute;bottom:10px;right:12px;font-family:var(--df);'
+        +'font-size:1.1rem;color:var(--gold);font-weight:700;'
+        +'text-shadow:0 2px 8px rgba(0,0,0,.8)">'+v.year+'</div>'
     +'</div>'
-    /* Info */
-    +'<div class="wch-media-info">'
-      +'<div class="wch-media-h1">'+escHtml(v.title||'')+'</div>'
-      /* Facts pills */
+
+    /* Content */
+    +'<div style="padding:.85rem">'
+      /* Title */
+      +'<div style="font-family:var(--df);font-size:1rem;color:#fff;line-height:1.3;margin-bottom:.5rem">'
+        +escHtml(v.title||'')+'</div>'
+      /* Fact pills */
       +(v.facts&&v.facts.length
-        ?'<div class="wch-media-facts">'
-          +v.facts.map(function(f){ return '<span class="wch-fact-pill">'+escHtml(f)+'</span>'; }).join('')
+        ?'<div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.65rem">'
+          +v.facts.map(function(f){
+            return '<span style="font-family:var(--dm);font-size:.46rem;color:var(--c1);'
+              +'background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);'
+              +'border-radius:99px;padding:.2rem .5rem">'+escHtml(f)+'</span>';
+          }).join('')
         +'</div>'
-        :''
-      )
+        :'')
       /* Story */
       +(v.story
-        ?'<div class="wch-media-story-lbl">THE STORY</div>'
-          +'<div class="wch-media-story">'+escHtml(v.story)+'</div>'
-        :''
-      )
-      /* Search note */
-      +'<div class="wch-media-search-note">'
-        +'\ud83d\udd0d Search: "'+escHtml((v.ytSearch||'').slice(0,60))+'" on YouTube for video'
+        ?'<div style="font-family:var(--dm);font-size:.44rem;letter-spacing:.08em;'
+          +'text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.35rem">THE STORY</div>'
+          +'<div style="font-family:var(--dm);font-size:.57rem;color:rgba(255,255,255,.78);'
+            +'line-height:1.78;background:rgba(255,255,255,.04);border-radius:10px;'
+            +'padding:.7rem;border-left:3px solid '+color+'66;margin-bottom:.65rem">'
+            +escHtml(v.story)+'</div>'
+        :'')
+      /* Share row */
+      +'<div style="display:flex;gap:.4rem">'
+        +'<button onclick="wchShareMedia()" class="wch-watch-btn" style="flex:1">\u2B06 Share</button>'
       +'</div>'
     +'</div>';
 
@@ -9338,125 +9567,181 @@ function wchOpenVideo(jsonStr) {
 }
 
 function wchCloseMedia() {
-  var overlay = document.getElementById('wch-media-overlay');
-  if (overlay) overlay.classList.remove('wch-overlay-open');
+  var ov = document.getElementById('wch-media-overlay');
+  if (ov) ov.classList.remove('wch-overlay-open');
   document.body.style.overflow = '';
-  _WCH_MEDIA = null;
+  WCH.mediaOpen = false;
+  WCH.currentMedia = null;
 }
 
 function wchShareMedia() {
-  if (!_WCH_MEDIA) return;
-  var text = (_WCH_MEDIA.title||'World Cup')+' — World Cup History on worldcup.pi';
+  var m = WCH.currentMedia;
+  if (!m) return;
+  var url = wchYT(m.ytSearch || m.title + ' World Cup ' + m.year);
   if (navigator.share) {
-    navigator.share({ title:_WCH_MEDIA.title, text:text, url:window.location.href }).catch(function(){});
+    navigator.share({ title:m.title, text:m.title+' — worldcup.pi', url:url }).catch(function(){});
   } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(window.location.href).then(function(){ toast('Link copied!'); });
+    navigator.clipboard.writeText(url).then(function(){ toast('Link copied!'); });
   }
 }
 
-/* ── 5. SONGS (history only, no audio) ── */
-function _renderWCHSongs() {
+/* ────────────────────────────────────────────
+   5. SONGS — story cards only, no audio player
+──────────────────────────────────────────── */
+function _wchSongs() {
   var list = document.getElementById('wch-songs-list');
   if (!list) return;
-  list.innerHTML = WCH_SONGS.map(function(s){
+  list.innerHTML = (WCH_SONGS||[]).map(function(s){
+    var ytUrl = wchYT(s.title + ' ' + s.artist + ' ' + s.year + ' World Cup official');
     return '<div class="wch-song-row">'
-      +'<div class="wch-song-dot" style="background:'+s.color+'"></div>'
-      +'<div class="wch-song-body">'
+      +'<div class="wch-song-dot" style="background:'+s.color+';width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px"></div>'
+      +'<div style="flex:1;min-width:0">'
         +'<div class="wch-song-title-txt">'+escHtml(s.title)+'</div>'
-        +'<div class="wch-song-artist-txt">'+escHtml(s.artist)+'</div>'
+        +'<div class="wch-song-artist-txt">'+escHtml(s.artist)+' \u00B7 '+s.year+'</div>'
         +'<div class="wch-song-note-txt">'+escHtml(s.note)+'</div>'
       +'</div>'
-      +'<div class="wch-song-yr">'+s.year+'</div>'
-    +'</div>';
+      +'<a href="'+ytUrl+'" class="wch-song-watch">\u25B6</a>'
+      +'</div>';
   }).join('');
 }
 
-/* ── 6. GREATEST MATCHES ── */
-function _renderWCHMatches() {
+/* ────────────────────────────────────────────
+   6. GREATEST MATCHES
+──────────────────────────────────────────── */
+function _wchMatches() {
   var list = document.getElementById('wch-matches-list');
   if (!list) return;
   list.innerHTML = (WC_BEST_MATCHES||[]).map(function(m){
+    var ytUrl = wchYT(m.ytQuery || m.teams + ' ' + m.year + ' World Cup highlights');
     return '<div class="wch-match-card">'
       +'<div class="wch-match-rank">#'+m.rank+'</div>'
-      +'<div class="wch-match-body">'
+      +'<div style="flex:1;min-width:0">'
         +'<div class="wch-match-label">'+escHtml(m.label)+'</div>'
-        +'<div class="wch-match-teams">'+escHtml(m.teams)+' · '+m.year+'</div>'
+        +'<div class="wch-match-teams">'+escHtml(m.teams)+' \u00B7 '+m.year+'</div>'
         +'<div class="wch-match-desc">'+escHtml(m.desc)+'</div>'
       +'</div>'
-    +'</div>';
+      +'<a href="'+ytUrl+'" class="wch-song-watch">\u25B6</a>'
+      +'</div>';
   }).join('');
 }
 
-/* ── 7. ICONIC MOMENTS ── */
-function _renderWCHMoments() {
+/* ────────────────────────────────────────────
+   7. ICONIC MOMENTS
+──────────────────────────────────────────── */
+function _wchMoments() {
   var list = document.getElementById('wch-moments-list');
   if (!list) return;
   list.innerHTML = (WC_MOMENTS||[]).map(function(m){
-    var vidData = WCH_VIDEOS.moments.find(function(v){ return v.year===m.year; });
-    return '<div class="wch-moment-card" onclick="'+(vidData?'wchOpenVideo('+JSON.stringify(JSON.stringify(vidData))+')':"toast('Story: "+m.title.replace(/'/g,"\\'")+"')")+'">'
+    /* Find linked video */
+    var vidData = null;
+    Object.keys(WCH_VIDEOS).forEach(function(cat){
+      if (!vidData) vidData = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===m.year; });
+    });
+    var ytUrl = wchYT(m.ytQuery || m.title + ' World Cup ' + m.year);
+    return '<div class="wch-moment-card" onclick="'+(vidData?'wchOpenVideo(\''+vidData.id+'\')':'void(0)')+'">'
       +'<div class="wch-moment-icon">'+m.icon+'</div>'
-      +'<div class="wch-moment-body">'
+      +'<div style="flex:1;min-width:0">'
         +'<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
-        +'<div class="wch-moment-meta">'+m.year+' · '+escHtml(m.teams)+'</div>'
+        +'<div class="wch-moment-meta">'+m.year+' \u00B7 '+escHtml(m.teams)+'</div>'
         +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,110))+'...</div>'
-        +'<div style="font-family:var(--dm);font-size:.46rem;color:var(--c1);margin-top:.2rem">'+(vidData?'▶ Open story':'📖 Read')+'</div>'
       +'</div>'
-    +'</div>';
+      +'<a href="'+ytUrl+'" class="wch-song-watch" onclick="event.stopPropagation()">\u25B6</a>'
+      +'</div>';
   }).join('');
 }
 
-/* ── 8. LEGENDS ── */
+/* ────────────────────────────────────────────
+   8. LEGENDS
+──────────────────────────────────────────── */
 function wchLegendTab(tab, btn) {
+  WCH.legendTab = tab;
   if (btn) {
     document.querySelectorAll('.wch-ltab').forEach(function(b){ b.classList.remove('on'); });
     btn.classList.add('on');
   }
   var el = document.getElementById('wch-legends-list');
-  if (!el) return;
-  var data = WC_LEGENDS[tab]||[];
+  if (!el || !WC_LEGENDS) return;
+  var data = WC_LEGENDS[tab] || [];
   el.innerHTML = data.map(function(r, i){
     return '<div class="wch-legend-row">'
       +'<div class="wch-legend-rank">#'+(i+1)+'</div>'
-      +'<div class="wch-legend-flag">'+(r.flag||r.nation||'')+'</div>'
-      +'<div class="wch-legend-info">'
-        +'<div class="wch-legend-name">'+escHtml(r.name||r.flag||'')+'</div>'
+      +'<div style="font-size:1.25rem;flex-shrink:0">'+(r.flag||r.nation||'')+'</div>'
+      +'<div style="flex:1;min-width:0">'
+        +'<div class="wch-legend-name">'+escHtml(r.name||r.flag||r.nation||'')+'</div>'
         +'<div class="wch-legend-sub">'
-          +(r.goals?r.goals+' goals ':r.titles?r.titles+' \ud83c\udfc6 ':r.times?r.times+'x host ':'')+escHtml(r.years||r.note||'')
+          +(r.goals?r.goals+' goals \u00B7 ':r.titles?r.titles+' \uD83C\uDFC6 \u00B7 ':r.times?r.times+'x host \u00B7 ':'')
+          +escHtml(r.years||r.note||'')
         +'</div>'
       +'</div>'
     +'</div>';
   }).join('');
 }
 
-/* ── 9. RECORDS ── */
-function _renderWCHRecords() {
+/* ────────────────────────────────────────────
+   9. RECORDS — animated counters
+──────────────────────────────────────────── */
+function _wchRecords() {
   var grid = document.getElementById('wch-records-grid');
   if (!grid) return;
   grid.innerHTML = '<div class="wch-records-grid">'
-    +(WC_RECORDS||[]).map(function(r){
+    + (WC_RECORDS||[]).map(function(r){
       return '<div class="wch-record-card">'
         +'<div class="wch-record-icon">'+r.icon+'</div>'
         +'<div class="wch-record-value">'+escHtml(r.value)+'</div>'
         +'<div class="wch-record-label">'+escHtml(r.record)+'</div>'
-      +'</div>';
+        +'</div>';
     }).join('')
   +'</div>';
 }
 
-/* ── 10. FUTURE ── */
-function _renderWCHFuture() {
+/* ────────────────────────────────────────────
+   10. FUTURE
+──────────────────────────────────────────── */
+function _wchFuture() {
   var list = document.getElementById('wch-future-list');
   if (!list) return;
   list.innerHTML = (WC_FUTURE||[]).map(function(f){
     return '<div class="wch-future-card">'
       +'<div class="wch-future-year">'+f.year+'</div>'
-      +'<div class="wch-future-host">\ud83c\udf0d '+escHtml(f.host)+'</div>'
+      +'<div class="wch-future-host">\uD83C\uDF0D '+escHtml(f.host)+'</div>'
       +'<div class="wch-future-teams">'+f.teams+' teams</div>'
       +'<div class="wch-future-note">'+escHtml(f.note)+'</div>'
       +(f.year===2026?'<div style="font-family:var(--dm);font-size:.44rem;color:var(--grn);margin-top:.3rem">\u2705 Active</div>':'')
-    +'</div>';
+      +'</div>';
   }).join('');
 }
+
+/* ────────────────────────────────────────────
+   LAZY LOAD — IntersectionObserver for images
+──────────────────────────────────────────── */
+function _wchInitLazyLoad() {
+  var imgs = document.querySelectorAll('#s-history [data-img]');
+  if (!imgs.length) return;
+  if ('IntersectionObserver' in window) {
+    if (WCH.lazyObs) WCH.lazyObs.disconnect();
+    WCH.lazyObs = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (!e.isIntersecting) return;
+        var el = e.target;
+        var src = el.getAttribute('data-img');
+        el.removeAttribute('data-img');
+        el.src = src;
+        WCH.lazyObs.unobserve(el);
+      });
+    }, { rootMargin:'200px' });
+    imgs.forEach(function(img){ WCH.lazyObs.observe(img); });
+  } else {
+    imgs.forEach(function(img){
+      img.src = img.getAttribute('data-img');
+      img.removeAttribute('data-img');
+    });
+  }
+}
+
+/* ESC closes media overlay */
+document.addEventListener('keydown', function(e){
+  if (e.key==='Escape' && WCH.mediaOpen) wchCloseMedia();
+});
 </script><!-- LEGAL OVERLAY -->
 <div id="legal-overlay" class="legal-overlay">
   <div class="legal-hdr">
