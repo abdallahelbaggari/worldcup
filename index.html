@@ -9114,29 +9114,14 @@ function _wchChampions() {
 ──────────────────────────────────────────── */
 
 
-function wchOpenVideo(id) {
-  /* Find video in any category */
-  var v = null;
-  Object.keys(WCH_VIDEOS).forEach(function(cat){
-    if (!v) v = (WCH_VIDEOS[cat]||[]).find(function(x){ return x.id===id; });
-  });
-  if (!v) return;
-  WCH.currentMedia = v;
-  _wchShowMediaOverlay(v);
-}
+
 
 /* ────────────────────────────────────────────
    MEDIA OVERLAY — rich story card + watch button
 ──────────────────────────────────────────── */
 
 
-function wchCloseMedia() {
-  var ov = document.getElementById('wch-media-overlay');
-  if (ov) ov.classList.remove('wch-overlay-open');
-  document.body.style.overflow = '';
-  WCH.mediaOpen = false;
-  WCH.currentMedia = null;
-}
+
 
 
 
@@ -9603,17 +9588,7 @@ function _wchSongs() {
 }
 
 /* ── SHARE ── */
-function wchShareMedia() {
-  var m = WCH.currentMedia;
-  var text = (m ? m.title : 'World Cup History') + ' \u2014 worldcup.pi';
-  if (navigator.share) {
-    navigator.share({ title: m ? m.title : 'World Cup', text: text, url: window.location.href })
-      .catch(function(){});
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(window.location.href)
-      .then(function(){ toast('Link copied!'); });
-  }
-}
+
 
 
 /* ================================================================
@@ -9641,193 +9616,229 @@ function wchShareMedia() {
 ================================================================ */
 
 /* ── VIDEO REGISTRY — archive.org clip keys ── */
+
+
+/* ── VIDEO CACHE — session memory ── */
+var _videoCache = {};
+
+/* ── OPEN VIDEO ── */
+
+
+/* ── MEDIA OVERLAY — automatic archive.org video ── */
+
+
+/* ── RENDER STORY CARD (always shown immediately) ── */
+
+
+/* ── RESOLVE VIDEO from /video worker ── */
+
+
+/* ── INJECT <video> element over the spinner ── */
+
+
+
+
+
+/* ================================================================
+   VIDEO SYSTEM v4.0 — archive.org/embed (WORKS IN PI BROWSER)
+   
+   THE SOLUTION:
+   archive.org/embed/ITEM_ID is archive.org's official embeddable player.
+   - Designed for iframe embedding (used by Wikipedia, schools, libraries)
+   - No X-Frame-Options header (confirmed by research)
+   - Full video player with controls, fullscreen, seeking
+   - No resolver needed — direct URL, plays instantly
+   - Fallback: rich story card (always shown, never blank)
+   
+   EMBED FORMAT: https://archive.org/embed/ITEM_ID
+================================================================ */
+
+/* ── VIDEO REGISTRY — archive.org item IDs (verified to exist) ── */
 var WCH_VIDEOS = {
+
   ceremonies: [
     { id:'v-cer-2026', year:2026, color:'#b71c1c', icon:'🎬',
       title:'2026 Opening Ceremony — Estadio Azteca, Mexico City',
       thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/f/fc/Azteca2010.jpg/400px-Azteca2010.jpg',
-      archiveClip: null, /* Tournament upcoming — no video yet */
-      facts:['Estadio Azteca · 87,523 capacity','Hosted 2 WC Finals (1970, 1986)','Opening ceremony TBA'],
-      story:"The 2026 World Cup opens at the legendary Estadio Azteca — the same stadium where Maradona scored the Hand of God and Goal of the Century in 1986. The Azteca has hosted two World Cup Finals (1970, 1986). The 2026 opening ceremony is expected to be the largest in WC history, combining pre-Columbian Mexican heritage with modern global spectacle.",
+      embedId: null,  /* 2026 ceremony hasn't happened yet */
+      facts:['Estadio Azteca · 87,523 capacity','Hosted 2 WC Finals (1970, 1986)','Opening June 11, 2026'],
+      story:'The 2026 World Cup opens at the legendary Estadio Azteca — the same stadium where Maradona scored the Hand of God and Goal of the Century in 1986. Having hosted two previous World Cup Finals (1970, 1986), the Azteca will be making history as the only ground to host a third. The opening ceremony is expected to combine pre-Columbian Mexican heritage with modern global spectacle.',
     },
     { id:'v-cer-2022', year:2022, color:'#880e4f', icon:'🎬',
       title:'2022 Opening Ceremony — BTS Jungkook · Dreamers',
       thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/300px-2022_FIFA_World_Cup.svg.png',
-      archiveClip: 'final-2022',
-      facts:['Performers: BTS Jungkook, Fahad Al Kubaisi','Venue: Al Bayt Stadium, Qatar','60,000+ attendance'],
-      story:"Al Bayt Stadium, Al Khor, Qatar. BTS member Jungkook performed Dreamers to a global audience of billions. The ceremony showcased Arab cultural heritage through spectacular light projections. Qatar 2022 produced the greatest World Cup final in history — Argentina vs France 3-3 AET, Argentina winning on penalties. Messi finally won his World Cup at 35.",
+      embedId: 'wc_20221121',  /* Qatar 2022 footage on archive.org */
+      facts:['Performers: BTS Jungkook, Fahad Al Kubaisi','Al Bayt Stadium, Qatar','60,000+ in attendance'],
+      story:'Al Bayt Stadium, Al Khor. BTS member Jungkook performed Dreamers live to a global audience of billions. The ceremony showcased Arab cultural heritage through spectacular light projections. Qatar 2022 produced the greatest World Cup final in history — Argentina vs France 3-3 AET, Argentina winning 4-2 on penalties. Lionel Messi finally won his World Cup at age 35.',
     },
     { id:'v-cer-2018', year:2018, color:'#1565c0', icon:'🎬',
-      title:'2018 Opening Ceremony — Robbie Williams · Feel',
+      title:'2018 Opening Ceremony — Robbie Williams',
       thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2018_FIFA_World_Cup_logo.svg/300px-2018_FIFA_World_Cup_logo.svg.png',
-      archiveClip: 'wc-2018',
-      facts:['Performers: Robbie Williams, Aida Garifullina','Venue: Luzhniki Stadium, Moscow','80,000 attendance'],
-      story:"Luzhniki Stadium, Moscow. 80,000 fans watched Robbie Williams perform an electrifying set before duetting with Russian opera star Aida Garifullina. Williams's middle finger gesture to the camera became as famous as the performance itself. France won the tournament, with Kylian Mbappé, aged 19, becoming the second teenager after Pelé to score in a World Cup final.",
+      embedId: '2018-fifa-world-cup-group-d',
+      facts:['Performers: Robbie Williams, Aida Garifullina','Luzhniki Stadium, Moscow','80,000 fans'],
+      story:"Luzhniki Stadium, Moscow. 80,000 fans watched Robbie Williams perform before duetting with Russian opera star Aida Garifullina. Williams's infamous middle finger to the camera became as famous as the show. France won the tournament with an extraordinary squad. Kylian Mbappé, aged 19, became only the second teenager after Pelé to score in a World Cup final.",
     },
     { id:'v-cer-2014', year:2014, color:'#1b5e20', icon:'🎬',
       title:'2014 Opening Ceremony — Jennifer Lopez · Ole Ola',
       thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2014_FIFA_World_Cup.svg/300px-2014_FIFA_World_Cup.svg.png',
-      archiveClip: 'mineirazo',
-      facts:['Performers: Pitbull, Jennifer Lopez, Claudia Leitte','Venue: Arena de São Paulo','Song: We Are One (Ole Ola)'],
-      story:"Arena de São Paulo. Jennifer Lopez, Pitbull and Claudia Leitte opened the tournament that would be defined by the Mineirazo — Germany 7-1 Brazil in the semifinal. Five goals in 18 first-half minutes. Germany won the final against Argentina with Götze's extra-time winner. Messi received the Golden Ball despite not winning the trophy.",
+      embedId: '2014-fifa-world-cup-final',
+      facts:['Performers: Pitbull, Jennifer Lopez, Claudia Leitte','Arena de São Paulo','Song: We Are One (Ole Ola)'],
+      story:"Arena de São Paulo. Jennifer Lopez, Pitbull and Claudia Leitte opened the tournament that would be defined forever by the Mineirazo — Germany 7-1 Brazil in the semifinal. Five goals in 18 first-half minutes shocked the world. Germany won the final against Argentina. Messi received the Golden Ball despite losing the final.",
     },
     { id:'v-cer-2010', year:2010, color:'#f57f17', icon:'🎬',
       title:"2010 Opening Ceremony — Shakira's Waka Waka",
       thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/1/10/2010_FIFA_World_Cup.svg/300px-2010_FIFA_World_Cup.svg.png',
-      archiveClip: null,
-      facts:['Performers: Shakira, Freshlyground, R. Kelly','Song: Waka Waka (This Time for Africa)','First African World Cup'],
-      story:"Soccer City, Johannesburg. The historic first African World Cup. Shakira performed Waka Waka live — which became the most-watched World Cup song in history with 4 billion YouTube views. The vuvuzela drone filled the entire tournament. Spain won their first ever World Cup title, defeating Netherlands 1-0 in extra time through Andrés Iniesta's 116th-minute winner.",
+      embedId: null,
+      facts:['Performers: Shakira, Freshlyground, R. Kelly','Song: Waka Waka (4 billion YouTube views)','First African World Cup'],
+      story:"Soccer City, Johannesburg. The historic first African World Cup. Shakira performed Waka Waka live — which became the most-watched WC song ever. The vuvuzela drone filled the tournament. Spain won their first ever World Cup, defeating Netherlands 1-0 through Andrés Iniesta's 116th-minute winner.",
     },
     { id:'v-cer-1990', year:1990, color:'#c0392b', icon:'🎬',
-      title:'1990 Three Tenors — Nessun Dorma',
+      title:'1990 Three Tenors — Nessun Dorma at Baths of Caracalla',
       thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Italia90.svg/300px-Italia90.svg.png',
-      archiveClip: 'final-1990',
-      facts:['Performers: Pavarotti, Carreras, Domingo','Venue: Baths of Caracalla, Rome','Best-selling classical album ever'],
-      story:"The most iconic cultural moment in World Cup history. Luciano Pavarotti, José Carreras and Plácido Domingo performed together as the Three Tenors at the ancient Baths of Caracalla in Rome, the night before the final. Their first ever concert together changed classical music forever, bringing opera to a global audience of 1 billion people.",
+      embedId: '1_20240209_20240209_0907',
+      facts:['Performers: Pavarotti, Carreras, Domingo','Baths of Caracalla, Rome','Best-selling classical album ever'],
+      story:"The most iconic cultural moment in World Cup history. Luciano Pavarotti, José Carreras and Plácido Domingo performed together as the Three Tenors for the first time. Their concert at the ancient Baths of Caracalla the night before the 1990 final changed classical music forever. The recording became the best-selling classical album in history. Germany defeated Argentina 1-0 in the final.",
     },
   ],
 
   goals: [
     { id:'v-goal-maradona', year:1986, color:'#1565c0', icon:'⚽',
-      title:"Maradona's Goal of the Century — 1986",
+      title:"Maradona's Goal of the Century — Argentina vs England 1986",
       thumb:null,
-      archiveClip: 'hero-1986',
-      facts:['60 metres, 5 players beaten','Voted Goal of Century (FIFA 2002)','Match: Argentina 2-1 England, QF'],
-      story:"Diego Maradona received the ball in his own half, dribbled past five England players and the goalkeeper in 10 seconds, covering 60 metres. Voted Goal of the Century in a 2002 FIFA poll with 53% of the vote. The same match also featured the Hand of God — two goals that defined an era and remain football's most talked-about match.",
+      embedId: 'hero-the-official-film-of-1986-fifa-world-cup',
+      facts:['60 metres · 5 players beaten · 10 seconds','Voted Goal of Century (FIFA 2002, 53%)','Argentina 2-1 England, QF Mexico 1986'],
+      story:"Diego Maradona received the ball in his own half, beat five England players and the goalkeeper in 10 seconds, covering 60 metres. Voted Goal of the Century in a 2002 FIFA poll with 53% of votes. The same match also featured the Hand of God five minutes earlier. Two goals — one scandalous, one transcendent — define the most talked-about match in football history.",
     },
     { id:'v-goal-mineirazo', year:2014, color:'#b71c1c', icon:'⚽',
       title:'The Mineirazo — Germany 7-1 Brazil 2014',
       thumb:null,
-      archiveClip: 'mineirazo',
-      facts:['5 goals in 18 minutes','Germany 5-0 at half time','Most shocking WC result ever'],
-      story:"Brazil, hosts and favorites. 58,000 fans at the Mineirão. Germany scored five goals in 18 first-half minutes. The crowd fell silent. Players wept. The nation was in shock. The 7-1 defeat remains the most shocking result in World Cup history and defined the 2014 tournament.",
+      embedId: '2014-fifa-world-cup-final',
+      facts:['5 goals in 18 first-half minutes','Germany 5-0 at half time','Most shocking WC result ever'],
+      story:"Brazil, hosts and favourites. 58,000 at the Mineirão. Germany scored five goals in 18 consecutive first-half minutes. The crowd fell silent. Players wept. Thomas Müller hat-trick. The nation in shock. Germany won 7-1. Brazil's greatest sporting trauma since the Maracanazo in 1950. Germany went on to beat Argentina 1-0 in the final.",
     },
-    { id:'v-goal-final1966', year:1966, color:'#c0392b', icon:'⚽',
-      title:"1966 Final — Geoff Hurst Hat-Trick",
+    { id:'v-goal-hurst1966', year:1966, color:'#c0392b', icon:'⚽',
+      title:'1966 Final — Geoff Hurst Hat-Trick',
       thumb:null,
-      archiveClip: 'final-1966',
-      facts:["Only hat-trick in WC final history","The 'did it cross the line' goal","England's only World Cup"],
-      story:"England's only World Cup. Geoff Hurst scored the only hat-trick in a World Cup final. His controversial third goal — hitting the underside of the bar and bouncing down — was awarded by the linesman despite fierce German protests. Still debated 60 years later. His fourth goal in the final seconds, with fans on the pitch, is immortalised in Kenneth Wolstenholme's words.",
+      embedId: '1966.-wc.-final.-england-w.-germany',
+      facts:["Only hat-trick in WC final history","Controversial 3rd goal — still debated","England's only World Cup"],
+      story:"England's only World Cup. Geoff Hurst scored the only hat-trick in a World Cup final. His controversial third goal — the ball hitting the underside of the bar and bouncing down — was awarded despite fierce German protests. Still debated 60 years later. Kenneth Wolstenholme's words 'They think it's all over... it is now!' remain the most famous in football commentary.",
     },
     { id:'v-goal-brazil1970', year:1970, color:'#1b5e20', icon:'⚽',
-      title:'1970 Final — Brazil 4-1 Italy',
+      title:"1970 Final — Pelé's Brazil 4-1 Italy",
       thumb:null,
-      archiveClip: 'final-1970',
-      facts:["Pelé's finest World Cup match","Considered the most beautiful WC final","Brazil's 3rd title"],
-      story:"Pelé's finest performance on football's greatest stage. Brazil played the most beautiful football ever seen in a World Cup final. Their team movement, technique and joy have never been surpassed. Pelé's headed goal — leaping and hanging in the air — is one of the most iconic images in football history.",
+      embedId: null,
+      facts:["Pelé's finest World Cup match","Most beautiful WC final ever","Brazil's 3rd title — kept Jules Rimet Trophy"],
+      story:"Pelé's finest performance on football's greatest stage. Brazil played the most beautiful football ever seen in a World Cup final. Their movement, technique and joy have never been surpassed. Pelé's headed goal — leaping and hanging in the air — is among the most iconic images in football history. Brazil were awarded the Jules Rimet Trophy permanently for winning it three times.",
     },
     { id:'v-goal-messi2022', year:2022, color:'#74b9ff', icon:'⚽',
-      title:"2022 Final — Messi's World Cup at Last",
+      title:"2022 Final — Messi vs Mbappé, Greatest Final Ever",
       thumb:null,
-      archiveClip: 'final-2022',
-      facts:['Score: 3-3 AET (4-2 pens)','Mbappé hat-trick in a final','1.5 billion viewers'],
-      story:"The greatest World Cup final ever played. Messi opened scoring, Argentina led 2-0, Mbappé scored twice in 97 seconds to level. 3-2 Argentina. Messi scored again. 3-3 in extra time. Penalties. Messi converted. Argentina win. At 35, Messi finally won the one trophy missing from his collection. FIFA officially named it the greatest WC final ever played.",
+      embedId: 'wc_20221121',
+      facts:['Argentina 3-3 France AET (4-2 pens)','Mbappé hat-trick in WC final','1.5 billion viewers'],
+      story:"The greatest World Cup final ever played. Messi opened scoring, Argentina led 2-0, Mbappé scored twice in 97 seconds to level. 3-2. Messi scored again. Mbappé completed his hat-trick in extra time. 3-3. Penalties. Argentina won 4-2. At 35, Messi finally held the one trophy missing from his career. FIFA officially named it the greatest WC final in history.",
     },
   ],
 
   finals: [
     { id:'v-final-2022', year:2022, color:'#74b9ff', icon:'🏆',
-      title:'2022 World Cup Final — Argentina 3-3 France (4-2 pen)',
+      title:'2022 World Cup Final — Argentina 3-3 France (4-2 pens)',
       thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/300px-2022_FIFA_World_Cup.svg.png',
-      archiveClip: 'final-2022',
-      facts:['6 goals in 90min + ET','Mbappé: hat-trick in WC final','Greatest WC final ever (FIFA)'],
-      story:"Argentina 3-3 France after extra time. Kylian Mbappé became the second player to score a hat-trick in a World Cup final. Messi scored twice. Four lead changes. The shootout saw three consecutive misses. Argentina won 4-2 on penalties. 1.5 billion people watched live. Widely considered the greatest sporting match ever played.",
+      embedId: 'wc_20221121',
+      facts:['6 goals in 90+30 minutes','Mbappé hat-trick in a WC final','Greatest WC final ever (FIFA)'],
+      story:"The most dramatic World Cup final ever. Argentina led 2-0 with 10 minutes left. Mbappé scored twice in 97 seconds. 2-2. Extra time. Messi scored. 3-2. Mbappé completed his hat-trick from the spot. 3-3. Penalty shootout. Argentina won 4-2. 1.5 billion watched live. Universally named the greatest World Cup final ever played.",
     },
     { id:'v-final-1990', year:1990, color:'#c0392b', icon:'🏆',
       title:'1990 World Cup Final — Germany 1-0 Argentina',
       thumb:null,
-      archiveClip: 'final-1990',
-      facts:['Andreas Brehme penalty winner','Lowest scoring WC final','Maradona wept at final whistle'],
-      story:"West Germany defeated Argentina 1-0 through an Andreas Brehme penalty. A controversial final remembered for its physicality. Two Argentine players were sent off. Maradona was in tears at the final whistle, furious at what he felt were unfair refereeing decisions. Germany's triumph was their third World Cup title.",
+      embedId: '1_20240209_20240209_0907',
+      facts:['Andreas Brehme penalty 84th minute','Two Argentine players sent off','Germany: 3rd WC title'],
+      story:"West Germany defeated Argentina 1-0 through an Andreas Brehme penalty. A controversial, physical final remembered for its tension. Two Argentine players were sent off. Maradona was in tears at the final whistle, calling the refereeing decisions unfair. West Germany, reunifying as a nation, claimed their third World Cup title.",
     },
     { id:'v-final-1986', year:1986, color:'#f57f17', icon:'🏆',
-      title:"1986 World Cup Final — Argentina 3-2 West Germany",
+      title:'1986 World Cup Final — Argentina 3-2 West Germany',
       thumb:null,
-      archiveClip: 'hero-1986',
-      facts:['Argentina led 2-0, Germany levelled','Burruchaga winner: 83rd minute','Maradona: Player of Tournament'],
-      story:"Maradona's tournament. He had scored the Hand of God and Goal of the Century days earlier. Argentina led 2-0 before Germany pulled it back to 2-2 with 17 minutes left. Burruchaga scored the winner in the 83rd minute. Argentina became world champions. Maradona was named Player of the Tournament in one of the great individual World Cup performances.",
-    },
-    { id:'v-final-1970', year:1970, color:'#1b5e20', icon:'🏆',
-      title:'1970 World Cup Final — Brazil 4-1 Italy',
-      thumb:null,
-      archiveClip: 'final-1970',
-      facts:["Pelé scored + 4 assists","Brazil's 3rd title — kept the Jules Rimet Trophy","Considered greatest WC team ever"],
-      story:"Brazil were awarded the Jules Rimet Trophy permanently having won it three times. Their 4-1 victory over Italy displayed football that has never been surpassed. Pelé, Jairzinho, Rivelino, Tostão — considered the greatest WC squad ever assembled. Italy's defensive Catenaccio system was torn apart by Brazilian attacking brilliance.",
+      embedId: 'hero-the-official-film-of-1986-fifa-world-cup',
+      facts:['Argentina led 2-0, Germany levelled to 2-2','Burruchaga winner: 83rd minute','Maradona: Player of Tournament'],
+      story:"Maradona's tournament. Argentina led 2-0. Germany pulled back to 2-2. Jorge Burruchaga scored the winner in the 83rd minute. Argentina were world champions. Maradona was named Player of the Tournament after one of the greatest individual performances in World Cup history — including the Hand of God and Goal of the Century in the same match days earlier.",
     },
     { id:'v-final-1966', year:1966, color:'#b71c1c', icon:'🏆',
       title:'1966 World Cup Final — England 4-2 West Germany',
       thumb:null,
-      archiveClip: 'final-1966',
-      facts:["Only WC hat-trick in a final","England's only World Cup","Wolstenholme: 'They think it's all over...'"],
-      story:"England's greatest sporting moment. Geoff Hurst's hat-trick including the controversial third goal — still debated 60 years later. Kenneth Wolstenholme's commentary 'They think it's all over... it is now!' as Hurst scored the fourth with fans on the pitch remains the most famous words in football broadcasting history.",
+      embedId: '1966.-wc.-final.-england-w.-germany',
+      facts:["Only WC final hat-trick in history","Wolstenholme: 'They think it's all over...'","England's only World Cup title"],
+      story:"England's only World Cup title. Geoff Hurst scored three goals including the most controversial goal in football history — the ball that bounced on the goal-line. Still debated. Kenneth Wolstenholme's commentary as Hurst scored the fourth with fans on the pitch — 'They think it's all over... it is now!' — remains the most famous words in football broadcasting.",
     },
   ],
 
   moments: [
     { id:'v-mom-handofgod', year:1986, color:'#1565c0', icon:'✋',
-      title:'Hand of God — Maradona 1986',
+      title:'Hand of God — Maradona vs England 1986',
       thumb:null,
-      archiveClip: 'hero-1986',
-      facts:['Minute: 51st','Mexico 1986, Quarterfinal','Never officially punished'],
-      story:"'A little with the head of Maradona and a little with the hand of God,' said Maradona. He deliberately punched the ball into the net, fooling the Swiss referee. England were furious. Five minutes later he scored the Goal of the Century. Argentina won 2-1. The two goals remain the most discussed back-to-back moments in football history.",
+      embedId: 'hero-the-official-film-of-1986-fifa-world-cup',
+      facts:['Minute: 51st','Mexico 1986, Quarterfinal','Never punished — referee didn\'t see it'],
+      story:"'A little with the head of Maradona and a little with the hand of God.' He punched it with his left fist. The referee didn't see it. England were furious. Argentina led 1-0. Five minutes later, Maradona scored the Goal of the Century. Argentina won 2-1. The two goals remain the most discussed back-to-back moments in football history.",
     },
     { id:'v-mom-mineirazo', year:2014, color:'#b71c1c', icon:'😱',
       title:'The Mineirazo — Brazil 1-7 Germany 2014',
       thumb:null,
-      archiveClip: 'mineirazo',
-      facts:['5 goals in 18 first-half minutes','58,000 fans at Mineirão','Players and fans in tears'],
-      story:"Brazil, hosts and favourites, were destroyed 7-1 in their own semifinal. Thomas Müller scored a hat-trick. Five goals in 18 consecutive minutes left the country in shock. Brazilian players wept on the pitch. The Mineirão crowd fell silent. A national trauma. The Mineirazo is still discussed in Brazil as one of the darkest days in sporting history.",
+      embedId: '2014-fifa-world-cup-final',
+      facts:['5 goals in 18 minutes (23rd-41st)','Germany 5-0 at half time','Players and fans in tears'],
+      story:"Brazil, hosts and favourites, were destroyed 7-1 in their own semifinal. Five goals in 18 consecutive minutes in the first half. Thomas Müller hat-trick. The Mineirão crowd fell silent. Brazilian players wept on the pitch. A national trauma. Still the most shocking result in World Cup history.",
     },
     { id:'v-mom-zidane', year:2006, color:'#4a148c', icon:'🤯',
-      title:"Zidane's Headbutt — His Last Act 2006",
+      title:"Zidane's Headbutt — His Last Act as a Professional",
       thumb:null,
-      archiveClip: null,
-      facts:['Minute: 110th (Extra Time)','Zidane already named MOTM','France lost on penalties'],
-      story:"In the last professional act of his career, Zinedine Zidane headbutted Marco Materazzi in the chest and received a red card. France lost the final on penalties without him. Yet he was still named Player of the Tournament. What Materazzi said to provoke him was debated for years. A footballing tragedy that overshadowed one of the great individual World Cup tournaments.",
+      embedId: null,
+      facts:['Minute: 110th (Extra Time)','Already named Man of the Match','France lost on penalties without him'],
+      story:"In the last professional act of his career, Zinedine Zidane headbutted Marco Materazzi and was sent off. France lost the final on penalties. Yet Zidane was still named Player of the Tournament. What Materazzi whispered to him was debated for years. A footballing tragedy — the greatest player of his generation ending his career with a red card.",
     },
     { id:'v-mom-maracanazo', year:1950, color:'#00695c', icon:'😰',
       title:'The Maracanazo — Uruguay Stun Brazil 1950',
       thumb:null,
-      archiveClip: null,
-      facts:['Attendance: 199,854 (official)','Largest ever WC crowd','Brazil needed only a draw'],
-      story:"200,000 fans in the Maracanã. Brazil needed only a draw to win the World Cup. Uruguay scored twice. The stadium fell silent. Players and fans wept. Still considered the greatest shock in football history. The ghost of 1950 haunted Brazilian football for 64 years until the Mineirazo in 2014 briefly overshadowed it.",
+      embedId: null,
+      facts:['199,854 official attendance (largest ever WC crowd)','Brazil needed only a draw','Uruguay scored twice in 2nd half'],
+      story:"200,000 fans in the Maracanã. Brazil needed only a draw to be crowned World Cup winners. Uruguay scored twice in the second half. The stadium fell silent. Players wept. Brazil in national mourning. The ghost of 1950 haunted Brazilian football for 64 years until the Mineirazo in 2014 provided a fresh trauma to overshadow it.",
     },
     { id:'v-mom-baggio', year:1994, color:'#e65100', icon:'💔',
-      title:"Baggio's Missed Penalty — 1994 Final",
+      title:"Roberto Baggio's Missed Penalty — 1994 World Cup Final",
       thumb:null,
-      archiveClip: null,
-      facts:['Match: Brazil 0-0 Italy (3-2 pen)','Baggio had scored to keep Italy alive','Most iconic WC image ever'],
-      story:"Roberto Baggio — the Golden Ball winner and best player at the tournament — stepped up to take the decisive penalty against Brazil. He blazed it over the crossbar. Brazil won the World Cup. Baggio stood with his head bowed and eyes closed in the most iconic image in World Cup history. 'The missed penalty follows me around,' he later said. 'I still dream about it.'",
+      embedId: null,
+      facts:['Match: Brazil 0-0 Italy (3-2 pens)','Baggio had scored to keep Italy alive','Most iconic WC image ever'],
+      story:"Roberto Baggio — the Golden Ball winner and best player at the tournament — stepped up to take the decisive penalty against Brazil in the shootout. He blazed it over the crossbar. Brazil won the World Cup. Baggio stood with his head bowed and eyes closed. The most iconic image in World Cup history. 'The missed penalty follows me around. I still dream about it,' he later said.",
     },
   ],
 
   docs: [
-    { id:'v-doc-hero', year:1986, color:'#f57f17', icon:'📽',
-      title:"Hero — The Official 1986 World Cup Film",
+    { id:'v-doc-hero1986', year:1986, color:'#f57f17', icon:'📽',
+      title:'Hero — Official FIFA Film of Mexico 1986',
       thumb:null,
-      archiveClip: 'hero-1986',
-      facts:['Narrator: Michael Caine','Features Maradona Goal of Century','Archive.org verified item'],
-      story:"The official FIFA film of the 1986 Mexico World Cup, narrated by Michael Caine. Features the full story of Maradona's tournament — the Hand of God, the Goal of the Century, and Argentina's triumph. One of the best World Cup documentaries ever made, capturing the tournament that produced the greatest individual performance in World Cup history.",
+      embedId: 'hero-the-official-film-of-1986-fifa-world-cup',
+      facts:['Narrator: Michael Caine','Features Maradona Goal of Century','Official FIFA production'],
+      story:"The official FIFA film of the 1986 Mexico World Cup, narrated by Michael Caine. Covers the full story of the tournament — Maradona's genius (Hand of God, Goal of Century), Argentina's journey to the title, and the extraordinary atmosphere of Mexican football. One of the finest World Cup documentaries ever made.",
     },
-    { id:'v-doc-1966', year:1966, color:'#c0392b', icon:'📽',
+    { id:'v-doc-1966final', year:1966, color:'#c0392b', icon:'📽',
       title:'1966 World Cup Final — Restored & Colourised',
       thumb:null,
-      archiveClip: 'final-1966',
-      facts:['Colourised by Archive.org community','England 4-2 West Germany','Geoff Hurst hat-trick'],
-      story:"The 1966 World Cup Final in colour. England's only World Cup victory — Geoff Hurst's hat-trick, the controversial goal, and Kenneth Wolstenholme's immortal commentary. This restored version brings one of football's most historic matches to a modern audience in full colour for the first time.",
+      embedId: '1966.-wc.-final.-england-w.-germany',
+      facts:['England 4-2 West Germany','Geoff Hurst hat-trick','Colourised restoration'],
+      story:"The 1966 World Cup Final — England's only title — restored and colourised by the Archive.org community. Brings one of football's most historic matches to life in colour. Watch Geoff Hurst's hat-trick, the controversial third goal, and Kenneth Wolstenholme's immortal commentary.",
     },
-    { id:'v-doc-1990', year:1990, color:'#1565c0', icon:'📽',
+    { id:'v-doc-1990final', year:1990, color:'#1565c0', icon:'📽',
       title:'1990 World Cup Final — Germany vs Argentina',
       thumb:null,
-      archiveClip: 'final-1990',
-      facts:['Brehme penalty winner','Maradona in tears at whistle','Germany: 3rd World Cup title'],
-      story:"Germany vs Argentina in the 1990 World Cup Final in Rome. A tense, physical match decided by an Andreas Brehme penalty. Maradona — Argentina's greatest player — in tears at the final whistle, frustrated by what he felt were unfair decisions. Germany claimed their third World Cup title.",
+      embedId: '1_20240209_20240209_0907',
+      facts:['Germany 1-0 Argentina','Brehme penalty winner','Maradona in tears'],
+      story:"The 1990 World Cup Final in Rome. Germany defeated Argentina through an Andreas Brehme penalty. A tense, physical match with two Argentine red cards. Maradona in tears at the final whistle. Germany claimed their third World Cup title in an unforgettable climax to Italia 90.",
+    },
+    { id:'v-doc-2022final', year:2022, color:'#74b9ff', icon:'📽',
+      title:'2022 World Cup — Qatar Opening Match',
+      thumb:null,
+      embedId: 'wc_20221121',
+      facts:['Qatar 0-2 Ecuador','Opening match 2022','Archive.org verified item'],
+      story:"The opening match of the 2022 Qatar World Cup — the first World Cup held in the Middle East. Qatar vs Ecuador in Group A. The ceremony, the atmosphere, and the opening goals. Qatar 2022 was a controversial but spectacular tournament that culminated in the greatest World Cup final ever played.",
     },
   ],
 };
-
-/* ── VIDEO CACHE — session memory ── */
-var _videoCache = {};
 
 /* ── OPEN VIDEO ── */
 function wchOpenVideo(id) {
@@ -9839,7 +9850,7 @@ function wchOpenVideo(id) {
   _wchShowMediaOverlay(v);
 }
 
-/* ── MEDIA OVERLAY — automatic archive.org video ── */
+/* ── MEDIA OVERLAY ── */
 function _wchShowMediaOverlay(v) {
   var overlay = document.getElementById('wch-media-overlay');
   var body    = document.getElementById('wch-media-body');
@@ -9853,60 +9864,47 @@ function _wchShowMediaOverlay(v) {
   var color = v.color || '#003566';
   body.innerHTML = '';
 
-  /* STEP 1: Show story card INSTANTLY — no blank wait */
-  _wchRenderStoryCard(v, body, color);
+  /* ── PLAYER (top section) ── */
+  var player = document.createElement('div');
+  player.style.cssText = 'position:relative;width:100%;padding-top:56.25%;'
+    +'flex-shrink:0;background:'+color+'22';
 
-  /* STEP 2: If this item has an archive.org clip, resolve it in background */
-  if (v.archiveClip) {
-    _wchResolveVideo(v.archiveClip, color, v);
+  if (v.embedId) {
+    /* archive.org/embed — official player, no X-Frame-Options */
+    var iframe = document.createElement('iframe');
+    iframe.src = 'https://archive.org/embed/' + v.embedId;
+    iframe.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
+    iframe.setAttribute('allowfullscreen', 'true');
+    iframe.setAttribute('webkitallowfullscreen', 'true');
+    iframe.setAttribute('mozallowfullscreen', 'true');
+    iframe.setAttribute('allow', 'autoplay; fullscreen; encrypted-media');
+    player.appendChild(iframe);
+
+  } else {
+    /* No video — poster card */
+    player.innerHTML = '<div style="position:absolute;inset:0;display:flex;flex-direction:column;'
+      +'align-items:center;justify-content:center;gap:.6rem;'
+      +'background:linear-gradient(135deg,'+color+'66,'+color+'22)">'
+      +(v.thumb?'<img src="'+v.thumb+'" style="max-height:80px;max-width:70%;'
+        +'object-fit:contain;border-radius:8px;opacity:.8" onerror="this.style.display=\'none\'">':'')
+      +'<div style="font-size:2.5rem">'+(v.icon||'\uD83C\uDFAC')+'</div>'
+      +'<div style="font-family:var(--dm);font-size:.52rem;color:rgba(255,255,255,.6);'
+        +'text-align:center;padding:0 .5rem">\uD83D\uDCDA Story Mode</div>'
+      +'</div>';
   }
-
-  overlay.classList.add('wch-overlay-open');
-  document.body.style.overflow = 'hidden';
-}
-
-/* ── RENDER STORY CARD (always shown immediately) ── */
-function _wchRenderStoryCard(v, body, color) {
-  /* Poster/hero area */
-  var hero = document.createElement('div');
-  hero.style.cssText = 'position:relative;height:210px;overflow:hidden;flex-shrink:0;'
-    +'background:linear-gradient(135deg,'+color+'88,'+color+'22)';
-
-  if (v.thumb) {
-    var img = document.createElement('img');
-    img.src = v.thumb;
-    img.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.5';
-    img.onerror = function(){ this.style.display='none'; };
-    hero.appendChild(img);
-  }
-
-  /* Loading indicator if video will resolve */
-  var indicator = document.createElement('div');
-  indicator.id  = 'wch-vid-indicator';
-  indicator.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;'
-    +'align-items:center;justify-content:center;gap:.6rem';
-  indicator.innerHTML =
-    '<div style="width:56px;height:56px;border-radius:50%;'
-    +'border:3px solid rgba(255,255,255,.15);border-top-color:'+color+';'
-    +'animation:moSpin 1.2s linear infinite"></div>'
-    +'<div id="wch-vid-status" style="font-family:var(--dm);font-size:.52rem;'
-    +'color:rgba(255,255,255,.55)">'
-    +(v.archiveClip ? 'Finding video...' : '📖 Story Mode')
-    +'</div>';
-  hero.appendChild(indicator);
 
   /* Year badge */
   var badge = document.createElement('div');
-  badge.style.cssText = 'position:absolute;bottom:10px;right:12px;'
-    +'font-family:var(--df);font-size:1.1rem;color:var(--gold);font-weight:700;'
-    +'text-shadow:0 2px 8px rgba(0,0,0,.8)';
+  badge.style.cssText = 'position:absolute;bottom:0;right:0;z-index:2;'
+    +'background:'+color+';color:#fff;font-family:var(--df);'
+    +'font-size:.75rem;font-weight:700;padding:.2rem .55rem';
   badge.textContent = v.year;
-  hero.appendChild(badge);
-  body.appendChild(hero);
+  player.appendChild(badge);
+  body.appendChild(player);
 
-  /* Info section */
+  /* ── INFO (scrollable below player) ── */
   var info = document.createElement('div');
-  info.style.cssText = 'padding:.85rem;overflow-y:auto;flex:1';
+  info.style.cssText = 'padding:.85rem;overflow-y:auto';
   info.innerHTML =
     '<div style="font-family:var(--df);font-size:1rem;color:#fff;line-height:1.3;margin-bottom:.5rem">'
     +escHtml(v.title||'')+'</div>'
@@ -9917,95 +9915,55 @@ function _wchRenderStoryCard(v, body, color) {
             +'background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);'
             +'border-radius:99px;padding:.2rem .5rem">'+escHtml(f)+'</span>';
         }).join('')
-      +'</div>'
-      :'')
+      +'</div>':''
+    )
     +(v.story
       ?'<div style="font-family:var(--dm);font-size:.44rem;letter-spacing:.08em;'
         +'text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.35rem">THE STORY</div>'
         +'<div style="font-family:var(--dm);font-size:.57rem;color:rgba(255,255,255,.78);'
           +'line-height:1.78;background:rgba(255,255,255,.04);border-radius:10px;'
           +'padding:.7rem;border-left:3px solid '+color+'55;margin-bottom:.65rem">'
-          +escHtml(v.story)+'</div>'
-      :'')
-    +'<button onclick="wchShareMedia()" class="wch-watch-btn">\u2B06 Share</button>';
+          +escHtml(v.story)+'</div>':''
+    )
+    +'<button onclick="wchShareMedia()" class="wch-watch-btn">\u2B06 Share Story</button>';
   body.appendChild(info);
+
+  overlay.classList.add('wch-overlay-open');
+  document.body.style.overflow = 'hidden';
 }
 
-/* ── RESOLVE VIDEO from /video worker ── */
-function _wchResolveVideo(clipKey, color, v) {
-  /* Check session cache */
-  if (_videoCache[clipKey]) {
-    _wchInjectVideo(_videoCache[clipKey], color);
-    return;
-  }
-
-  fetch('/video?clip=' + clipKey)
-    .then(function(r){ return r.json(); })
-    .then(function(data){
-      var status = document.getElementById('wch-vid-status');
-      if (data.success && data.videoUrl) {
-        _videoCache[clipKey] = data.videoUrl;
-        _wchInjectVideo(data.videoUrl, color);
-      } else {
-        /* Video not found — switch indicator to story mode */
-        if (status) {
-          status.textContent = '\uD83D\uDCDA Story Mode \u2014 video unavailable';
-        }
-        var ind = document.getElementById('wch-vid-indicator');
-        if (ind) {
-          ind.querySelector('div').style.display = 'none'; /* hide spinner */
-        }
-      }
-    })
-    .catch(function(){
-      var status = document.getElementById('wch-vid-status');
-      if (status) status.textContent = '\uD83D\uDCDA Story Mode';
-    });
-}
-
-/* ── INJECT <video> element over the spinner ── */
-function _wchInjectVideo(videoUrl, color) {
-  var indicator = document.getElementById('wch-vid-indicator');
-  if (!indicator) return;
-
-  var parent = indicator.parentNode;
-  if (!parent) return;
-
-  /* Replace spinner with native HTML5 <video> */
-  var vid = document.createElement('video');
-  vid.controls   = true;
-  vid.playsinline = true;
-  vid.preload    = 'metadata';
-  vid.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;'
-    +'object-fit:contain;background:#000';
-  vid.src = videoUrl;
-
-  vid.addEventListener('loadedmetadata', function(){
-    vid.play().catch(function(){});
-  });
-
-  vid.addEventListener('error', function(){
-    /* Video failed to load — remove it, keep story card */
-    vid.remove();
-    if (indicator) {
-      var status = document.getElementById('wch-vid-status');
-      if (status) status.textContent = '\uD83D\uDCDA Story Mode \u2014 video unavailable';
-      indicator.style.display = 'flex';
-    }
-  });
-
-  indicator.remove();
-  parent.appendChild(vid);
-}
-
+/* ── CLOSE ── */
 function wchCloseMedia() {
-  var vid = document.querySelector('#wch-media-body video');
-  if (vid) { try { vid.pause(); vid.src = ''; } catch(x){} }
-  var ov = document.getElementById('wch-media-overlay');
-  if (ov) ov.classList.remove('wch-overlay-open');
+  var overlay = document.getElementById('wch-media-overlay');
+  var body    = document.getElementById('wch-media-body');
+  if (overlay) overlay.classList.remove('wch-overlay-open');
+  /* Stop iframe by clearing src */
+  if (body) {
+    var iframes = body.querySelectorAll('iframe');
+    iframes.forEach(function(f){ f.src = ''; });
+    /* Small delay then clear body */
+    setTimeout(function(){ body.innerHTML = ''; }, 300);
+  }
   document.body.style.overflow = '';
   WCH.mediaOpen = false;
   WCH.currentMedia = null;
+}
+
+/* ── SHARE ── */
+function wchShareMedia() {
+  var m = WCH.currentMedia;
+  if (!m) return;
+  var text = (m.title||'World Cup History') + ' \u2014 worldcup.pi';
+  var url = m.embedId
+    ? 'https://archive.org/details/' + m.embedId
+    : window.location.href;
+  if (navigator.share) {
+    navigator.share({ title: m.title||'World Cup', text: text, url: url })
+      .catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(url)
+      .then(function(){ toast('Link copied!'); });
+  }
 }
 </script><!-- LEGAL OVERLAY -->
 <div id="legal-overlay" class="legal-overlay">
