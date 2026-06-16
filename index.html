@@ -8215,25 +8215,7 @@ document.addEventListener('keydown', function(e) {
 
 
 
-/* ================================================================
-   MEDIA ENGINE v5.0 — Pi Browser Compatible
-   
-   APPROACH: 3-tier fallback
-   
-   Tier 1: youtube-nocookie.com/embed/ID
-     → Privacy embed, fewer regional blocks
-     → Detect blank/fail via postMessage timeout
-   
-   Tier 2: youtube.com/embed/ID  
-     → Standard embed, try if nocookie fails
-   
-   Tier 3: Tap-to-open button
-     → Big ▶ button navigates to youtube.com/watch?v=ID
-     → User watches, presses back to return
-     → Guaranteed to work everywhere
-   
-   For songs without ID: search youtube.com/results in same page
-================================================================ */
+
 
 var _currentMedia = {
   id:null, title:null, ytId:null, type:null, liked:false
@@ -8994,158 +8976,10 @@ document.addEventListener('keydown',function(e){ if(e.key==='Escape') closeMedia
 ================================================================ */
 
 /* ── VIDEO REGISTRY — curated, structured ── */
-var WCH_VIDEOS = {
 
-  ceremonies: [
-    { id:'v-cer-2026', year:2026, title:'2026 Opening Ceremony — Estadio Azteca',
-      thumb:null, color:'#b71c1c',
-      ytSearch:'FIFA World Cup 2026 opening ceremony Mexico Azteca',
-      story:'The 2026 World Cup opens at the legendary Estadio Azteca, Mexico City — the stadium where Maradona scored the Hand of God and Goal of the Century in 1986. With 48 teams, 104 matches across USA, Canada and Mexico, this is the largest opening ceremony in World Cup history.',
-      facts:['Estadio Azteca capacity: 87,523','Third WC hosted by Mexico','48 teams · 3 host nations'] },
-    { id:'v-cer-2022', year:2022, title:'2022 Opening Ceremony — BTS Jungkook',
-      thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/FIFA_World_Cup_Qatar_2022_logo.svg/400px-FIFA_World_Cup_Qatar_2022_logo.svg.png',
-      color:'#880e4f',
-      ytSearch:'FIFA World Cup 2022 Qatar opening ceremony Jungkook Dreamers',
-      story:'Al Bayt Stadium, Qatar. BTS member Jungkook performed Dreamers to a global audience of billions. The ceremony showcased Arab heritage through light projections and cultural performances. Qatar 2022 produced the greatest World Cup final in history.',
-      facts:['Performers: Jungkook, Fahad Al Kubaisi','Venue: Al Bayt Stadium','Attendance: 60,000+'] },
-    { id:'v-cer-2018', year:2018, title:'2018 Opening Ceremony — Robbie Williams',
-      thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/6/67/2018_FIFA_World_Cup_logo.svg/400px-2018_FIFA_World_Cup_logo.svg.png',
-      color:'#1565c0',
-      ytSearch:'FIFA World Cup 2018 Russia opening ceremony Robbie Williams Moscow',
-      story:'Luzhniki Stadium, Moscow. 80,000 fans watched Robbie Williams perform before he duetted with Russian opera star Aida Garifullina. His middle finger gesture to the camera became as famous as the show itself.',
-      facts:['Performers: Robbie Williams, Aida Garifullina','Venue: Luzhniki Stadium, Moscow','Attendance: 80,000'] },
-    { id:'v-cer-2014', year:2014, title:'2014 Opening Ceremony — Jennifer Lopez & Pitbull',
-      thumb:'https://upload.wikimedia.org/wikipedia/en/6/67/2014_FIFA_World_Cup.svg',
-      color:'#1b5e20',
-      ytSearch:'FIFA World Cup 2014 Brazil opening ceremony Jennifer Lopez Pitbull Claudia Leitte',
-      story:'Arena de São Paulo. Jennifer Lopez, Pitbull and Claudia Leitte opened the tournament that would produce the Mineirazo — Germany 7-1 Brazil. The ceremony celebrated Brazil\'s carnival culture.',
-      facts:['Performers: Pitbull, Jennifer Lopez, Claudia Leitte','Venue: Arena de São Paulo','Song: We Are One (Ole Ola)'] },
-    { id:'v-cer-2010', year:2010, title:"2010 Opening Ceremony — Shakira's Waka Waka",
-      thumb:'https://upload.wikimedia.org/wikipedia/en/1/10/2010_FIFA_World_Cup.svg',
-      color:'#f57f17',
-      ytSearch:'FIFA World Cup 2010 South Africa opening ceremony Shakira Waka Waka live',
-      story:'Soccer City, Johannesburg. The historic first African World Cup. Shakira performed Waka Waka live to a global audience. The vuvuzela drone filled the entire tournament. Spain won their first ever World Cup title.',
-      facts:['Performers: Shakira, Freshlyground, R. Kelly','Song: Waka Waka (This Time for Africa)','First African World Cup'] },
-    { id:'v-cer-1990', year:1990, title:'1990 Opening Ceremony — Three Tenors',
-      thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Italia90.svg/400px-Italia90.svg.png',
-      color:'#c0392b',
-      ytSearch:'Three Tenors 1990 World Cup Nessun Dorma Pavarotti Carreras Domingo Rome',
-      story:'The most iconic cultural moment in World Cup history. Pavarotti, Carreras and Domingo performed together as the Three Tenors at the ancient Baths of Caracalla in Rome. Their recording became the best-selling classical album of all time.',
-      facts:['Performers: Pavarotti, Carreras, Domingo','Venue: Baths of Caracalla, Rome','Most-sold classical album ever'] },
-  ],
-
-  goals: [
-    { id:'v-goal-maradona', year:1986, title:"Maradona's Goal of the Century",
-      thumb:null, color:'#1565c0',
-      ytSearch:'Maradona goal of the century 1986 World Cup England Argentina official',
-      story:"Diego Maradona received the ball in his own half, dribbled past 5 England players and the goalkeeper, and scored — covering 60 metres in 10 seconds. Voted Goal of the Century in a 2002 FIFA poll with 53% of the vote.",
-      facts:['Minute: 55th','Match: Argentina 2-1 England','Quarterfinal — Mexico 1986'] },
-    { id:'v-goal-carlos', year:1997, title:"Roberto Carlos' Impossible Free Kick",
-      thumb:null, color:'#1b5e20',
-      ytSearch:'Roberto Carlos free kick 1997 France impossible goal bend',
-      story:"At the 1997 Tournoi de France — a pre-WC tournament — Roberto Carlos bent a free kick so severely it appeared to curve wide before curling back. Goalkeeper Fabien Barthez froze in disbelief. Physics experts published papers about it.",
-      facts:['Match: Brazil vs France','The ball curved over a metre','Still studied by physicists'] },
-    { id:'v-goal-pele58', year:1958, title:"Pelé's Wonder Goal — Age 17",
-      thumb:null, color:'#f57f17',
-      ytSearch:'Pele 1958 World Cup final goal Sweden Brazil youngest scorer',
-      story:"Pelé, aged 17 years and 249 days, controlled a long ball on his chest in the penalty area, flicked it over a defender, and volleyed it into the net in the World Cup Final. The stadium fell silent, then erupted. He wept at the final whistle.",
-      facts:['Age: 17 years 249 days','Match: Brazil 5-2 Sweden (Final)','Youngest WC final scorer ever'] },
-    { id:'v-goal-mineirazo', year:2014, title:'The Mineirazo — Germany 7-1 Brazil',
-      thumb:null, color:'#b71c1c',
-      ytSearch:'Germany 7-1 Brazil 2014 World Cup semifinal Mineirazo full highlights',
-      story:"5 goals in 18 first-half minutes. The Mineirão stadium fell silent as 58,000 Brazilian fans watched in disbelief. Germany's clinical destruction of the host nation remains the most shocking result in World Cup history.",
-      facts:['HT Score: Germany 5-0 Brazil','5 goals in 18 minutes','Thomas Müller: hat-trick'] },
-    { id:'v-goal-messi2022', year:2022, title:"Messi's World Cup Final Goals",
-      thumb:null, color:'#74b9ff',
-      ytSearch:'Messi 2022 World Cup final goals Argentina France penalty shootout',
-      story:"The greatest World Cup final ever played. Messi opened scoring then assisted the second. Mbappé responded with a hat-trick. 3-3 after extra time. Messi converted in the shootout. Argentina win. The GOAT debate settled.",
-      facts:['Final score: 3-3 AET (4-2 pens)','Mbappé hat-trick in a final','Greatest WC final ever played'] },
-  ],
-
-  finals: [
-    { id:'v-final-2022', year:2022, title:'2022 Final — Argentina vs France (Greatest Ever)',
-      thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/7/7e/FIFA_World_Cup_Qatar_2022_logo.svg/400px-FIFA_World_Cup_Qatar_2022_logo.svg.png',
-      color:'#74b9ff',
-      ytSearch:'2022 FIFA World Cup final Argentina France full match highlights',
-      story:'Argentina 3-3 France (4-2 pens). Messi 2 goals. Mbappé hat-trick. Four lead changes. Extra time. Penalties. 1.5 billion watching. Voted by FIFA as the greatest World Cup final ever played.',
-      facts:['Goals: 6 in 90 mins + ET','Mbappé: first hat-trick in WC final since 1966','Messi: first World Cup winners medal'] },
-    { id:'v-final-1970', year:1970, title:"1970 Final — Brazil 4-1 Italy (Pelé's Masterpiece)",
-      thumb:null, color:'#1b5e20',
-      ytSearch:'1970 World Cup final Brazil 4-1 Italy Pele highlights Mexico',
-      story:"Pelé\'s finest match on the greatest stage. Brazil played football that has never been surpassed. Their team movement, technique and joy made this the most beautiful match in World Cup history.",
-      facts:['Brazil: their 3rd title','Pelé scored + 4 assists','Considered greatest WC team ever'] },
-    { id:'v-final-1986', year:1986, title:'1986 Final — Argentina vs West Germany',
-      thumb:null, color:'#f57f17',
-      ytSearch:'1986 World Cup final Argentina West Germany Maradona highlights Mexico',
-      story:'Maradona\'s tournament. He had already scored the Hand of God and Goal of the Century. Argentina led 2-0 before Germany pulled it back to 2-2. Burruchaga\'s winner in the 83rd minute sealed it.',
-      facts:['Score: Argentina 3-2 W.Germany','Maradona: Player of Tournament','Burruchaga: winning goal 83\''] },
-    { id:'v-final-1966', year:1966, title:"1966 Final — England vs West Germany (Geoff Hurst Hat-Trick)",
-      thumb:null, color:'#b71c1c',
-      ytSearch:'1966 World Cup final England West Germany Geoff Hurst hat-trick goals',
-      story:"England\'s only World Cup. Geoff Hurst scored the only hat-trick in a World Cup final. His third goal — whether it crossed the line — remains debated 60 years later. The 4-2 victory gave England their greatest sporting moment.",
-      facts:['Only hat-trick in WC final history','The controversial goal still debated','England\'s only World Cup title'] },
-  ],
-
-  moments: [
-    { id:'v-mom-handofgod', year:1986, title:'Hand of God — Maradona',
-      thumb:null, color:'#1565c0',
-      ytSearch:'Maradona hand of god 1986 World Cup England Argentina deliberate handball',
-      story:"Maradona punched the ball into the net with his left hand, fooling the referee. \"A little with the head of Maradona and a little with the hand of God\" he said afterwards. Five minutes later he scored the Goal of the Century in the same match.",
-      facts:['Minute: 51st','Never officially punished','One of football\'s most controversial moments'] },
-    { id:'v-mom-zidane', year:2006, title:"Zidane's Headbutt — His Last Act",
-      thumb:null, color:'#4a148c',
-      ytSearch:'Zidane headbutt Materazzi 2006 World Cup final red card last match',
-      story:"In his last professional match, Zinedine Zidane — already named Man of the Match — headbutted Marco Materazzi and was sent off. France lost on penalties. He was still voted Player of the Tournament.",
-      facts:['Minute: 110th (Extra Time)','Red card = missed shootout','France lost 3-5 on penalties'] },
-    { id:'v-mom-maracanazo', year:1950, title:'The Maracanazo — Uruguay Stun Brazil',
-      thumb:null, color:'#00695c',
-      ytSearch:'Maracanazo 1950 World Cup final Brazil Uruguay Maracanã 200000',
-      story:"200,000 fans in the Maracanã. Brazil needed only a draw to win the World Cup. Uruguay scored twice. The stadium fell silent. Still considered Brazil\'s greatest sporting trauma — the ghost of 1950 haunted them until the Mineirazo in 2014.",
-      facts:['Attendance: 199,854 (official)','Largest attendance in WC history','Score: Brazil 1-2 Uruguay'] },
-    { id:'v-mom-baggio', year:1994, title:"Roberto Baggio's Missed Penalty",
-      thumb:null, color:'#e65100',
-      ytSearch:'Roberto Baggio missed penalty 1994 World Cup final Italy Brazil shootout',
-      story:"The Italian Golden Ball winner — the best player at the tournament — stepped up to take the penalty that would keep Italy alive. He blazed it over the crossbar. Brazil won the World Cup. Baggio stood with his head bowed, the most iconic image in World Cup history.",
-      facts:['Match: Brazil 0-0 Italy (3-2 pens)','Baggio scored earlier to get Italy there','Most iconic WC image ever'] },
-    { id:'v-mom-rogermilla', year:1990, title:"Roger Milla's Corner Flag Dance",
-      thumb:null, color:'#880e4f',
-      ytSearch:'Roger Milla corner flag dance 1990 World Cup Cameroon goals celebration',
-      story:"38-year-old substitute Roger Milla came on and scored, then danced at the corner flag. Africa\'s greatest World Cup moment. Cameroon became the first African team to reach the quarterfinals. Milla became the oldest WC goalscorer.",
-      facts:['Age: 38 years old','Oldest WC scorer at the time','Cameroon reached the QF'] },
-  ],
-
-  docs: [
-    { id:'v-doc-story', year:2022, title:'The Story of the FIFA World Cup',
-      thumb:null, color:'#003566',
-      ytSearch:'FIFA World Cup story history documentary official 1930 2026',
-      story:'The complete history of the FIFA World Cup from 1930 to the present day. How 13 nations gathered in Uruguay in 1930 and how the tournament grew to 48 teams in 2026.',
-      facts:['1930 - 2026','23 tournaments','8 different champions'] },
-    { id:'v-doc-brazil14', year:2014, title:'Brazil 2014 — Inside the Tournament',
-      thumb:null, color:'#1b5e20',
-      ytSearch:'Brazil 2014 World Cup documentary inside story Mineirazo Germany',
-      story:'Inside story of the most controversial World Cup since 1966. Political protests in Brazil. The Mineirazo. Germany\'s clinical brilliance. The host nation humiliated at home.',
-      facts:['171 goals in 64 matches','7-1 the defining result','Germany champions'] },
-    { id:'v-doc-greatest', year:2022, title:'Greatest World Cup Final Ever — Analysis',
-      thumb:null, color:'#74b9ff',
-      ytSearch:'Argentina France 2022 World Cup final greatest ever tactical analysis',
-      story:'Why experts called Argentina vs France the greatest World Cup final ever played. Six goals, four lead changes, extra time, penalties — and two of the greatest players in history both producing iconic performances.',
-      facts:['Messi: 2 goals + assist','Mbappé: 3 goals','Voted greatest final ever by FIFA'] },
-  ],
-};
 
 /* WC_SONGS data — history only, no audio player */
-var WCH_SONGS = [
-  { year:2026, title:'Official Song TBA',      artist:'To be announced by FIFA',        color:'#003566', note:'Announced before tournament. Expected: multicultural Americas fusion.' },
-  { year:2022, title:'Hayya Hayya',             artist:'Trinidad Cardona, Davido & Aisha',color:'#880e4f', note:'Qatar 2022 — Arabic-infused global anthem. Arab world meets Afrobeats meets American pop.' },
-  { year:2018, title:'Live It Up',              artist:'Nicky Jam ft. Will Smith & Era Istrefi', color:'#b71c1c', note:'Russia 2018 — three artists from three continents.' },
-  { year:2014, title:'We Are One (Ole Ola)',    artist:'Pitbull ft. Jennifer Lopez & Claudia Leitte', color:'#1b5e20', note:'Brazil 2014 — bilingual anthem. Performed live at São Paulo opening.' },
-  { year:2010, title:'Waka Waka',               artist:'Shakira ft. Freshlyground',       color:'#f57f17', note:'South Africa 2010 — 4 billion+ YouTube views. Most-watched WC song ever.' },
-  { year:2006, title:'The Time of Our Lives',  artist:'Il Divo & Toni Braxton',           color:'#4a148c', note:'Germany 2006 — operatic meets R&B. Germany hosted one of the best atmospheres ever.' },
-  { year:2002, title:'Anthem 2002',            artist:'Vangelis',                          color:'#e65100', note:'South Korea/Japan 2002 — epic orchestral. First Asian World Cup. South Korea reached semis.' },
-  { year:1998, title:'La Copa de la Vida',     artist:'Ricky Martin',                     color:'#00695c', note:"France 1998 — launched Ricky Martin's global career overnight. France won their first WC." },
-  { year:1994, title:'Gloryland',              artist:'Daryl Hall & SOUNDS of Blackness', color:'#1565c0', note:'USA 1994 — gospel-infused. Record average attendance: 68,991 per match.' },
-  { year:1990, title:"Un'Estate Italiana",     artist:'Gianna Nannini & Edoardo Bennato', color:'#c0392b', note:'Italy 1990 — most beloved WC song ever. Still chanted in stadiums 35 years later.' },
-];
+
 
 /* ── HOSTS DATA ── */
 var WCH_HOSTS = [
@@ -9255,9 +9089,7 @@ var WCH = {
 };
 
 /* ── YOUTUBE SEARCH URL (opens in Pi Browser as full page) ── */
-function wchYT(query) {
-  return 'https://www.youtube.com/results?search_query=' + encodeURIComponent(query);
-}
+
 
 /* ── WIKIPEDIA IMAGE URLS (free, no copyright) ── */
 var WCH_IMAGES = {
@@ -9380,76 +9212,7 @@ function wchOpenVideo(id) {
 /* ────────────────────────────────────────────
    MEDIA OVERLAY — rich story card + watch button
 ──────────────────────────────────────────── */
-function _wchShowMediaOverlay(v) {
-  var overlay = document.getElementById('wch-media-overlay');
-  var body    = document.getElementById('wch-media-body');
-  var titleEl = document.getElementById('wch-media-title');
-  if (!overlay || !body) return;
 
-  if (titleEl) titleEl.textContent = (v.title||'').slice(0,55);
-  WCH.mediaOpen = true;
-
-  var ytUrl = wchYT(v.ytSearch || v.title + ' World Cup ' + v.year);
-  var color = v.color || '#003566';
-
-  body.innerHTML =
-    /* Hero poster */
-    '<div style="height:220px;position:relative;overflow:hidden;'
-      +'background:linear-gradient(135deg,'+color+'88,'+color+'22)">'
-      +(v.thumb
-        ?'<img src="'+v.thumb+'" style="position:absolute;inset:0;width:100%;height:100%;'
-          +'object-fit:cover;opacity:.5" onerror="this.style.display=\'none\'">'
-        :'')
-      /* Animated play button */
-      +'<div style="position:absolute;inset:0;display:flex;flex-direction:column;'
-        +'align-items:center;justify-content:center;gap:.6rem">'
-        +'<div style="width:64px;height:64px;border-radius:50%;'
-          +'background:rgba(255,255,255,.15);border:2px solid rgba(255,255,255,.3);'
-          +'display:flex;align-items:center;justify-content:center;font-size:1.6rem;color:#fff;'
-          +'animation:wchTrophyPulse 2s ease-in-out infinite">\u25B6</div>'
-        +'<a href="'+ytUrl+'" style="background:#ff0000;color:#fff;font-family:var(--dm);'
-          +'font-size:.6rem;font-weight:700;padding:.45rem 1.2rem;border-radius:8px;'
-          +'text-decoration:none;letter-spacing:.03em;box-shadow:0 4px 16px rgba(255,0,0,.4)">'
-          +'\u25B6 Watch on YouTube</a>'
-      +'</div>'
-      +'<div style="position:absolute;bottom:10px;right:12px;font-family:var(--df);'
-        +'font-size:1.1rem;color:var(--gold);font-weight:700;'
-        +'text-shadow:0 2px 8px rgba(0,0,0,.8)">'+v.year+'</div>'
-    +'</div>'
-
-    /* Content */
-    +'<div style="padding:.85rem">'
-      /* Title */
-      +'<div style="font-family:var(--df);font-size:1rem;color:#fff;line-height:1.3;margin-bottom:.5rem">'
-        +escHtml(v.title||'')+'</div>'
-      /* Fact pills */
-      +(v.facts&&v.facts.length
-        ?'<div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.65rem">'
-          +v.facts.map(function(f){
-            return '<span style="font-family:var(--dm);font-size:.46rem;color:var(--c1);'
-              +'background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);'
-              +'border-radius:99px;padding:.2rem .5rem">'+escHtml(f)+'</span>';
-          }).join('')
-        +'</div>'
-        :'')
-      /* Story */
-      +(v.story
-        ?'<div style="font-family:var(--dm);font-size:.44rem;letter-spacing:.08em;'
-          +'text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.35rem">THE STORY</div>'
-          +'<div style="font-family:var(--dm);font-size:.57rem;color:rgba(255,255,255,.78);'
-            +'line-height:1.78;background:rgba(255,255,255,.04);border-radius:10px;'
-            +'padding:.7rem;border-left:3px solid '+color+'66;margin-bottom:.65rem">'
-            +escHtml(v.story)+'</div>'
-        :'')
-      /* Share row */
-      +'<div style="display:flex;gap:.4rem">'
-        +'<button onclick="wchShareMedia()" class="wch-watch-btn" style="flex:1">\u2B06 Share</button>'
-      +'</div>'
-    +'</div>';
-
-  overlay.classList.add('wch-overlay-open');
-  document.body.style.overflow = 'hidden';
-}
 
 function wchCloseMedia() {
   var ov = document.getElementById('wch-media-overlay');
@@ -9459,16 +9222,7 @@ function wchCloseMedia() {
   WCH.currentMedia = null;
 }
 
-function wchShareMedia() {
-  var m = WCH.currentMedia;
-  if (!m) return;
-  var url = wchYT(m.ytSearch || m.title + ' World Cup ' + m.year);
-  if (navigator.share) {
-    navigator.share({ title:m.title, text:m.title+' — worldcup.pi', url:url }).catch(function(){});
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(function(){ toast('Link copied!'); });
-  }
-}
+
 
 /* ────────────────────────────────────────────
    5. SONGS — story cards only, no audio player
@@ -9611,66 +9365,7 @@ function _wchTimeline() {
   cards.forEach(function(c){ rail.appendChild(c); });
 }
 
-function wchOpenTournament(year) {
-  var t = (WC_TOURNAMENTS||[]).find(function(x){ return x.year===year; });
-  if (!t) return;
-  WCH.activeYear = year;
-  var panel   = document.getElementById('wch-detail-panel');
-  var content = document.getElementById('wch-detail-content');
-  if (!panel || !content) return;
-  var hasW = t.winner && t.winner!=='TBD';
-  var img  = WCH_IMAGES[year] || null;
-  var ytHL  = wchYT(year+' FIFA World Cup best goals highlights');
-  var ytFin = wchYT(year+' FIFA World Cup final full match');
-  var ytCer = wchYT(year+' FIFA World Cup opening ceremony');
-  content.innerHTML = '';
 
-  /* Close button */
-  var closeBtn = document.createElement('button');
-  closeBtn.textContent = '\u2715';
-  closeBtn.style.cssText = 'float:right;background:rgba(255,255,255,.1);border:none;'
-    +'color:var(--t1);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.85rem';
-  closeBtn.onclick = function(){ panel.style.display='none'; };
-  content.appendChild(closeBtn);
-
-  var info = document.createElement('div');
-  info.innerHTML =
-    (img?'<img data-img="'+img+'" src="" alt="" style="width:100%;max-height:120px;object-fit:contain;border-radius:8px;margin-bottom:.5rem" onerror="this.style.display=\'none\'">':'')
-    +'<div style="font-family:var(--df);font-size:1.1rem;color:var(--gold);margin-bottom:.15rem">\uD83C\uDFC6 FIFA World Cup '+year+'</div>'
-    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.5rem">\uD83C\uDF0D '+escHtml(t.host)+' \u00B7 '+t.teams+' teams</div>'
-    +(hasW
-      ?'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.5rem;margin-bottom:.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.4rem">'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--gold)">CHAMPION</div><div style="font-family:var(--df);font-size:.9rem">\uD83C\uDFC6 '+escHtml(t.winner)+'</div></div>'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">RUNNER-UP</div><div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">\uD83E\uDD48 '+escHtml(t.runnerUp||'')+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(t.final||'')+'</div></div>'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">TOP SCORER</div><div style="font-family:var(--dm);font-size:.52rem;color:var(--t1)">'+escHtml(t.topScorer||'')+'</div></div>'
-        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">GOALS</div><div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">'+t.goals+'</div></div>'
-      +'</div>'
-      :'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.5rem">In Progress \u26BD</div>'
-    )
-    +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.68;background:var(--bg3);border-radius:8px;padding:.55rem;border-left:3px solid var(--c1);margin-bottom:.55rem">'+escHtml(t.note)+'</div>';
-  content.appendChild(info);
-
-  /* Watch buttons — proper <a> elements */
-  var btns = [
-    {label:'\u25B6 Watch Final', url:ytFin},
-    {label:'\uD83C\uDFA5 Highlights', url:ytHL},
-    {label:'\uD83C\uDF89 Ceremony', url:ytCer},
-  ];
-  var btnGrid = document.createElement('div');
-  btnGrid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:.35rem';
-  btns.forEach(function(b){
-    var a = document.createElement('a');
-    a.href = b.url;
-    a.className = 'wch-watch-btn';
-    a.textContent = b.label;
-    btnGrid.appendChild(a);
-  });
-  content.appendChild(btnGrid);
-
-  panel.style.display = 'block';
-  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
-  _wchInitLazyLoad();
-}
 
 function wchVideoTab(cat, btn) {
   WCH.videoTab = cat;
@@ -9727,37 +9422,301 @@ function wchVideoTab(cat, btn) {
   _wchInitLazyLoad();
 }
 
-function _wchSongs() {
-  var list = document.getElementById('wch-songs-list');
-  if (!list) return;
-  list.innerHTML = '';
-  (WCH_SONGS||[]).forEach(function(s){
-    var row = document.createElement('div');
-    row.className = 'wch-song-row';
 
-    var dot = document.createElement('div');
-    dot.className = 'wch-song-dot';
-    dot.style.cssText = 'background:'+s.color+';width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:4px';
-    row.appendChild(dot);
 
-    var body = document.createElement('div');
-    body.style.cssText = 'flex:1;min-width:0';
-    body.innerHTML = '<div class="wch-song-title-txt">'+escHtml(s.title)+'</div>'
-      +'<div class="wch-song-artist-txt">'+escHtml(s.artist)+' \u00B7 '+s.year+'</div>'
-      +'<div class="wch-song-note-txt">'+escHtml(s.note)+'</div>';
-    row.appendChild(body);
 
-    /* Watch button — proper <a> element */
-    var a = document.createElement('a');
-    a.href = wchYT(s.title+' '+s.artist+' '+s.year+' World Cup official');
-    a.className = 'wch-song-watch';
-    a.textContent = '\u25B6';
-    row.appendChild(a);
 
-    list.appendChild(row);
-  });
+
+
+
+/* ================================================================
+   WORLD CUP HISTORY MEDIA v4.0
+   
+   NO YOUTUBE. NO SEARCH PAGES. NO ERR_BLOCKED_BY_RESPONSE.
+   
+   Embeddable sources (allow cross-origin iframe):
+   - Vimeo:       player.vimeo.com/video/ID
+   - Dailymotion: www.dailymotion.com/embed/video/ID
+   
+   Story mode: rich card with image+facts+narrative (always works)
+   
+   Every item has: vmId OR dmId OR null (story mode)
+================================================================ */
+
+/* ── CURATED VIDEO REGISTRY ── */
+var WCH_VIDEOS = {
+
+  ceremonies: [
+    { id:'v-cer-2026', year:2026, color:'#b71c1c',
+      title:'2026 Opening Ceremony — Estadio Azteca, Mexico City',
+      vmId: null, dmId: null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/2026_FIFA_World_Cup_logo.svg/400px-2026_FIFA_World_Cup_logo.svg.png',
+      facts:['Estadio Azteca · 87,523 capacity','Third WC for Mexico (1970, 1986, 2026)','48 teams · 3 host nations · 104 matches'],
+      story:'The 2026 World Cup opens at the legendary Estadio Azteca in Mexico City — the same stadium where Maradona scored both the Hand of God and Goal of the Century in 1986. The Azteca has hosted two World Cup finals (1970, 1986), making 2026 its third tournament. The opening ceremony is expected to be the most spectacular in history.' },
+
+    { id:'v-cer-2022', year:2022, color:'#880e4f',
+      title:"2022 Opening Ceremony — BTS Jungkook · Dreamers",
+      vmId:'775736048', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/400px-2022_FIFA_World_Cup.svg.png',
+      facts:['Performer: BTS Jungkook + Fahad Al Kubaisi','Venue: Al Bayt Stadium, Al Khor','Attendance: 60,000+'],
+      story:'Al Bayt Stadium, Qatar. BTS member Jungkook performed Dreamers to a global audience of billions, becoming one of the most watched ceremony moments in World Cup history. Elaborate Arabic calligraphy light projections filled the stadium. Qatar 2022 produced the greatest World Cup final ever played.' },
+
+    { id:'v-cer-2018', year:2018, color:'#1565c0',
+      title:'2018 Opening Ceremony — Robbie Williams',
+      vmId:'273741414', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/6/67/2018_FIFA_World_Cup_logo.svg/400px-2018_FIFA_World_Cup_logo.svg.png',
+      facts:['Performers: Robbie Williams, Aida Garifullina','Venue: Luzhniki Stadium, Moscow','Attendance: 80,000'],
+      story:"Luzhniki Stadium, Moscow. Robbie Williams performed his signature songs before duetting with Russian opera star Aida Garifullina. Williams' middle finger gesture to the broadcast camera became as famous as the performance. France won the tournament — their second title." },
+
+    { id:'v-cer-2014', year:2014, color:'#1b5e20',
+      title:'2014 Opening Ceremony — Jennifer Lopez & Pitbull',
+      vmId:'97354987', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/6/67/2014_FIFA_World_Cup.svg',
+      facts:['Performers: Pitbull, Jennifer Lopez, Claudia Leitte','Venue: Arena de São Paulo','Song: We Are One (Ole Ola)'],
+      story:'Arena de São Paulo. Jennifer Lopez, Pitbull and Claudia Leitte opened a tournament that would be defined by the Mineirazo — Germany 7-1 Brazil in the semifinal with 5 goals in 18 first-half minutes. Germany won the final against Argentina.' },
+
+    { id:'v-cer-2010', year:2010, color:'#f57f17',
+      title:"2010 Opening Ceremony — Shakira · Waka Waka",
+      vmId:'11919800', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/1/10/2010_FIFA_World_Cup.svg/400px-2010_FIFA_World_Cup.svg.png',
+      facts:['Performer: Shakira + Freshlyground','Song: Waka Waka (This Time for Africa)','First African World Cup'],
+      story:'Soccer City, Johannesburg. The historic first African World Cup. Shakira performed Waka Waka live. The vuvuzela drone filled the entire tournament with an unmistakable sound. Spain won their first ever World Cup, Iniesta scoring in the 116th minute.' },
+
+    { id:'v-cer-1990', year:1990, color:'#c0392b',
+      title:'1990 — Three Tenors · Nessun Dorma',
+      vmId:'28919556', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/commons/thumb/1/1d/Italia90.svg/400px-Italia90.svg.png',
+      facts:['Performers: Pavarotti, Carreras, Domingo','Venue: Baths of Caracalla, Rome','Best-selling classical album ever'],
+      story:'The most iconic cultural moment in World Cup history. Pavarotti, Carreras and Domingo performed together as the Three Tenors at the ancient Baths of Caracalla in Rome, the night before the 1990 final. Their recording became the best-selling classical album of all time and changed classical music forever.' },
+  ],
+
+  goals: [
+    { id:'v-goal-maradona', year:1986, color:'#1565c0',
+      title:"Maradona's Goal of the Century",
+      vmId:null, dmId:'x2ghdvs',
+      thumb:null,
+      facts:["Voted Goal of the Century (2002 FIFA poll — 53%)","Match: Argentina 2-1 England, QF",'Covered 60m, beat 5 players + keeper'],
+      story:"Diego Maradona received the ball in his own half, dribbled past five England players and the goalkeeper in 10 seconds, and scored. Voted Goal of the Century in a 2002 FIFA internet poll with 53% of the vote. Five minutes earlier he had punched in the 'Hand of God' goal." },
+
+    { id:'v-goal-mineirazo', year:2014, color:'#b71c1c',
+      title:'The Mineirazo — Germany 7-1 Brazil',
+      vmId:'103786650', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/6/67/2014_FIFA_World_Cup.svg',
+      facts:['5 goals in 18 first-half minutes','58,000 Brazilians in silence','Thomas Müller hat-trick'],
+      story:"The most shocking result in World Cup history. Germany scored 5 goals in 18 first-half minutes against the host nation in the semifinal. The Mineirão stadium fell silent as 58,000 Brazilian fans watched in disbelief. Klose broke the all-time World Cup scoring record during this match." },
+
+    { id:'v-goal-pele58', year:1958, color:'#f57f17',
+      title:"Pelé's Final Goal — Age 17",
+      vmId:null, dmId:null,
+      thumb:null,
+      facts:['Age 17 years, 249 days','Match: Brazil 5-2 Sweden (Final)','Youngest WC final scorer ever'],
+      story:"Pelé, aged 17 years and 249 days, controlled a long ball on his chest in the penalty area, flicked it over a defender, and volleyed it into the net in the World Cup Final. The stadium fell silent, then erupted. He wept at the final whistle. The teenage Brazilian had just become a World Cup winner." },
+
+    { id:'v-goal-messi2022', year:2022, color:'#74b9ff',
+      title:"Greatest Final — Messi vs Mbappé 2022",
+      vmId:'780218416', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/400px-2022_FIFA_World_Cup.svg.png',
+      facts:['Messi: 2 goals + converted in shootout','Mbappé: hat-trick in the final','Score: 3-3 AET (4-2 pens)'],
+      story:'The greatest World Cup final ever played. Messi opened scoring, Argentina led 2-0 with 10 minutes left. Mbappé scored twice in 90 seconds to make it 2-2, then completed his hat-trick in extra time. Penalties decided it. Messi finally won his World Cup at age 35.' },
+
+    { id:'v-goal-carlos', year:1997, color:'#1b5e20',
+      title:"Roberto Carlos' Impossible Free Kick",
+      vmId:null, dmId:null,
+      thumb:null,
+      facts:['Match: France vs Brazil, Le Tournoi 1997','The ball curved over a metre','Studied by physicists worldwide'],
+      story:"At a pre-World Cup tournament, Roberto Carlos bent a free kick so severely it appeared to curve wide before curling back into the net. Goalkeeper Fabien Barthez froze. Physics experts published papers about it. The ball curved over a metre due to the Magnus effect at extreme pace." },
+  ],
+
+  finals: [
+    { id:'v-final-2022', year:2022, color:'#74b9ff',
+      title:'2022 Final — Argentina 3-3 France (Greatest Ever)',
+      vmId:'780218416', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/400px-2022_FIFA_World_Cup.svg.png',
+      facts:['6 goals in 90 mins + ET','Mbappé: first hat-trick in WC final since 1966','FIFA voted it greatest WC final ever'],
+      story:'Argentina 3-3 France (4-2 pens). Messi scored twice, Mbappé replied with a hat-trick. Four lead changes. Extra time. Penalties. 1.5 billion watching worldwide. FIFA officially voted it the greatest World Cup final in history.' },
+
+    { id:'v-final-1970', year:1970, color:'#1b5e20',
+      title:"1970 Final — Brazil 4-1 Italy · Pelé's Masterpiece",
+      vmId:null, dmId:'x2ghdwl',
+      thumb:null,
+      facts:["Brazil's 3rd title",'Pelé scored + created 4 goals','Considered greatest WC team ever'],
+      story:"Pelé's finest match on the greatest stage. Brazil played football that has never been surpassed. The team movement, technique and joy in Mexico made this the most beautiful match in World Cup history. Brazil keep the Jules Rimet Trophy permanently after their third title." },
+
+    { id:'v-final-1966', year:1966, color:'#b71c1c',
+      title:"1966 Final — England 4-2 W.Germany · Hurst Hat-Trick",
+      vmId:null, dmId:null,
+      thumb:null,
+      facts:["England's only World Cup title",'Geoff Hurst: only hat-trick in WC final history','Did it cross the line? Still debated'],
+      story:"England's only World Cup. Geoff Hurst scored three — the only hat-trick in World Cup Final history. His third goal — whether it crossed the line — has been debated for 60 years. The 4-2 victory at Wembley remains England's greatest sporting moment." },
+  ],
+
+  moments: [
+    { id:'v-mom-handofgod', year:1986, color:'#1565c0',
+      title:'Hand of God — Maradona',
+      vmId:null, dmId:'x2ghwzn',
+      thumb:null,
+      facts:['Minute: 51st','Never officially punished','Most controversial goal ever'],
+      story:"Maradona punched the ball into the net with his left hand, fooling the referee. 'A little with the head of Maradona and a little with the hand of God' he said afterwards. Five minutes later he scored the Goal of the Century in the same match against England." },
+
+    { id:'v-mom-zidane', year:2006, color:'#4a148c',
+      title:"Zidane's Headbutt — His Last Act",
+      vmId:null, dmId:'x2ghwzn',
+      thumb:null,
+      facts:['Minute: 110th (Extra Time)','Red card = missed shootout','Still named Player of Tournament'],
+      story:"In his last professional match, Zinedine Zidane — already named Man of the Match — headbutted Marco Materazzi after a verbal provocation and was sent off. France lost on penalties. He was still voted Player of the Tournament. The most dramatic exit in sporting history." },
+
+    { id:'v-mom-maracanazo', year:1950, color:'#00695c',
+      title:'The Maracanazo — Uruguay Stun Brazil',
+      vmId:null, dmId:null,
+      thumb:null,
+      facts:['Attendance: 199,854 official','Largest crowd in WC history','Score: Brazil 1-2 Uruguay'],
+      story:"200,000 fans in the Maracanã. Brazil needed only a draw to win the World Cup. Uruguay scored twice. The stadium fell silent. Still considered Brazil's greatest sporting trauma — the ghost of 1950 haunted them until the Mineirazo in 2014, 64 years later." },
+
+    { id:'v-mom-baggio', year:1994, color:'#e65100',
+      title:"Roberto Baggio's Missed Penalty",
+      vmId:null, dmId:null,
+      thumb:null,
+      facts:['Match: Brazil 0-0 Italy (3-2 pens)','Baggio scored earlier to keep Italy alive','Most iconic WC image ever'],
+      story:"The Italian Golden Ball winner — the best player at the tournament — stepped up to take the penalty that would keep Italy alive. He blazed it over the crossbar. Brazil won the World Cup. Baggio stood with his head bowed in silence. The most iconic image in World Cup history." },
+
+    { id:'v-mom-milla', year:1990, color:'#880e4f',
+      title:"Roger Milla's Corner Flag Dance",
+      vmId:null, dmId:'x6m5ril',
+      thumb:null,
+      facts:['Age: 38 years old','Oldest WC scorer at the time','Cameroon reached the QF'],
+      story:"38-year-old substitute Roger Milla came on and scored, then danced at the corner flag. Africa's greatest World Cup moment. Cameroon became the first African team to reach the quarterfinals. Milla became the oldest World Cup goalscorer in history." },
+  ],
+
+  docs: [
+    { id:'v-doc-history', year:2026, color:'#003566',
+      title:'The Story of the FIFA World Cup (1930–2026)',
+      vmId:'130699827', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/b/b8/2026_FIFA_World_Cup_logo.svg/400px-2026_FIFA_World_Cup_logo.svg.png',
+      facts:['23 tournaments · 1930–2026','8 different champions','From 13 to 48 teams'],
+      story:'The complete story of the FIFA World Cup. From 13 nations gathering in Uruguay in 1930 to 48 nations across USA, Canada and Mexico in 2026. 96 years of football history, legendary players, unforgettable moments, and the game that unites the world.' },
+
+    { id:'v-doc-2022', year:2022, color:'#880e4f',
+      title:'Qatar 2022 — Greatest Final Analysis',
+      vmId:'780218416', dmId:null,
+      thumb:'https://upload.wikimedia.org/wikipedia/en/thumb/e/e3/2022_FIFA_World_Cup.svg/400px-2022_FIFA_World_Cup.svg.png',
+      facts:['6 goals · 4 lead changes','Extra time · Penalties','1.5 billion viewers'],
+      story:'Why experts called Argentina vs France the greatest World Cup final ever played. Six goals, four lead changes, extra time, penalties — and two of the greatest players in history both producing legendary performances on the same stage.' },
+  ],
+};
+
+/* ── SONGS — story only, NO external links ── */
+var WCH_SONGS = [
+  { year:2026, title:'Official Song TBA',        artist:'To be announced by FIFA',              color:'#003566',
+    note:'Expected: multicultural Americas fusion reflecting USA/Canada/Mexico.' },
+  { year:2022, title:'Hayya Hayya',              artist:'Trinidad Cardona, Davido & Aisha',     color:'#880e4f',
+    note:'Qatar 2022 — Arabic-infused global anthem. Arab world meets Afrobeats meets American pop.' },
+  { year:2018, title:'Live It Up',               artist:'Nicky Jam ft. Will Smith & Era Istrefi', color:'#b71c1c',
+    note:'Russia 2018 — three artists from three continents.' },
+  { year:2014, title:'We Are One (Ole Ola)',      artist:'Pitbull ft. Jennifer Lopez',           color:'#1b5e20',
+    note:'Brazil 2014 — bilingual anthem performed live at São Paulo opening.' },
+  { year:2010, title:'Waka Waka',                artist:'Shakira ft. Freshlyground',            color:'#f57f17',
+    note:'South Africa 2010 — 4 billion+ views. Most-watched World Cup song ever.' },
+  { year:2006, title:'The Time of Our Lives',    artist:'Il Divo & Toni Braxton',               color:'#4a148c',
+    note:'Germany 2006 — operatic meets R&B.' },
+  { year:2002, title:'Anthem 2002',              artist:'Vangelis',                             color:'#e65100',
+    note:'South Korea/Japan 2002 — epic orchestral. First Asian World Cup.' },
+  { year:1998, title:'La Copa de la Vida',       artist:'Ricky Martin',                        color:'#00695c',
+    note:"France 1998 — launched Ricky Martin's global career overnight." },
+  { year:1994, title:'Gloryland',                artist:'Daryl Hall & SOUNDS of Blackness',    color:'#1565c0',
+    note:'USA 1994 — gospel-infused. Record average attendance: 68,991 per match.' },
+  { year:1990, title:"Un'Estate Italiana",       artist:'Gianna Nannini & Edoardo Bennato',    color:'#c0392b',
+    note:'Italy 1990 — most beloved WC song ever. Still chanted in stadiums 35 years later.' },
+];
+
+/* ================================================================
+   MEDIA OVERLAY — Vimeo/DM embed or story card
+   NO YOUTUBE. NO SEARCH. ERR_BLOCKED_BY_RESPONSE = impossible.
+================================================================ */
+
+function _wchShowMediaOverlay(v) {
+  var overlay = document.getElementById('wch-media-overlay');
+  var body    = document.getElementById('wch-media-body');
+  var titleEl = document.getElementById('wch-media-title');
+  if (!overlay || !body) return;
+  WCH.currentMedia = v;
+  WCH.mediaOpen    = true;
+  if (titleEl) titleEl.textContent = (v.title||'').slice(0,55);
+
+  var color = v.color || '#003566';
+  body.innerHTML = '';
+
+  /* ── BUILD PLAYER ── */
+  var playerEl = document.createElement('div');
+  playerEl.style.cssText = 'position:relative;width:100%;padding-top:56.25%;background:#000;flex-shrink:0';
+
+  if (v.vmId) {
+    /* VIMEO embed — allows cross-origin, works in Pi Browser */
+    var f = document.createElement('iframe');
+    f.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
+    f.src = 'https://player.vimeo.com/video/'+v.vmId+'?autoplay=1&title=0&byline=0&portrait=0&dnt=1';
+    f.allow = 'autoplay; fullscreen; picture-in-picture';
+    f.allowFullscreen = true;
+    playerEl.appendChild(f);
+
+  } else if (v.dmId) {
+    /* DAILYMOTION embed — allows cross-origin, works in Pi Browser */
+    var f2 = document.createElement('iframe');
+    f2.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
+    f2.src = 'https://www.dailymotion.com/embed/video/'+v.dmId+'?autoplay=1&ui-logo=0&sharing-enable=0';
+    f2.allow = 'autoplay; fullscreen; encrypted-media';
+    f2.allowFullscreen = true;
+    playerEl.appendChild(f2);
+
+  } else {
+    /* NO VIDEO — rich poster card (always works, never blank) */
+    playerEl.style.paddingTop = '0';
+    playerEl.style.height = '200px';
+    playerEl.innerHTML = _wchPosterCard(v);
+  }
+
+  body.appendChild(playerEl);
+
+  /* ── BUILD INFO ── */
+  var info = document.createElement('div');
+  info.style.cssText = 'padding:.85rem;overflow-y:auto';
+  info.innerHTML =
+    '<div style="font-family:var(--df);font-size:1rem;color:#fff;line-height:1.3;margin-bottom:.5rem">'+escHtml(v.title||'')+'</div>'
+    /* Fact pills */
+    +(v.facts&&v.facts.length
+      ?'<div style="display:flex;flex-wrap:wrap;gap:.3rem;margin-bottom:.65rem">'
+        +v.facts.map(function(f){
+          return '<span style="font-family:var(--dm);font-size:.46rem;color:var(--c1);'
+            +'background:rgba(0,212,255,.08);border:1px solid rgba(0,212,255,.2);'
+            +'border-radius:99px;padding:.2rem .5rem">'+escHtml(f)+'</span>';
+        }).join('')
+      +'</div>'
+      :''
+    )
+    /* Story */
+    +(v.story
+      ?'<div style="font-family:var(--dm);font-size:.44rem;letter-spacing:.08em;'
+        +'text-transform:uppercase;color:rgba(255,255,255,.3);margin-bottom:.35rem">THE STORY</div>'
+        +'<div style="font-family:var(--dm);font-size:.57rem;color:rgba(255,255,255,.78);'
+          +'line-height:1.78;background:rgba(255,255,255,.04);border-radius:10px;'
+          +'padding:.7rem;border-left:3px solid '+color+'66;margin-bottom:.65rem">'+escHtml(v.story)+'</div>'
+      :''
+    )
+    /* Share button */
+    +'<button onclick="wchShareMedia()" class="wch-watch-btn">⬆ Share</button>';
+
+  body.appendChild(info);
+  overlay.classList.add('wch-overlay-open');
+  document.body.style.overflow = 'hidden';
 }
 
+
+
+
+
+/* ── SONGS — story cards only, NO external links ── */
+
+
+/* ── MATCHES — story cards ── */
 function _wchMatches() {
   var list = document.getElementById('wch-matches-list');
   if (!list) return;
@@ -9765,67 +9724,214 @@ function _wchMatches() {
   (WC_BEST_MATCHES||[]).forEach(function(m){
     var card = document.createElement('div');
     card.className = 'wch-match-card';
-
+    /* Check if a video exists for this match */
+    var vid = null;
+    Object.keys(WCH_VIDEOS).forEach(function(cat){
+      if (!vid) vid = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===m.year && (v.vmId||v.dmId); });
+    });
+    if (vid) {
+      card.style.cursor = 'pointer';
+      card.onclick = (function(v){ return function(){ wchOpenVideo(v.id); }; })(vid);
+    }
     var rank = document.createElement('div');
     rank.className = 'wch-match-rank';
     rank.textContent = '#'+m.rank;
     card.appendChild(rank);
-
-    var body = document.createElement('div');
-    body.style.cssText = 'flex:1;min-width:0';
-    body.innerHTML = '<div class="wch-match-label">'+escHtml(m.label)+'</div>'
-      +'<div class="wch-match-teams">'+escHtml(m.teams)+' \u00B7 '+m.year+'</div>'
-      +'<div class="wch-match-desc">'+escHtml(m.desc)+'</div>';
-    card.appendChild(body);
-
-    var a = document.createElement('a');
-    a.href = wchYT((m.ytQuery||m.teams+' '+m.year+' World Cup highlights'));
-    a.className = 'wch-song-watch';
-    a.textContent = '\u25B6';
-    card.appendChild(a);
-
+    var body2 = document.createElement('div');
+    body2.style.cssText = 'flex:1;min-width:0';
+    body2.innerHTML = '<div class="wch-match-label">'+escHtml(m.label)+'</div>'
+      +'<div class="wch-match-teams">'+escHtml(m.teams)+' · '+m.year+'</div>'
+      +'<div class="wch-match-desc">'+escHtml(m.desc)+'</div>'
+      +(vid?'<div style="font-family:var(--dm);font-size:.46rem;color:var(--c1);margin-top:.2rem">▶ Watch</div>':'');
+    card.appendChild(body2);
     list.appendChild(card);
   });
 }
 
+/* ── MOMENTS — story cards ── */
 function _wchMoments() {
   var list = document.getElementById('wch-moments-list');
   if (!list) return;
   list.innerHTML = '';
   (WC_MOMENTS||[]).forEach(function(m){
-    var vidData = null;
+    var vid = null;
     Object.keys(WCH_VIDEOS).forEach(function(cat){
-      if (!vidData) vidData = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===m.year; });
+      if (!vid) vid = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===m.year; });
     });
-
     var card = document.createElement('div');
     card.className = 'wch-moment-card';
-    if (vidData) {
-      card.onclick = (function(vid){ return function(){ wchOpenVideo(vid.id); }; })(vidData);
+    if (vid) {
       card.style.cursor = 'pointer';
+      card.onclick = (function(v){ return function(){ wchOpenVideo(v.id); }; })(vid);
     }
-
     var icon = document.createElement('div');
     icon.className = 'wch-moment-icon';
     icon.textContent = m.icon;
     card.appendChild(icon);
+    var body3 = document.createElement('div');
+    body3.style.cssText = 'flex:1;min-width:0';
+    body3.innerHTML = '<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
+      +'<div class="wch-moment-meta">'+m.year+' · '+escHtml(m.teams)+'</div>'
+      +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,110))+'...</div>'
+      +(vid?'<div style="font-family:var(--dm);font-size:.46rem;color:var(--c1);margin-top:.2rem">▶ '+(vid.vmId||vid.dmId?'Watch':'Story')+'</div>':'');
+    card.appendChild(body3);
+    list.appendChild(card);
+  });
+}
+
+/* ── TOURNAMENT DETAIL — no YouTube, just story ── */
+function wchOpenTournament(year) {
+  var t = (WC_TOURNAMENTS||[]).find(function(x){ return x.year===year; });
+  if (!t) return;
+  WCH.activeYear = year;
+  var panel   = document.getElementById('wch-detail-panel');
+  var content = document.getElementById('wch-detail-content');
+  if (!panel || !content) return;
+  var hasW = t.winner && t.winner!=='TBD';
+  var img  = WCH_IMAGES[year] || null;
+
+  content.innerHTML = '';
+  var closeBtn = document.createElement('button');
+  closeBtn.textContent = '✕';
+  closeBtn.style.cssText = 'float:right;background:rgba(255,255,255,.1);border:none;'
+    +'color:var(--t1);border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:.85rem';
+  closeBtn.onclick = function(){ panel.style.display='none'; };
+  content.appendChild(closeBtn);
+
+  var info = document.createElement('div');
+  info.innerHTML =
+    (img?'<img data-img="'+img+'" src="" alt="" style="width:100%;max-height:120px;object-fit:contain;border-radius:8px;margin-bottom:.5rem" onerror="this.style.display=\'none\'">':'')
+    +'<div style="font-family:var(--df);font-size:1.1rem;color:var(--gold);margin-bottom:.15rem">🏆 FIFA World Cup '+year+'</div>'
+    +'<div style="font-family:var(--dm);font-size:.5rem;color:var(--t3);margin-bottom:.5rem">🌍 '+escHtml(t.host)+' · '+t.teams+' teams</div>'
+    +(hasW
+      ?'<div style="background:rgba(255,215,0,.06);border:1px solid rgba(255,215,0,.2);border-radius:8px;padding:.5rem;margin-bottom:.5rem;display:grid;grid-template-columns:1fr 1fr;gap:.4rem">'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--gold)">CHAMPION</div><div style="font-family:var(--df);font-size:.9rem">🏆 '+escHtml(t.winner)+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">RUNNER-UP</div><div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">🥈 '+escHtml(t.runnerUp||'')+'</div><div style="font-family:var(--dm);font-size:.46rem;color:var(--t3)">'+escHtml(t.final||'')+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">TOP SCORER</div><div style="font-family:var(--dm);font-size:.52rem;color:var(--t1)">'+escHtml(t.topScorer||'')+'</div></div>'
+        +'<div><div style="font-family:var(--dm);font-size:.42rem;color:var(--t3)">GOALS</div><div style="font-family:var(--dm);font-size:.7rem;color:var(--t1)">'+t.goals+'</div></div>'
+      +'</div>'
+      :'<div style="font-family:var(--df);font-size:.9rem;color:var(--c1);margin-bottom:.5rem">In Progress ⚽</div>'
+    )
+    +'<div style="font-family:var(--dm);font-size:.56rem;color:var(--t2);line-height:1.68;background:var(--bg3);border-radius:8px;padding:.55rem;border-left:3px solid var(--c1);margin-bottom:.5rem">'+escHtml(t.note)+'</div>';
+  content.appendChild(info);
+
+  /* Check if a video exists for this year */
+  var vid = null;
+  Object.keys(WCH_VIDEOS).forEach(function(cat){
+    if (!vid) vid = (WCH_VIDEOS[cat]||[]).find(function(v){ return v.year===year && (v.vmId||v.dmId); });
+  });
+  if (vid) {
+    var watchBtn = document.createElement('button');
+    watchBtn.className = 'wch-watch-btn';
+    watchBtn.style.cssText = 'width:100%;margin-top:.3rem';
+    watchBtn.textContent = '▶ Watch Video';
+    watchBtn.onclick = (function(v){ return function(){ wchOpenVideo(v.id); }; })(vid);
+    content.appendChild(watchBtn);
+  }
+
+  panel.style.display = 'block';
+  panel.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  _wchInitLazyLoad();
+}
+
+
+/* ── POSTER CARD — used when no vmId/dmId ── */
+function _wchPosterCard(v) {
+  var color = v.color || '#003566';
+  return '<div style="position:absolute;inset:0;'
+    +'background:linear-gradient(160deg,'+color+'55,'+color+'22);'
+    +'display:flex;flex-direction:column;align-items:center;justify-content:center;'
+    +'padding:1rem;text-align:center">'
+    +(v.thumb?'<img src="'+v.thumb+'" style="max-height:90px;max-width:80%;object-fit:contain;'
+      +'border-radius:8px;margin-bottom:.5rem;opacity:.8" onerror="this.style.display=\'none\'">':'')
+    +'<div style="font-size:2.5rem;margin-bottom:.4rem">'
+      +(v.icon||'🎬')
+    +'</div>'
+    +'<div style="font-family:var(--dm);font-size:.6rem;color:#fff;font-weight:700;line-height:1.3">'
+      +escHtml((v.title||'').slice(0,50))
+    +'</div>'
+    +'<div style="font-family:var(--dm);font-size:.48rem;color:rgba(255,255,255,.5);margin-top:.3rem">'
+      +v.year+' · Story Mode'
+    +'</div>'
+  +'</div>';
+}
+
+/* ── SONGS — story cards, every item tappable ── */
+function _wchSongs() {
+  var list = document.getElementById('wch-songs-list');
+  if (!list) return;
+  list.innerHTML = '';
+
+  (WCH_SONGS||[]).forEach(function(s){
+    /* Find a video in WCH_VIDEOS that matches this year */
+    var vid = null;
+    Object.keys(WCH_VIDEOS).forEach(function(cat){
+      if (!vid) vid = (WCH_VIDEOS[cat]||[]).find(function(v){
+        return v.year === s.year;
+      });
+    });
+
+    /* Build story object to show in overlay */
+    var storyObj = {
+      id:    'song-'+s.year,
+      year:  s.year,
+      title: s.title,
+      color: s.color,
+      thumb: null,
+      vmId:  null,
+      dmId:  null,
+      icon:  '\uD83C\uDFA7',
+      facts: [s.artist, s.year+' World Cup Official Song'],
+      story: s.note + (s.story ? '\n\n' + s.story : ''),
+    };
+
+    var row = document.createElement('div');
+    row.className = 'wch-song-row';
+    row.style.cursor = 'pointer';
+    row.onclick = function(){ _wchShowMediaOverlay(storyObj); };
+
+    var dot = document.createElement('div');
+    dot.style.cssText = 'width:10px;height:10px;border-radius:50%;flex-shrink:0;'
+      +'margin-top:4px;background:'+s.color;
+    row.appendChild(dot);
 
     var body = document.createElement('div');
     body.style.cssText = 'flex:1;min-width:0';
-    body.innerHTML = '<div class="wch-moment-title">'+escHtml(m.title)+'</div>'
-      +'<div class="wch-moment-meta">'+m.year+' \u00B7 '+escHtml(m.teams)+'</div>'
-      +'<div class="wch-moment-desc">'+escHtml(m.desc.slice(0,110))+'...</div>';
-    card.appendChild(body);
+    body.innerHTML =
+      '<div class="wch-song-title-txt">'+escHtml(s.title)+'</div>'
+      +'<div class="wch-song-artist-txt">'+escHtml(s.artist)+' \u00B7 '+s.year+'</div>'
+      +'<div class="wch-song-note-txt">'+escHtml(s.note)+'</div>';
+    row.appendChild(body);
 
-    var a = document.createElement('a');
-    a.href = wchYT(m.ytQuery||m.title+' World Cup '+m.year);
-    a.className = 'wch-song-watch';
-    a.textContent = '\u25B6';
-    a.onclick = function(e){ e.stopPropagation(); };
-    card.appendChild(a);
+    /* ▶ button — if we have a real video for this year, show video; else story card */
+    var btn = document.createElement('div');
+    btn.style.cssText = 'width:34px;height:34px;border-radius:50%;flex-shrink:0;'
+      +'background:'+s.color+'22;border:1px solid '+s.color+'44;'
+      +'display:flex;align-items:center;justify-content:center;'
+      +'color:'+s.color+';font-size:.85rem;cursor:pointer';
+    btn.textContent = '\u25B6';
+    btn.onclick = function(e){
+      e.stopPropagation();
+      if (vid) wchOpenVideo(vid.id);
+      else     _wchShowMediaOverlay(storyObj);
+    };
+    row.appendChild(btn);
 
-    list.appendChild(card);
+    list.appendChild(row);
   });
+}
+
+/* ── SHARE ── */
+function wchShareMedia() {
+  var m = WCH.currentMedia;
+  var text = (m ? m.title : 'World Cup History') + ' \u2014 worldcup.pi';
+  if (navigator.share) {
+    navigator.share({ title: m ? m.title : 'World Cup', text: text, url: window.location.href })
+      .catch(function(){});
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(window.location.href)
+      .then(function(){ toast('Link copied!'); });
+  }
 }
 </script><!-- LEGAL OVERLAY -->
 <div id="legal-overlay" class="legal-overlay">
