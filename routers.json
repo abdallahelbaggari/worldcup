@@ -24,6 +24,10 @@
     {
       "pattern": "/audio",
       "script": "functions/audio.js"
+    },
+    {
+      "pattern": "/video",
+      "script": "functions/video.js"
     }
   ]
 }
