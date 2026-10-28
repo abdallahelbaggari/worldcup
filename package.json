@@ -1,22 +1,11 @@
 {
   "name": "worldcup-pi",
-  "version": "3.0.0",
-  "description": "WorldCup — The #1 Football Fan Platform on Pi Network",
+  "version": "1.0.0",
   "private": true,
+  "type": "module",
+  "description": "WorldCup \u2014 Every Nation. Every Match. (Pi Network PWA on Cloudflare Pages)",
   "scripts": {
-    "build": "echo \"Static build\"",
-    "start": "echo \"Cloudflare Pages deployment\""
-  },
-  "engines": {
-    "node": "18"
-  },
-  "keywords": [
-    "pi-network",
-    "football",
-    "worldcup",
-    "mainnet",
-    "web3",
-    "sports"
-  ],
-  "license": "MIT"
+    "test:fd": "MOCK=fd node test/serve.mjs 8787",
+    "test:af": "MOCK=af node test/serve.mjs 8788"
+  }
 }
